@@ -19,8 +19,8 @@ try {
   });
   await page.goto(`${base}/behavioral-health-ehr/`, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Reject Non-Essential', exact: true }).click();
-  await page.getByRole('button', { name: 'Ask Elixir', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'Elixir assistant', exact: true });
+  await page.getByRole('button', { name: 'Ask Fitz', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Ask Fitz', exact: true });
   const send = async (text) => { await dialog.getByRole('textbox', { name: 'Your question', exact: true }).fill(text); await dialog.getByRole('button', { name: 'Send message', exact: true }).click(); };
   await send('Tell me about EHR implementation timing'); await firstStarted;
   await dialog.getByRole('button', { name: 'Request a demo', exact: true }).click();

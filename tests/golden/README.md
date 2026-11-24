@@ -1,6 +1,6 @@
 # AGENT-GENERATED - ORACLE REVIEW NEEDED
 
-`provider-questions.json` holds 10 hand-written provider-type questions for the Ask Elixir persona,
+`provider-questions.json` holds 10 hand-written provider-type questions for the Fitz persona,
 two per provider type the Home page funnel offers. They were written by an agent and have not yet
 been reviewed by the product owner (the oracle). Until that review, treat them as candidate
 expectations, not accepted ones.

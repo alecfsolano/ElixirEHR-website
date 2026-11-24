@@ -490,7 +490,7 @@
   text-underline-offset: 3px;
 }
 
-/* Inline Elixir AI: the tailored answer on Why Elixir and the question box on the last step. */
+/* Inline Fitz (the Elixir assistant): the tailored answer on Why Elixir and the question box on the last step. */
 .tailored,
 .qa {
   display: flex;

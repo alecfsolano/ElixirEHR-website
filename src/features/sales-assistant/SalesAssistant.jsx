@@ -78,9 +78,9 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
 
   const showCard = !state.pending && ['recommended', 'limit', 'fallback'].includes(cta.tone) && !(cta.tone === 'fallback' && state.error);
   return (
-    <dialog ref={dialog} className={styles.dialog} aria-label="Elixir assistant" onClose={onClose} onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <dialog ref={dialog} className={styles.dialog} aria-label="Ask Fitz" onClose={onClose} onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <header className={styles.header}>
-        <div><span className={styles.eyebrow}>LET’S FIND YOUR FIT</span><h2>Ask Elixir</h2><p>Answers for your organization</p></div>
+        <div><span className={styles.eyebrow}>LET’S FIND YOUR FIT</span><h2>Ask Fitz</h2><p>Answers for your organization</p></div>
         <button type="button" className={styles.close} aria-label="Close assistant" onClick={onClose}>×</button>
       </header>
       {!state.showReview && <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>}
@@ -90,7 +90,7 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
         {state.showReview ? <LeadReview state={state} mode={mode} onDraftChange={(field, value) => dispatch({ type: 'draft', field, value })} onBack={() => dispatch({ type: 'review', open: false })} /> : <>
           <div ref={transcript} className={styles.transcript} role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions">
             {state.messages.map((message, index) => <article key={index} className={message.role === 'user' ? styles.userMessage : styles.assistantMessage}>
-              <span className={styles.speaker}>{message.role === 'user' ? 'You' : 'Elixir assistant'}</span>
+              <span className={styles.speaker}>{message.role === 'user' ? 'You' : 'Fitz'}</span>
               <p>{message.content}</p>
               {message.citations?.length > 0 && <ul className={styles.sources}>{message.citations.map((source) => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a></li>)}</ul>}
             </article>)}

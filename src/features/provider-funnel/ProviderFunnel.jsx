@@ -106,7 +106,7 @@ function ProviderFunnel() {
     const opened = openAssistant(buildAssistantEventDetail(typeId, needIds));
     setAssistantNotice(
       opened
-        ? 'Opening the Elixir assistant with your question filled in. Nothing is sent until you send it.'
+        ? 'Opening Fitz with your question filled in. Nothing is sent until you send it.'
         : 'The assistant is not available right now. Book a discovery call and we will answer your questions directly.',
     );
   }
@@ -442,8 +442,8 @@ function TailoredAnswer({ inline, audience }) {
   return (
     <div className={styles.tailored} aria-live="polite">
       {inline.summaryReply ? (
-        <section className={styles.aiAnswer} aria-label="Tailored answer from Elixir AI">
-          <p className={styles.aiEyebrow}>Elixir AI · tailored for {audience}</p>
+        <section className={styles.aiAnswer} aria-label="Tailored answer from Fitz">
+          <p className={styles.aiEyebrow}>Fitz · tailored for {audience}</p>
           <p className={styles.aiText}>{inline.summaryReply.content}</p>
           <Sources citations={inline.summaryReply.citations} />
           <p className={styles.aiNote}>
@@ -465,9 +465,9 @@ function TailoredAnswer({ inline, audience }) {
           {issue && <DiscoveryFallback>{fallbackCopy(issue, 'this tailored')}</DiscoveryFallback>}
           <Button variant="outline" size="sm" onClick={inline.onSummary} disabled={inline.pending}>
             <Icon name="sparkle" size={18} />
-            {issue ? 'Try the tailored answer again' : 'Tailor this to my practice with Elixir AI'}
+            {issue ? 'Try the tailored answer again' : 'Tailor this to my practice with Fitz'}
           </Button>
-          <p className={styles.aiNote}>Sends your selections above to the Elixir assistant once. Please avoid patient information.</p>
+          <p className={styles.aiNote}>Sends your selections above to Fitz once. Please avoid patient information.</p>
         </>
       )}
     </div>
@@ -501,7 +501,7 @@ function InlineQuestions({ inline }) {
         <div className={styles.qaLog} role="log" aria-label="Your questions and answers" aria-live="polite">
           {inline.turns.map((turn) => (
             <div key={turn.index} className={turn.role === 'user' ? styles.qaQuestion : styles.qaAnswer}>
-              <span className={styles.qaSpeaker}>{turn.role === 'user' ? 'You' : 'Elixir AI'}</span>
+              <span className={styles.qaSpeaker}>{turn.role === 'user' ? 'You' : 'Fitz'}</span>
               <p>{turn.content}</p>
               {turn.role === 'assistant' && <Sources citations={turn.citations} />}
             </div>
@@ -517,7 +517,7 @@ function InlineQuestions({ inline }) {
       {!blocked && (
         <form className={styles.qaForm} onSubmit={submit}>
           <label htmlFor={fieldId} className={styles.qaLabel}>
-            Ask Elixir AI a question about your practice
+            Ask Fitz a question about your practice
           </label>
           <div className={styles.qaRow}>
             <input
@@ -548,7 +548,7 @@ function CloseStep({ type, needIds, onAsk, notice, inline, headingRef, headingId
         See it with your own workflows
       </StepHeading>
       <p className={styles.intro}>
-        A discovery call walks through Elixir against how your team actually works. Or ask the Elixir assistant a
+        A discovery call walks through Elixir against how your team actually works. Or ask Fitz a
         question first, starting from what you picked here.
       </p>
       <div className={styles.recap}>
@@ -565,7 +565,7 @@ function CloseStep({ type, needIds, onAsk, notice, inline, headingRef, headingId
         </Button>
         <Button variant="outline" size="lg" onClick={onAsk}>
           <Icon name="sparkle" size={20} />
-          Ask Elixir a question
+          Ask Fitz a question
         </Button>
       </div>
       <p className={styles.hint} role="status">

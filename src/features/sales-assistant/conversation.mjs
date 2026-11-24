@@ -1,13 +1,13 @@
 import { PROVIDER_TYPES, QUALIFICATION_FIELDS, safeSourcePath, safeProviderType, isExplicitDemoRequest } from '../../../api/shared/contract.mjs';
 
-export const WELCOME = 'Hi, I’m Ask Elixir, an automated assistant. Tell me a little about your organization and what you’d like to improve, and I’ll show you how Elixir approaches it.';
+export const WELCOME = 'Hi, I’m Fitz, Elixir’s automated assistant. Tell me a bit about your organization and I’ll help you find your fit.';
 // Opening lines when another part of the site opens the assistant with page context.
 export const PROVIDER_WELCOMES = {
-  'online-behavioral-health': 'Hi, I’m Ask Elixir, an automated assistant. Delivering behavioral health care online? What would you most like to improve first: intake and consent, documentation, or billing?',
-  'treatment-center': 'Hi, I’m Ask Elixir, an automated assistant. For treatment centers, the stretch between first call and admission is often where patients are lost. Where is your team feeling the most friction today?',
-  cybhi: 'Hi, I’m Ask Elixir, an automated assistant. Working on school-based behavioral health billing under the CYBHI fee schedule? Where are you today: enrolled, already claiming, or still planning?',
-  homecare: 'Hi, I’m Ask Elixir, an automated assistant. Running home care or home and community-based services? What causes the most friction today: EVV, authorizations, caregiver documentation or billing?',
-  'specialty-clinic': 'Hi, I’m Ask Elixir, an automated assistant. Running a specialty or outpatient clinic? What kind of practice are you, and what would you most like to improve?',
+  'online-behavioral-health': 'Hi, I’m Fitz, Elixir’s automated assistant. Delivering behavioral health care online? What would you most like to improve first: intake and consent, documentation, or billing?',
+  'treatment-center': 'Hi, I’m Fitz, Elixir’s automated assistant. For treatment centers, the stretch between first call and admission is often where patients are lost. Where is your team feeling the most friction today?',
+  cybhi: 'Hi, I’m Fitz, Elixir’s automated assistant. Working on school-based behavioral health billing under the CYBHI fee schedule? Where are you today: enrolled, already claiming, or still planning?',
+  homecare: 'Hi, I’m Fitz, Elixir’s automated assistant. Running home care or home and community-based services? What causes the most friction today: EVV, authorizations, caregiver documentation or billing?',
+  'specialty-clinic': 'Hi, I’m Fitz, Elixir’s automated assistant. Running a specialty or outpatient clinic? What kind of practice are you, and what would you most like to improve?',
 };
 export function welcomeFor(providerType) {
   return PROVIDER_WELCOMES[safeProviderType(providerType)] ?? WELCOME;

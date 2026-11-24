@@ -15,8 +15,8 @@ try {
   await page.route('**/*', (route) => route.request().url().startsWith(base) ? route.continue() : route.abort());
   await page.goto(`${base}/behavioral-health-ehr/?tracking=not-for-crm`, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Reject Non-Essential', exact: true }).click();
-  await page.getByRole('button', { name: 'Ask Elixir', exact: true }).click({ timeout: 10000 });
-  const dialog = page.getByRole('dialog', { name: 'Elixir assistant', exact: true });
+  await page.getByRole('button', { name: 'Ask Fitz', exact: true }).click({ timeout: 10000 });
+  const dialog = page.getByRole('dialog', { name: 'Ask Fitz', exact: true });
   await dialog.waitFor();
   await dialog.getByRole('textbox', { name: 'Your question', exact: true }).fill('What can Elixir help with?');
   await dialog.getByRole('button', { name: 'Send message', exact: true }).click();
@@ -28,7 +28,7 @@ try {
   await page.screenshot({ path: `${screenshotDir}/conversation-desktop.png` });
   await dialog.getByRole('button', { name: 'Close assistant', exact: true }).click();
   await page.evaluate(() => { window.history.pushState({}, '', '/why-elixir/'); window.dispatchEvent(new PopStateEvent('popstate')); });
-  await page.getByRole('button', { name: 'Ask Elixir', exact: true }).click();
+  await page.getByRole('button', { name: 'Ask Fitz', exact: true }).click();
   await dialog.getByRole('button', { name: 'Request a demo', exact: true }).click();
   await dialog.getByLabel('First name', { exact: true }).fill('Alex');
   await dialog.getByLabel('Last name', { exact: true }).fill('Sample');
@@ -58,7 +58,7 @@ try {
   await page.screenshot({ path: `${screenshotDir}/mobile.png` });
   assert.equal(await dialog.evaluate((node) => node.getBoundingClientRect().width <= window.innerWidth), true);
   await page.keyboard.press('Escape');
-  assert.equal(await page.getByRole('button', { name: 'Ask Elixir', exact: true }).evaluate((node) => node === document.activeElement), true);
+  assert.equal(await page.getByRole('button', { name: 'Ask Fitz', exact: true }).evaluate((node) => node === document.activeElement), true);
   assert.deepEqual(forbidden, []);
   assert.deepEqual(errors, []);
   console.log('PASS: desktop/mobile chat, qualification, draft preservation, refusal/reopt-in, navigation, review, focus, and zero external submissions.');
