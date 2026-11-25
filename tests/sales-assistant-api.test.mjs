@@ -81,6 +81,73 @@ test('one transient model failure is retried once; auth, rate-limit and timeout 
   }
 });
 
+test('a reply the structured mode cannot produce is recovered in plain-text mode', async () => {
+  const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
+  const reply = (content, finish = 'stop') => () => new Response(JSON.stringify({ choices: [{ finish_reason: finish, message: { content } }] }));
+  const plain = reply('ANSWER: Elixir can add revenue cycle to a clinical-only setup. What size is your organization?');
+  const rejected = (code) => () => new Response(JSON.stringify({ error: { message: 'private provider details', code } }), { status: 400 });
+  const cases = [
+    { name: 'provider rejected its own structured output', steps: [rejected('json_validate_failed'), plain], reason: 'http-400-json_validate_failed' },
+    { name: 'provider code outside the safe vocabulary is dropped', steps: [rejected('Secret: test-placeholder-key'), plain], reason: 'http-400' },
+    { name: 'empty content', steps: [reply(''), plain], reason: 'empty' },
+    { name: 'null content', steps: [reply(null), plain], reason: 'empty' },
+    { name: 'truncated JSON', steps: [reply('{"answer":"Eli', 'length'), plain], reason: 'truncated' },
+    { name: 'invalid JSON', steps: [reply('oops'), plain], reason: 'invalid-json' },
+    { name: 'blank answer', steps: [reply(JSON.stringify({ answer: ' ', citationIds: [] })), plain], reason: 'invalid-reply' },
+  ];
+  for (const { name, steps, reason } of cases) {
+    const sent = [];
+    const result = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async (url, options) => { sent.push(JSON.parse(options.body)); return steps[sent.length - 1](); } })(body);
+    assert.equal(result.status, 200, name);
+    assert.equal(result.body.answer, 'Elixir can add revenue cycle to a clinical-only setup. What size is your organization?', name);
+    assert.deepEqual(result.body.citations, [], name);
+    assert.equal(result.body.intent, 'explore', name);
+    assert.equal(result.headers['X-Assistant-Recovered'], reason, name);
+    assert.doesNotMatch(JSON.stringify(result), /private provider|test-placeholder/, name);
+    assert.equal(sent.length, 2, name);
+    assert.equal(sent[0].response_format.type, 'json_schema', name);
+    assert.equal(sent[1].response_format, undefined, name);
+    assert.match(sent[1].messages[0].content, /ANSWER:/, name);
+    assert.doesNotMatch(sent[1].messages[0].content, /Return a JSON object/, name);
+    assert.match(sent[1].messages[0].content, /Do not infer a license count from headcount/, name);
+    assert.deepEqual(sent[1].messages.slice(1), sent[0].messages.slice(1), name);
+  }
+});
+
+test('plain-text recovery accepts only a marked answer and reports why a reply failed', async () => {
+  const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
+  const reply = (content) => () => new Response(JSON.stringify({ choices: [{ message: { content } }] }));
+  const cases = [
+    { name: 'unmarked text', steps: [reply('oops'), reply('Thinking about what to say')], failed: 'invalid-json,unmarked' },
+    { name: 'marker with no answer', steps: [reply(''), reply('ANSWER:   ')], failed: 'empty,invalid-reply' },
+    { name: 'oversized answer', steps: [reply(''), reply(`ANSWER: ${'x'.repeat(4001)}`)], failed: 'empty,invalid-reply' },
+    { name: 'server down twice', steps: [() => new Response('down', { status: 500 }), () => new Response('down', { status: 500 })], failed: 'http-500,http-500' },
+    { name: 'dropped twice', steps: [() => { throw new Error('test-placeholder-key'); }, () => { throw new Error('x'); }], failed: 'network,network' },
+  ];
+  for (const { name, steps, failed } of cases) {
+    let made = 0;
+    const result = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async () => steps[made++]() })(body);
+    assert.equal(result.status, 503, name);
+    assert.equal(made, 2, name);
+    assert.equal(result.headers['X-Assistant-Failed'], failed, name);
+    assert.doesNotMatch(JSON.stringify(result), /test-placeholder|Thinking about/, name);
+  }
+  // A server error is retried in structured mode: the output format was not the problem.
+  const sent = [];
+  const steps = [() => new Response('down', { status: 500 }), reply(JSON.stringify({ answer: 'Hello', citationIds: ['ehr'] }))];
+  const ok = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async (url, options) => { sent.push(JSON.parse(options.body)); return steps[sent.length - 1](); } })(body);
+  assert.equal(ok.status, 200);
+  assert.equal(sent[1].response_format.type, 'json_schema');
+  assert.equal(ok.headers['X-Assistant-Recovered'], 'http-500');
+  // A first-time success carries no diagnostic header; a rate limit during recovery stays a 429.
+  const first = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async () => reply(JSON.stringify({ answer: 'Hello', citationIds: [] }))() })(body);
+  assert.equal(first.headers['X-Assistant-Recovered'], undefined);
+  let n = 0;
+  const limited = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async () => (n++ ? new Response('slow', { status: 429, headers: { 'retry-after': '9' } }) : reply('')()) })(body);
+  assert.equal(limited.status, 429);
+  assert.equal(limited.headers['Retry-After'], '9');
+});
+
 test('per-instance admission control limits repeated model calls', async () => {
   const fetchImpl = async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: 'Hello', citationIds: [] }) } }] }));
   const handler = createChatHandler({ env, knowledge, fetchImpl });

@@ -56,10 +56,17 @@ export function createChatHandler({ env = process.env, fetchImpl = fetch, knowle
     const perClient = clientLimiter.take(clientAddress(context.headers, { source: addressSource }));
     if (!perClient.allowed) return { ...failure(429, 'PLEASE_WAIT', 'You have reached the assistant’s message limit for now. You can book a discovery call on our Contact Us page.'), headers: { ...headers, 'Retry-After': perClient.retryAfter } };
     admissions++; dailyAdmissions++; inFlight++;
-    try { return { status: 200, headers, body: await model.complete(request, sources) }; }
+    // Safe reason codes only (see ModelAttemptError): the site keeps no server logs, so the response
+    // says why a first attempt failed and whether the second one recovered it.
+    const failedAttempts = [];
+    const diagnostic = (name) => (failedAttempts.length ? { ...headers, [name]: failedAttempts.join(',') } : headers);
+    try {
+      const reply = await model.complete(request, sources, { onAttemptFailed: (reason) => failedAttempts.push(reason) });
+      return { status: 200, headers: diagnostic('X-Assistant-Recovered'), body: reply };
+    }
     catch (error) {
       if (error instanceof ModelRateLimitError) return { ...failure(429, 'PLEASE_WAIT', 'The assistant has reached its request limit. Please wait and try again.'), headers: { ...headers, 'Retry-After': error.retryAfter } };
-      return failure(503, 'ASSISTANT_UNAVAILABLE', 'I couldn’t get a reply just now. Please try again or use Contact Us.');
+      return { ...failure(503, 'ASSISTANT_UNAVAILABLE', 'I couldn’t get a reply just now. Please try again or use Contact Us.'), headers: diagnostic('X-Assistant-Failed') };
     }
     finally { inFlight--; }
   };

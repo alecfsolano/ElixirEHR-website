@@ -112,6 +112,12 @@ Store the Groq credential in the **latest environment's encrypted backend applic
 
 `api/local.settings.example.json` gives the Azure Functions settings shape. Actual local settings and environment files are ignored by Git. For the standalone loopback runner, supply settings securely through the environment (or an ignored Node environment file) and use `npm run assistant:api`. The Vite dev server proxies `/api/chat` to `127.0.0.1:7071`. `ASSISTANT_API_PORT` may override the standalone listener; update the local proxy to match if needed.
 
+### When the model's reply fails
+
+A failed model call is tried once more. After a server error or dropped connection the same request is repeated. After a reply the structured mode could not produce (provider HTTP 400/422, empty, truncated or invalid JSON, or an invalid answer) the second call asks for plain text instead, under the same instructions and knowledge; only text that starts with the `ANSWER:` marker is shown, with no citations and no extracted facts. Rate limits, a rejected key and timeouts are not retried.
+
+The site keeps no server logs, so the `/api/chat` response carries a safe reason code: `X-Assistant-Recovered` on a reply the second call saved, `X-Assistant-Failed` on a 503 (both attempts, comma-separated). Codes: `empty`, `truncated`, `invalid-json`, `invalid-reply`, `unmarked`, `network`, `http-<status>` with the provider's own error identifier when it is a plain lower-case word. They never contain provider messages, credentials or visitor text. A 503 without the header is a timeout or a rejected key.
+
 Without complete configuration the handler returns an unavailable response, not a sample answer. Provider errors and credentials are not returned or logged. The request is bounded to 24 messages, 2,000 characters per user message and 18,000 total conversation characters; requests over 32 KB are rejected. The model call times out after 20 seconds. The browser sends recent bounded context plus structured qualification, while displaying the complete temporary conversation.
 
 ## Approved knowledge
