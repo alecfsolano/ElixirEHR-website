@@ -232,13 +232,14 @@ test('a call the per-worker cap turns away does not use up the visitor allowance
   const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-only-not-a-real-key', GROQ_MODEL: 'test-model' };
   const handler = createChatHandler({ env: groqEnv, clientLimiter: spy, fetchImpl: async () => { await pending; return modelReply(); } });
   const from = { headers: { 'x-azure-clientip': '203.0.113.5' } };
-  const first = handler(ask('Tell me about your EHR templates'), from);
+  // Groq serves three visitors at once per worker; the fourth is turned away as busy.
+  const first = [1, 2, 3].map(() => handler(ask('Tell me about your EHR templates'), from));
   const busy = await handler(ask('Tell me about your EHR templates'), from);
   assert.equal(busy.status, 429);
   assert.match(busy.body.error, /busy/);
-  assert.equal(takes, 1, 'the worker-cap rejection must not be counted against the client');
+  assert.equal(takes, 3, 'the worker-cap rejection must not be counted against the client');
   release();
-  assert.equal((await first).status, 200);
+  for (const result of await Promise.all(first)) assert.equal(result.status, 200);
 });
 
 test('the client address source is configurable', async () => {

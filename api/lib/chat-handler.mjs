@@ -9,6 +9,13 @@ const failure = (status, code, error) => ({ status, headers, body: { code, error
 
 export const GROQ_DAILY_CAP = 100;
 export const DEFAULT_DAILY_CAP = 300;
+// Per-worker admission limits. Groq's are lower because its free allowance is shared with other
+// demos; a rate-limited model hands the turn to a fallback model (hosted-model.mjs).
+const GROQ_PER_MINUTE = 10;
+const GROQ_CONCURRENT = 3;
+const AZURE_PER_MINUTE = 30;
+const AZURE_CONCURRENT = 4;
+const CONCURRENT_RETRY_SECONDS = 3;
 
 /** The most model calls one worker admits per day for the configured provider. */
 export function workerDailyCap(env = {}) {
@@ -52,7 +59,12 @@ export function createChatHandler({ env = process.env, fetchImpl = fetch, knowle
     if (Date.now() - dayStart >= 86400000) { dayStart = Date.now(); dailyAdmissions = 0; }
     const groq = env.ASSISTANT_PROVIDER === 'groq';
     const dailyFull = dailyAdmissions >= dailyCap;
-    if (admissions >= (groq ? 4 : 30) || inFlight >= (groq ? 1 : 4) || dailyFull) return { ...failure(429, 'PLEASE_WAIT', 'The assistant is busy. Please wait a moment and try again.'), headers: { ...headers, 'Retry-After': dailyFull ? '3600' : '60' } };
+    const busy = dailyFull ? 'day' : inFlight >= (groq ? GROQ_CONCURRENT : AZURE_CONCURRENT) ? 'concurrent' : admissions >= (groq ? GROQ_PER_MINUTE : AZURE_PER_MINUTE) ? 'minute' : null;
+    if (busy) {
+      // A short, honest wait lets the page wait it out instead of showing an error.
+      const retryAfter = busy === 'day' ? 3600 : busy === 'concurrent' ? CONCURRENT_RETRY_SECONDS : Math.max(1, Math.ceil((windowStart + 60000 - Date.now()) / 1000));
+      return { ...failure(429, 'PLEASE_WAIT', 'The assistant is busy. Please wait a moment and try again.'), headers: { ...headers, 'Retry-After': String(retryAfter) } };
+    }
     const perClient = clientLimiter.take(clientAddress(context.headers, { source: addressSource }));
     if (!perClient.allowed) return { ...failure(429, 'PLEASE_WAIT', 'You have reached the assistant’s message limit for now. You can book a discovery call on our Contact Us page.'), headers: { ...headers, 'Retry-After': perClient.retryAfter } };
     admissions++; dailyAdmissions++; inFlight++;
@@ -60,9 +72,10 @@ export function createChatHandler({ env = process.env, fetchImpl = fetch, knowle
     // says why a first attempt failed and whether the second one recovered it.
     const failedAttempts = [];
     const diagnostic = (name) => (failedAttempts.length ? { ...headers, [name]: failedAttempts.join(',') } : headers);
+    let answeredBy = 'primary';
     try {
-      const reply = await model.complete(request, sources, { onAttemptFailed: (reason) => failedAttempts.push(reason) });
-      return { status: 200, headers: diagnostic('X-Assistant-Recovered'), body: reply };
+      const reply = await model.complete(request, sources, { onAttemptFailed: (reason) => failedAttempts.push(reason), onModel: (label) => { answeredBy = label; } });
+      return { status: 200, headers: { ...diagnostic('X-Assistant-Recovered'), 'X-Assistant-Model': answeredBy }, body: reply };
     }
     catch (error) {
       if (error instanceof ModelRateLimitError) return { ...failure(429, 'PLEASE_WAIT', 'The assistant has reached its request limit. Please wait and try again.'), headers: { ...headers, 'Retry-After': error.retryAfter } };

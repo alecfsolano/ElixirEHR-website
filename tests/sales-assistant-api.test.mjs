@@ -300,20 +300,73 @@ test('draft website knowledge is available only with the explicit latest review 
   assert.equal(calls, 1);
 });
 
-test('Groq shared-quota protection rejects concurrent work and caps calls per worker', async () => {
-  let complete;
+test('Groq protection serves three visitors at once, caps calls per worker and says how long to wait', async () => {
+  const waiting = [];
   let calls = 0;
-  const handler = createChatHandler({ env: { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' }, knowledge, fetchImpl: async () => {
+  const handler = createChatHandler({ env: { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' }, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => {
     calls++;
-    if (calls === 1) await new Promise((resolve) => { complete = resolve; });
+    if (calls <= 3) await new Promise((resolve) => { waiting.push(resolve); });
     return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: 'Hello', citationIds: [] }) } }] }));
   } });
-  const pending = handler(body);
-  assert.equal((await handler(body)).status, 429);
-  assert.equal(calls, 1);
-  complete();
-  assert.equal((await pending).status, 200);
-  for (let n = 0; n < 3; n++) assert.equal((await handler(body)).status, 200);
-  assert.equal((await handler(body)).status, 429);
-  assert.equal(calls, 4);
+  const pending = [handler(body), handler(body), handler(body)];
+  await new Promise((resolve) => setImmediate(resolve));
+  const busy = await handler(body);
+  assert.equal(busy.status, 429);
+  assert.equal(busy.headers['Retry-After'], '3');
+  assert.equal(calls, 3);
+  waiting.forEach((resolve) => resolve());
+  for (const result of await Promise.all(pending)) assert.equal(result.status, 200);
+  for (let n = 3; n < 10; n++) assert.equal((await handler(body)).status, 200, `call ${n + 1}`);
+  const full = await handler(body);
+  assert.equal(full.status, 429);
+  assert.ok(Number(full.headers['Retry-After']) >= 1 && Number(full.headers['Retry-After']) <= 60, full.headers['Retry-After']);
+  assert.equal(calls, 10);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('a rate-limited, failing or slow model hands the turn to the configured fallback model', async () => {
+  const fallbackEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b', GROQ_FALLBACK_MODELS: 'openai/gpt-oss-120b' };
+  const good = () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: 'Hello from the fallback.', citationIds: [] }) } }] }));
+  const limited = (seconds) => () => new Response('limited', { status: 429, headers: { 'retry-after': String(seconds) } });
+  const down = () => new Response('down', { status: 500 });
+  const slow = () => { const error = new Error('slow'); error.name = 'TimeoutError'; throw error; };
+  const run = async (steps, env = fallbackEnv) => {
+    const sent = [];
+    const result = await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async (url, options) => { sent.push(JSON.parse(options.body)); return steps[sent.length - 1](); } })(body);
+    return { result, models: sent.map((payload) => payload.model), sent };
+  };
+  let { result, models } = await run([limited(7), good]);
+  assert.equal(result.status, 200);
+  assert.equal(result.body.answer, 'Hello from the fallback.');
+  assert.deepEqual(models, ['openai/gpt-oss-20b', 'openai/gpt-oss-120b']);
+  assert.equal(result.headers['X-Assistant-Model'], 'fallback-1');
+  assert.equal(result.headers['X-Assistant-Recovered'], 'rate-limited');
+  ({ result, models } = await run([down, down, good]));
+  assert.equal(result.status, 200);
+  assert.deepEqual(models, ['openai/gpt-oss-20b', 'openai/gpt-oss-20b', 'openai/gpt-oss-120b']);
+  assert.equal(result.headers['X-Assistant-Recovered'], 'http-500,http-500');
+  ({ result, models } = await run([slow, good]));
+  assert.equal(result.status, 200);
+  assert.equal(result.headers['X-Assistant-Recovered'], 'timeout');
+  ({ result, models } = await run([limited(9), limited(4)]));
+  assert.equal(result.status, 429);
+  assert.equal(result.headers['Retry-After'], '4');
+  assert.equal(models.length, 2);
+  ({ result, models } = await run([() => new Response('no', { status: 401 }), good]));
+  assert.equal(result.status, 503);
+  assert.deepEqual(models, ['openai/gpt-oss-20b']);
+  ({ result, models } = await run([good]));
+  assert.equal(result.headers['X-Assistant-Model'], 'primary');
+  // Without a fallback configured, a rate limit is returned as before.
+  ({ result, models } = await run([limited(5), good], { ...fallbackEnv, GROQ_FALLBACK_MODELS: '' }));
+  assert.equal(result.status, 429);
+  assert.deepEqual(models, ['openai/gpt-oss-20b']);
+  // Only well-formed, distinct model names are used; a non-GPT-OSS fallback gets JSON-object mode and no reasoning setting.
+  let sent;
+  ({ result, models, sent } = await run([limited(5), limited(5), good], { ...fallbackEnv, GROQ_FALLBACK_MODELS: 'openai/gpt-oss-20b, bad model!, openai/gpt-oss-120b , meta-llama/llama-4-scout-17b-16e-instruct' }));
+  assert.deepEqual(models, ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'meta-llama/llama-4-scout-17b-16e-instruct']);
+  assert.equal(result.headers['X-Assistant-Model'], 'fallback-2');
+  assert.equal(sent[1].reasoning_effort, 'low');
+  assert.equal(sent[2].response_format.type, 'json_object');
+  assert.equal(sent[2].reasoning_effort, undefined);
 });

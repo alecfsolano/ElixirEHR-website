@@ -31,9 +31,11 @@ class ModelConfigError extends Error {
 
 /** One failed model attempt. `reason` is a fixed, safe code: never provider text or visitor text. */
 class ModelAttemptError extends Error {
-  constructor(reason, { format = false } = {}) {
+  constructor(reason, { format = false, slow = false } = {}) {
     super('Model attempt failed.');
     this.reason = reason;
+    // The attempt timed out: a second attempt on the same model would not finish in time.
+    this.slow = slow;
     // The model answered, but not in the structured shape: asking the same way again often fails the same way.
     this.format = format;
   }
@@ -83,31 +85,52 @@ const PLAIN_REPLY_RULE = 'Reply with the word ANSWER: followed by your answer to
 
 const MODEL_TIMEOUT_MS = 20000;
 const MODEL_RETRY_DELAY_MS = 300;
+// The function host stops a request at 45 seconds; every model attempt must end before that.
+const TURN_DEADLINE_MS = 40000;
+const MIN_ATTEMPT_MS = 5000;
+const MODEL_NAME = /^[\w.:/-]{1,80}$/;
+const STRICT_MODELS = new Set(['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b']);
+
+/** The primary model, then each distinct, well-formed fallback from a comma-separated setting. */
+function modelChain(primary, fallbacks = '') {
+  const chain = [primary];
+  for (const name of String(fallbacks).split(',').map((item) => item.trim())) {
+    if (MODEL_NAME.test(name) && !chain.includes(name)) chain.push(name);
+  }
+  return chain;
+}
+
+/** A rate limit from the last model tried, waiting as little as any of the limited models asked. */
+function shortestLimit(limits) {
+  return limits.reduce((best, limit) => (Number(limit.retryAfter) < Number(best.retryAfter) ? limit : best));
+}
 
 export function createHostedModel({ env, fetchImpl = fetch }) {
   const provider = env.ASSISTANT_PROVIDER ?? 'azure';
-  let url, auth, model;
+  let url, auth, models;
   if (provider === 'groq') {
     if (!env.GROQ_API_KEY || !env.GROQ_MODEL) throw new Error('Missing model configuration.');
     url = 'https://api.groq.com/openai/v1/chat/completions';
     auth = { Authorization: `Bearer ${env.GROQ_API_KEY}` };
-    model = env.GROQ_MODEL;
+    // Each Groq model has its own request and token allowance, so a second model keeps Fitz
+    // answering when the first is rate-limited.
+    models = modelChain(env.GROQ_MODEL, env.GROQ_FALLBACK_MODELS);
   } else if (provider === 'azure') {
     const endpoint = new URL(env.AZURE_OPENAI_ENDPOINT);
     if (endpoint.protocol !== 'https:' || !/\.(openai\.azure\.com|services\.ai\.azure\.com)$/.test(endpoint.hostname) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash || endpoint.port) throw new Error('Invalid model endpoint configuration.');
     if (!env.AZURE_OPENAI_API_KEY || !env.AZURE_OPENAI_DEPLOYMENT) throw new Error('Missing model configuration.');
     url = `${endpoint.origin}/openai/v1/chat/completions`;
     auth = { 'api-key': env.AZURE_OPENAI_API_KEY };
-    model = env.AZURE_OPENAI_DEPLOYMENT;
+    models = [env.AZURE_OPENAI_DEPLOYMENT];
   } else throw new Error('Unsupported model provider.');
   const review = env.ASSISTANT_KNOWLEDGE_MODE === 'review' && env.ASSISTANT_REVIEW_ENVIRONMENT === 'latest';
   // GPT-OSS JSON-object mode can emit tool_use_failed even with no tools configured.
   // Its supported strict decoder constrains the reply to the application contract.
-  const strictReply = provider === 'groq' && ['openai/gpt-oss-20b', 'openai/gpt-oss-120b'].includes(model);
-  const responseFormat = strictReply ? { type: 'json_schema', json_schema: { name: 'elixir_sales_reply', strict: true, schema: replySchema } } : { type: 'json_object' };
+  const responseFormat = (model) => (provider === 'groq' && STRICT_MODELS.has(model) ? { type: 'json_schema', json_schema: { name: 'elixir_sales_reply', strict: true, schema: replySchema } } : { type: 'json_object' });
   return {
     // `onAttemptFailed` receives the safe reason code of each failed attempt.
-    async complete(request, sources, { onAttemptFailed = () => {} } = {}) {
+    async complete(request, sources, { onAttemptFailed = () => {}, onModel = () => {} } = {}) {
+      const deadline = Date.now() + TURN_DEADLINE_MS;
       const visitorTurns = request.messages.filter((message) => message.role === 'user').length;
       const pageContext = request.providerType ? PROVIDER_TYPES[request.providerType] : 'not provided';
       const instructions = (replyRule) => [
@@ -125,7 +148,7 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
         `Contact preference: ${request.contactPreference}. When declined, do not invite contact, ask for contact information or suggest a demo or discovery call. The application changes this preference only after a visitor-initiated request.`,
         `Knowledge data: ${JSON.stringify(sources.map(({ id, title, content }) => ({ id, title, content })))}`,
       ].join('\n');
-      const requestBody = (plain) => JSON.stringify({ model, messages: [{ role: 'system', content: instructions(plain ? PLAIN_REPLY_RULE : JSON_REPLY_RULE) }, ...request.messages], ...(plain ? {} : { response_format: responseFormat }), max_completion_tokens: 1200, ...(provider === 'groq' && model.startsWith('openai/gpt-oss-') ? { reasoning_effort: 'low' } : {}) });
+      const requestBody = (model, plain) => JSON.stringify({ model, messages: [{ role: 'system', content: instructions(plain ? PLAIN_REPLY_RULE : JSON_REPLY_RULE) }, ...request.messages], ...(plain ? {} : { response_format: responseFormat(model) }), max_completion_tokens: 1200, ...(provider === 'groq' && model.startsWith('openai/gpt-oss-') ? { reasoning_effort: 'low' } : {}) });
       const parseReply = (content, { plain, truncated }) => {
         if (typeof content !== 'string' || !content.trim()) throw new ModelAttemptError('empty', { format: true });
         let value;
@@ -141,42 +164,62 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
         try { return normalizeChatReply(value, sources); }
         catch { throw new ModelAttemptError('invalid-reply', { format: true }); }
       };
-      const attempt = async (plain) => {
+      const attempt = async (model, plain) => {
+        const remaining = deadline - Date.now();
+        if (remaining < MIN_ATTEMPT_MS) throw new ModelAttemptError('deadline');
         let response, payload;
         try {
           response = await fetchImpl(url, {
             method: 'POST', redirect: 'error',
             headers: { 'Content-Type': 'application/json', ...auth },
-            body: requestBody(plain),
-            signal: AbortSignal.timeout(MODEL_TIMEOUT_MS),
+            body: requestBody(model, plain),
+            signal: AbortSignal.timeout(Math.min(MODEL_TIMEOUT_MS, remaining)),
           });
         } catch (error) {
-          throw ['TimeoutError', 'AbortError'].includes(error?.name) ? error : new ModelAttemptError('network');
+          throw ['TimeoutError', 'AbortError'].includes(error?.name) ? new ModelAttemptError('timeout', { slow: true }) : new ModelAttemptError('network');
         }
         if (response.status === 429) throw new ModelRateLimitError(response.headers.get('retry-after'));
         if (response.status === 401 || response.status === 403) throw new ModelConfigError();
         if (!response.ok) throw new ModelAttemptError(`http-${response.status}${await providerCode(response)}`, { format: response.status === 400 || response.status === 422 });
         try { payload = await response.json(); }
-        catch (error) { throw ['TimeoutError', 'AbortError'].includes(error?.name) ? error : new ModelAttemptError('network'); }
+        catch (error) { throw ['TimeoutError', 'AbortError'].includes(error?.name) ? new ModelAttemptError('timeout', { slow: true }) : new ModelAttemptError('network'); }
         const choice = payload?.choices?.[0];
         return parseReply(choice?.message?.content, { plain, truncated: choice?.finish_reason === 'length' });
       };
+      // Up to two attempts on one model: the same request again after a server error or dropped
+      // connection, plain text after a reply the structured mode could not produce (repeating that
+      // request tends to fail again). Never for a rate limit or a rejected key, and never after a
+      // timeout: a second full wait on the same model would outlast the function's time limit.
+      const tryModel = async (model) => {
+        try { return await attempt(model, false); }
+        catch (error) {
+          if (!(error instanceof ModelAttemptError)) throw error;
+          onAttemptFailed(error.reason);
+          if (error.slow) throw error;
+          await new Promise((resolve) => setTimeout(resolve, MODEL_RETRY_DELAY_MS));
+          try { return await attempt(model, error.format); }
+          catch (second) {
+            if (second instanceof ModelAttemptError) onAttemptFailed(second.reason);
+            throw second;
+          }
+        }
+      };
       let reply;
-      try { reply = await attempt(false); }
-      catch (error) {
-        // One more try. Same request after a server error or dropped connection; plain text after a
-        // reply the structured mode could not produce (repeating that request tends to fail again).
-        // Never for a rate limit or a rejected key, and never after a timeout: a second full wait
-        // would outlast the function's own time limit.
-        if (!(error instanceof ModelAttemptError)) throw error;
-        onAttemptFailed(error.reason);
-        await new Promise((resolve) => setTimeout(resolve, MODEL_RETRY_DELAY_MS));
-        try { reply = await attempt(error.format); }
-        catch (second) {
-          if (second instanceof ModelAttemptError) onAttemptFailed(second.reason);
-          throw second;
+      const limits = [];
+      let lastError;
+      for (const [index, model] of models.entries()) {
+        try {
+          reply = await tryModel(model);
+          onModel(index ? `fallback-${index}` : 'primary');
+          break;
+        } catch (error) {
+          // A rejected key is the same for every model; anything unexpected is not retried.
+          if (error instanceof ModelRateLimitError) { limits.push(error); onAttemptFailed('rate-limited'); }
+          else if (!(error instanceof ModelAttemptError)) throw error;
+          lastError = error;
         }
       }
+      if (!reply) throw limits.length === models.length ? shortestLimit(limits) : lastError;
       // The model may only extract literal visitor text, not infer or invent qualification facts.
       const latest = request.messages.at(-1).content.toLowerCase();
       reply.qualification = Object.fromEntries(Object.entries(reply.qualification).filter(([, value]) => latest.includes(value.toLowerCase())));

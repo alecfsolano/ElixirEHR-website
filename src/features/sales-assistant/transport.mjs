@@ -9,7 +9,16 @@ export function resolveAssistantMode({ requested, dev = false, preview = false, 
   return dev && (!requested || requested === 'sample') ? 'sample' : 'off';
 }
 
-export async function requestReply(body, { mode, signal, fetchImpl = fetch } = {}) {
+// The page waits out a short "busy" once instead of showing an error; longer waits are shown.
+const MAX_BUSY_WAIT_SECONDS = 20;
+const BUSY = 'The assistant is busy. Please wait a moment and try again.';
+
+const abortableSleep = (ms, signal) => new Promise((resolve, reject) => {
+  const timer = setTimeout(resolve, ms);
+  signal?.addEventListener('abort', () => { clearTimeout(timer); reject(signal.reason ?? new DOMException('Aborted', 'AbortError')); }, { once: true });
+});
+
+export async function requestReply(body, { mode, signal, fetchImpl = fetch, sleep = (ms) => abortableSleep(ms, signal), waited = false } = {}) {
   signal?.throwIfAborted();
   const request = validateChatRequest(body);
   if (mode === 'sample') return sampleReply(request);
@@ -24,7 +33,14 @@ export async function requestReply(body, { mode, signal, fetchImpl = fetch } = {
   if (response.status === 429) {
     // The API's own sanitized message: the per-visitor limit points to the discovery call.
     const limit = await response.json().catch(() => null);
-    throw new Error(limit?.code === 'PLEASE_WAIT' && typeof limit.error === 'string' && limit.error.trim() && limit.error.length <= 300 ? limit.error : 'The assistant is busy. Please wait a moment and try again.');
+    const message = limit?.code === 'PLEASE_WAIT' && typeof limit.error === 'string' && limit.error.trim() && limit.error.length <= 300 ? limit.error : BUSY;
+    const seconds = Number(response.headers?.get?.('Retry-After'));
+    if (!waited && limit?.code === 'PLEASE_WAIT' && Number.isInteger(seconds) && seconds >= 1 && seconds <= MAX_BUSY_WAIT_SECONDS) {
+      await sleep(seconds * 1000);
+      signal?.throwIfAborted();
+      return requestReply(body, { mode, signal, fetchImpl, sleep, waited: true });
+    }
+    throw new Error(message);
   }
   if (!response.ok) throw new Error('The assistant is temporarily unavailable. Please try again or use Contact Us.');
   const value = await response.json();

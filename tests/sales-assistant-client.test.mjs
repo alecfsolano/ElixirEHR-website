@@ -35,3 +35,23 @@ test('a 429 shows the server limit message, and the busy wording when the worker
   await assert.rejects(requestReply(body, { mode: 'hosted', fetchImpl: reply({ code: 'PLEASE_WAIT', error: 'The assistant is busy. Please wait a moment and try again.' }) }), { message: 'The assistant is busy. Please wait a moment and try again.' });
   await assert.rejects(requestReply(body, { mode: 'hosted', fetchImpl: reply('Too Many Requests') }), { message: 'The assistant is busy. Please wait a moment and try again.' });
 });
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('a short busy wait is waited out once; a long wait or a second busy reply is shown', async () => {
+  const body = { messages: [{ role: 'user', content: 'Tell me about billing.' }], qualification: {}, sourcePath: '/' };
+  const busy = (seconds, error = 'The assistant is busy. Please wait a moment and try again.') => () => new Response(JSON.stringify({ code: 'PLEASE_WAIT', error }), { status: 429, headers: { 'Retry-After': String(seconds) } });
+  const ok = () => new Response(JSON.stringify({ answer: 'Hello', citations: [] }));
+  const waits = [];
+  const sleep = async (ms) => { waits.push(ms); };
+  const run = (steps, signal) => { let n = 0; return requestReply(body, { mode: 'hosted', signal, sleep, fetchImpl: async () => steps[n++]() }); };
+  assert.equal((await run([busy(2), ok])).answer, 'Hello');
+  assert.deepEqual(waits, [2000]);
+  await assert.rejects(run([busy(3), busy(3)]), { message: 'The assistant is busy. Please wait a moment and try again.' });
+  const limit = 'You have reached the assistant’s message limit for now. You can book a discovery call on our Contact Us page.';
+  await assert.rejects(run([busy(540, limit), ok]), { message: limit });
+  await assert.rejects(run([busy('soon'), ok]), /busy/);
+  assert.deepEqual(waits, [2000, 3000]);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(requestReply(body, { mode: 'hosted', signal: controller.signal, fetchImpl: async () => busy(2)() }), { name: 'AbortError' });
+});
