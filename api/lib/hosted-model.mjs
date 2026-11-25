@@ -48,6 +48,36 @@ async function providerCode(response) {
 }
 
 const PLAIN_MARKER = /^\s*ANSWER:/;
+// The model often answers properly but leaves the exact marker out. Any other text is shown only when
+// it reads as a finished answer; when a rule below is unsure, it rejects.
+const LOOSE_MARKER = /^[\s#>*_`]*answer[\s*_`]*(?:[:：]|\n)[\s*_`]*/i;
+const MIN_UNMARKED_LENGTH = 20;
+const SENTENCE_END = /[.?!。？！।]["'”’)\s\p{Extended_Pictographic}️]*$/u;
+// Structured output, markup, control tokens, links and bracketed source IDs.
+const CONTROL_TEXT = /[{}]|^\s*\[|\[[\w-]+\]|<\||\|>|<\/?[a-z]|`|https?:|\bwww\.|\]\(|\bmailto:/i;
+// The model's notes to itself, which must never reach a visitor.
+const MODEL_NOTES = [
+  // Channel names left behind when the provider strips the control tokens around them.
+  /^(?:analysis|commentary|final)(?:[A-Z]|\s*:)|assistant(?:final|analysis|commentary)/,
+  // A marker later in the text means notes came before it.
+  /\bANSWER\b/,
+  // Planning, at the start of any sentence.
+  /(?:^|[.!?:;,\n]\s*)(?:(?:okay|ok|so|hmm|well|alright|now|then|also|first)\b[,.]?\s+)*(?:(?:we|i)(?:\s+also)?\s+(?:need to|needs? not|should|must|have to|ought to|want to (?:answer|ask|reply|respond))\b|need to\b|must\b|should (?:not|ask|mention|answer|say|be|keep|recommend|end|avoid|respond|reply)\b|keep (?:it|to|answer|reply)\b|(?:provide|give|write) (?:a )?(?:short|brief|concise)\b|let me (?:think|answer|respond|reply|write|draft)\b|thinking(?:[:.]|\s+about (?:what|how) to\b)|(?:the )?(?:user|visitor) (?:asks?|asked|is|says?|said|wants?|wrote)\b|they (?:ask|asked|are asking|want to know)\b)/i,
+  // Talk about the visitor, the rules or the reply format, anywhere.
+  /\bthe visitor\b|\b(?:the )?user (?:asks?|asked|is asking|wants?|said|wrote)\b|\b(?:must|should) not (?:invent|quote|infer|assume|mention)\b|\b(?:according to|per|follow(?:ing)?) (?:the|my|these|our) (?:rules|instructions|guidelines)\b|\bsystem prompt\b|\bqualifying question\b|\bknowledge data\b|\bcitation_?ids?\b|\bnext_?field\b|\b(?:qualification|intent)\s*:|\b(?:return|output|valid) json\b|\bjson object\b/i,
+];
+
+/** The text a visitor may see from an unmarked reply: no loose marker and no bold marks. */
+const unmarkedText = (content) => content.replace(LOOSE_MARKER, '').replaceAll('**', '').trim();
+
+/** Why unmarked plain text must not be shown, as a safe reason code; null when it can be. */
+function unmarkedProblem(text, truncated) {
+  if (truncated) return 'truncated';
+  if (CONTROL_TEXT.test(text)) return 'unmarked-control';
+  if (text.length < MIN_UNMARKED_LENGTH || !SENTENCE_END.test(text)) return 'unmarked';
+  return MODEL_NOTES.some((notes) => notes.test(text)) ? 'unmarked-notes' : null;
+}
+
 const JSON_REPLY_RULE = 'Return a JSON object with answer (plain text, max 4000 chars), citationIds (only IDs of sources actually used), qualification (only visitor-stated exact phrases, max 160 chars per field, null for unknown values), nextField (the field your one qualifying question asks about, if it is unanswered and unskipped, otherwise null), and intent (explore, demo, support or decline; use demo when the visitor asks for a demo, a call, pricing for their organization or to talk to sales). No HTML, Markdown or URLs. Put source IDs only in citationIds, never in the answer. Extract known facts before choosing the next question; do not ask for information the visitor already supplied.';
 const PLAIN_REPLY_RULE = 'Reply with the word ANSWER: followed by your answer to the visitor as plain text (max 4000 chars) and nothing else. No JSON, HTML, Markdown, URLs or source IDs. Do not ask for information the visitor already supplied.';
 
@@ -102,8 +132,11 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
         try { value = JSON.parse(content); }
         catch {
           if (!plain) throw new ModelAttemptError(truncated ? 'truncated' : 'invalid-json', { format: true });
-          if (!PLAIN_MARKER.test(content)) throw new ModelAttemptError('unmarked', { format: true });
-          value = { answer: content.replace(PLAIN_MARKER, ''), citationIds: [], qualification: {}, nextField: null, intent: 'explore' };
+          const marked = PLAIN_MARKER.test(content);
+          const answer = marked ? content.replace(PLAIN_MARKER, '') : unmarkedText(content);
+          const problem = marked ? null : unmarkedProblem(answer, truncated);
+          if (problem) throw new ModelAttemptError(problem, { format: true });
+          value = { answer, citationIds: [], qualification: {}, nextField: null, intent: 'explore' };
         }
         try { return normalizeChatReply(value, sources); }
         catch { throw new ModelAttemptError('invalid-reply', { format: true }); }

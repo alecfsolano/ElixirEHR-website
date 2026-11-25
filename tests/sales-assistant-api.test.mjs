@@ -114,7 +114,88 @@ test('a reply the structured mode cannot produce is recovered in plain-text mode
   }
 });
 
-test('plain-text recovery accepts only a marked answer and reports why a reply failed', async () => {
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('plain-text recovery accepts a finished answer without the exact marker and nothing else', async () => {
+  const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
+  const rejected = () => new Response(JSON.stringify({ error: { message: 'private provider details', code: 'tool_use_failed', failed_generation: 'private generation' } }), { status: 400 });
+  const run = async (content, finish = 'stop') => {
+    const steps = [rejected, () => new Response(JSON.stringify({ choices: [{ finish_reason: finish, message: { content } }] }))];
+    let made = 0;
+    const result = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async () => steps[made++]() })(body);
+    assert.equal(made, 2);
+    assert.doesNotMatch(JSON.stringify(result), /private/);
+    return result;
+  };
+  const answer = 'Elixir can add revenue cycle to a clinical-only setup. What size is your organization?';
+  const unmarked = 'Yes. Elixir covers behavioral health and home visits on one record.\n\nMany teams start with scheduling, then add billing. How many sites do you run?';
+  const screens = 'The user interface stays the same for clinicians, and revenue cycle is added to it.';
+  const telehealth = 'We have a telehealth capability that works with the same patient record.';
+  const ordinary = [
+    'Yes, Elixir supports telehealth visits.', 'Hi! What kind of care do you provide?', 'Happy to help. What is your timeline? 😊',
+    'Thinking about switching from Epic? Elixir can migrate your records in phases.', 'Analysis of denials is built into Elixir billing.',
+    'Elixir exchanges FHIR resources as JSON. Which systems do you use?', 'User permissions are set by role. A user has access only to what that role allows.',
+    'Should you add sites later, each one can share the same record.', 'Licensing is confirmed by the Elixir team. Which staff roles need access?',
+    'Elixir funciona con su equipo. ¿Cuántas sedes tiene?',
+  ];
+  const quoted = '"Clinical only" setups can add revenue cycle. (Most teams do this in phases.)';
+  for (const [content, expected] of [
+    [answer, answer], [`  ${answer}\n`, answer], [`Answer: ${answer}`, answer], [`**ANSWER:** ${answer}`, answer], [`**ANSWER**: ${answer}`, answer], [`ANSWER\uFF1A ${answer}`, answer],
+    [unmarked, unmarked], [screens, screens], [telehealth, telehealth], [quoted, quoted],
+    [`# ANSWER:\n${answer}`, answer], [`ANSWER\n\n${answer}`, answer], [`**ANSWER: ${answer}**`, answer],
+    ['Elixir fits, so **what size is your organization?**', 'Elixir fits, so what size is your organization?'],
+    ...ordinary.map((text) => [text, text]),
+  ]) {
+    const result = await run(content);
+    assert.equal(result.status, 200, content);
+    assert.equal(result.body.answer, expected, content);
+    assert.deepEqual(result.body.citations, [], content);
+    assert.deepEqual(result.body.qualification, {}, content);
+    assert.equal(result.headers['X-Assistant-Recovered'], 'http-400-tool_use_failed', content);
+  }
+  for (const [content, reason, finish] of [
+    ['Thinking about what to say', 'unmarked'],
+    ['Yes, it does.', 'unmarked'],
+    ['Elixir can add revenue cycle to a clinical-only setup and then', 'unmarked'],
+    [answer, 'truncated', 'length'],
+    [`{"answer":"${answer}" and more.`, 'unmarked-control'],
+    [`<|channel|>commentary to=functions.reply<|message|>${answer}`, 'unmarked-control'],
+    [`<p>${answer}</p> That is all we can say here.`, 'unmarked-control'],
+    ['```\nElixir can add revenue cycle to a clinical-only setup.\n``` That is all.', 'unmarked-control'],
+    [`See https://example.com for more. ${answer}`, 'unmarked-control'],
+    [`We need to answer with plain text. ${answer}`, 'unmarked-notes'],
+    [`The user asks about modules. ${answer}`, 'unmarked-notes'],
+    [`Visitor wants both modules. ${answer}`, 'unmarked-notes'],
+    [`Let me think about this one. ${answer}`, 'unmarked-notes'],
+    [`Set nextField to size and reply. ${answer}`, 'unmarked-notes'],
+    ['analysisUser asks about pricing. Must not invent.assistantfinalPricing is scoped with the team.', 'unmarked-notes'],
+    ['analysisWe need to answer about billing. Provide short answer and ask a question.', 'unmarked-notes'],
+    [`Done with that.assistantfinal${answer}`, 'unmarked-notes'],
+    ['Need to answer pricing. Must not quote a number and recommend discovery call.', 'unmarked-notes'],
+    ['We need to ask one qualifying question and recommend a discovery call.', 'unmarked-notes'],
+    ['We should mention the billing module and ask about size. Keep to 2-5 sentences.', 'unmarked-notes'],
+    ['Okay, the user wants to know about billing. I should answer briefly and ask about size.', 'unmarked-notes'],
+    ['So the user asks whether we do billing. Short reply is best here.', 'unmarked-notes'],
+    ['Elixir does billing. Keep it brief and friendly for them.', 'unmarked-notes'],
+    [`They ask about pricing. According to the rules we must not quote a number.\nANSWER: ${answer}`, 'unmarked-notes'],
+    [`Sure! ANSWER: ${answer}`, 'unmarked-notes'],
+    ['answer: Elixir does billing.\nnextField: size\nintent: the visitor wants a demo.', 'unmarked-notes'],
+    ['answer: "Elixir does billing."\ncitationIds: [billing-1]\nnextField: size.', 'unmarked-control'],
+    ['Answer: {"answer":"Elixir does", "citationIds":["a"', 'unmarked-control'],
+    [`Answer: ${answer}`, 'truncated', 'length'],
+    ['["Elixir can add billing to a clinical-only setup.", "What size?"', 'unmarked-control'],
+    ['Elixir adds billing to clinical teams [elixir-rcm]. What size are you?', 'unmarked-control'],
+    ['Please see www.example.com for more details on it.', 'unmarked-control'],
+    ['Please see [our page](//example.com/a) for more details on it.', 'unmarked-control'],
+    ['x'.repeat(4001) + '.', 'invalid-reply'],
+  ]) {
+    const result = await run(content, finish);
+    assert.equal(result.status, 503, content);
+    assert.equal(result.headers['X-Assistant-Failed'], `http-400-tool_use_failed,${reason}`, content);
+    assert.doesNotMatch(JSON.stringify(result), /revenue cycle/, content);
+  }
+});
+
+test('plain-text recovery rejects an unfinished reply and reports why it failed', async () => {
   const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
   const reply = (content) => () => new Response(JSON.stringify({ choices: [{ message: { content } }] }));
   const cases = [
