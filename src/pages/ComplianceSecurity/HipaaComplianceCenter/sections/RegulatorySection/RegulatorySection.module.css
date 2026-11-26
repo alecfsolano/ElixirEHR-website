@@ -2,13 +2,11 @@
   padding: 80px 0;
 }
 
-/* A full paragraph, not a caption: body size and colour at a readable measure. */
 .caption {
-  max-width: 820px;
   margin-top: 24px;
-  font-size: 16px;
-  line-height: 26px;
-  color: var(--color-body);
+  font-size: 14px;
+  line-height: 23px;
+  color: #6b6579;
 }
 
 .strong {

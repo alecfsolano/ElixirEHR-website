@@ -74,15 +74,6 @@
   color: var(--color-white);
 }
 
-/* No link yet: a muted note in the button's place, not a green action that looks clickable. */
-.unavailable {
-  border-top: 1px solid var(--color-border);
-  border-radius: 0;
-  background: transparent;
-  font-weight: 500;
-  color: var(--color-body);
-}
-
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 1023px) {
   .grid {

@@ -4,11 +4,10 @@ import Section from '../../../components/layout/Section/Section';
 import locationIcon from '../../../assets/career/icon-location.png';
 import { getJobPath, jobOpenings } from '../data/jobOpenings';
 import styles from './JobOpenings.module.css';
-import { cn } from '../../../utils/cn';
 
 /**
- * "View & Apply": opens the job's posting when it has one (`detail`); until then a muted, non-interactive
- * note takes the button's place, so an unavailable action never looks like a primary button.
+ * "View & Apply": opens the job's posting when it has one (`detail`); until then the button is shown
+ * as drawn but is not interactive (and hidden from assistive tech, since it leads nowhere).
  */
 function ViewApplyLink({ job }) {
   if (job.detail) {
@@ -19,7 +18,7 @@ function ViewApplyLink({ job }) {
     );
   }
   return (
-    <span className={cn(styles.apply, styles.unavailable)}>
+    <span className={styles.apply}>
       Role details unavailable
     </span>
   );

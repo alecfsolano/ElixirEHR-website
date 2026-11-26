@@ -10,10 +10,9 @@
   column-gap: 48px;
 }
 
-/* 56px, not the frame's 64px: "Questions?" at 64px fills the 400px column and touches the cards. */
 .title {
   font-family: var(--font-display);
-  font-size: 56px;
+  font-size: 64px;
   font-weight: 800;
   line-height: 60px;
   letter-spacing: -0.01em;

@@ -116,12 +116,9 @@
   grid-template-columns: 22px minmax(0, 1fr);
   gap: 14px;
   font-size: 16px;
+  font-weight: 600;
   line-height: 24px;
   white-space: pre-line;
-}
-
-.checklist strong {
-  font-weight: 600;
 }
 
 .checklist img {
@@ -184,13 +181,6 @@
   font-weight: 600;
   line-height: 28px;
   color: var(--color-white);
-}
-
-/* No link yet: a flat, muted note in the button's place, not a green action that looks clickable. */
-.unavailable {
-  background: var(--color-surface);
-  font-weight: 500;
-  color: var(--color-body);
 }
 
 .factsTitle {

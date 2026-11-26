@@ -1,23 +1,8 @@
-import { Fragment } from 'react';
 import { cn } from '../../../../../utils/cn';
 import Section from '../../../../../components/layout/Section/Section';
 import RichText from '../../../../../components/ui/RichText/RichText';
 import ComplianceIntro from '../../../components/ComplianceIntro/ComplianceIntro';
 import styles from './ReferenceSection.module.css';
-
-/** An endpoint path with a line-break opportunity after every "/", so it wraps between segments. */
-function BreakablePath({ path }) {
-  return path.split('/').map((segment, index, parts) => (
-    <Fragment key={index}>
-      {segment}
-      {index < parts.length - 1 && (
-        <>
-          /<wbr />
-        </>
-      )}
-    </Fragment>
-  ));
-}
 
 /**
  * One API reference section: intro, then its blocks in source order — endpoint rows (method chip,
@@ -40,9 +25,7 @@ function ReferenceSection({ id, tone, eyebrow, title, description, blocks }) {
                     {endpoint.method}
                   </span>
                   <span className={styles.name}>{endpoint.name}</span>
-                  <code className={styles.path}>
-                    <BreakablePath path={endpoint.path} />
-                  </code>
+                  <code className={styles.path}>{endpoint.path}</code>
                 </li>
               ))}
             </ul>
@@ -77,13 +60,11 @@ function ReferenceSection({ id, tone, eyebrow, title, description, blocks }) {
                 <tbody>
                   {block.rows.map(([status, meaning, condition]) => (
                     <tr key={status}>
-                      <td data-label={block.columns[0]}>
+                      <td>
                         <code className={styles.status}>{status}</code>
                       </td>
-                      <td className={styles.meaning} data-label={block.columns[1]}>
-                        {meaning}
-                      </td>
-                      <td data-label={block.columns[2]}>{condition}</td>
+                      <td className={styles.meaning}>{meaning}</td>
+                      <td>{condition}</td>
                     </tr>
                   ))}
                 </tbody>

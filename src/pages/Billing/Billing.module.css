@@ -30,12 +30,13 @@
   }
 }
 
-/* CTA band: title and two 66px buttons. */
+/* CTA band: single-line title (tight tracking, as the EHR band) and two 66px buttons. */
 .ctaBand {
   padding: 80px 0;
 }
 
 .ctaBand h2 {
+  letter-spacing: -3px;
 }
 
 .ctaButton,

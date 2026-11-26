@@ -2,7 +2,6 @@ import { pcClaimTypes } from '../../../../data/claimPreparation';
 import Section from '../../../../components/layout/Section/Section';
 import PcSplit from '../../components/PcSplit/PcSplit';
 import PcCheckList from '../../components/PcCheckList/PcCheckList';
-import { keepHyphenated } from '../../../../utils/keepHyphenated';
 import styles from './ClaimTypesSection.module.css';
 
 function ClaimTypesSection() {
@@ -11,7 +10,7 @@ function ClaimTypesSection() {
   return (
     <Section spacing="none" className={styles.section}>
       <div className={styles.intro}>
-        <h2 className={styles.title}>{keepHyphenated(title)}</h2>
+        <h2 className={styles.title}>{title}</h2>
         <p className={styles.description}>{description}</p>
       </div>
       {types.map((type, index) => (
