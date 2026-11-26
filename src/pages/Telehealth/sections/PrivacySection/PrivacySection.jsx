@@ -21,7 +21,7 @@ function PrivacySection() {
         {items.map((item, index) => (
           <li key={item.title} className={styles.card}>
             <div className={styles.head}>
-              <span className={styles.ref}>REF // SEC-{String(index + 1).padStart(2, '0')}</span>
+              <span className={styles.ref}>{String(index + 1).padStart(2, '0')}</span>
               <span className={styles.tag}>{item.tag}</span>
             </div>
             <p className={styles.kicker}>{item.kicker}</p>

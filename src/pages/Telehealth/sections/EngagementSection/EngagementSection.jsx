@@ -15,7 +15,7 @@ function EngagementSection() {
         {items.map((item, index) => (
           <li key={item.title} className={styles.card}>
             <div className={styles.head}>
-              <span className={styles.label}>GRID-REF: ENG-{String(index + 1).padStart(2, '0')}</span>
+              <span className={styles.label}>{String(index + 1).padStart(2, '0')}</span>
               <img loading="lazy" decoding="async" src={item.icon.src} alt="" width={item.icon.size[0]} height={item.icon.size[1]} />
             </div>
             <h3 className={styles.title}>{item.title}</h3>

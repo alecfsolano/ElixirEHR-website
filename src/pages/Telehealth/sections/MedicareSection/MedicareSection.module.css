@@ -62,7 +62,7 @@
 
 .permanent .status {
   font-family: Consolas, 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #4d6700;
@@ -76,7 +76,7 @@
 
 .cliff .status {
   font-family: Consolas, 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--color-error);
@@ -122,9 +122,8 @@
   border: 1px solid #dcd5dc;
   border-radius: 16px;
   background: var(--color-surface);
-  font-family: Consolas, 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--color-body);
 }
 
@@ -132,13 +131,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.ref {
-  flex-shrink: 0;
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: #7b757f;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
