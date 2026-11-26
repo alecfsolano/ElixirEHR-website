@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { cn } from '../../../utils/cn';
 import Section from '../../layout/Section/Section';
 import SectionHeading from '../../ui/SectionHeading/SectionHeading';
@@ -24,10 +25,12 @@ function CtaBanner({
   children,
 }) {
   const heading = Array.isArray(title)
-    ? title.map((line) => (
-        <span key={line} className={styles.line}>
-          {line}
-        </span>
+    ? title.map((line, index) => (
+        <Fragment key={line}>
+          {/* The space joins the lines when they flow inline on phones; between blocks it is ignored. */}
+          {index > 0 && ' '}
+          <span className={styles.line}>{line}</span>
+        </Fragment>
       ))
     : title;
 

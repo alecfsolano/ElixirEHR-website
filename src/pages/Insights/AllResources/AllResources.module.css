@@ -247,10 +247,10 @@
   border-radius: var(--radius-xs);
   background: rgb(255 255 255 / 0.2);
   font-family: var(--font-label);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 18px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-white);
 }

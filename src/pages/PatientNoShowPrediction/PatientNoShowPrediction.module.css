@@ -27,7 +27,7 @@
   letter-spacing: 1.2px;
 }
 
-/* CTA band: the EVV band's set-up (Inter caps eyebrow, tight H2 tracking, two 66px buttons with the
+/* CTA band: the EVV band's set-up (Inter caps eyebrow, two 66px buttons with the
    secondary outlined in white), plus a "Related:" row of links. */
 .ctaBand {
   padding: 80px 0 80px;
@@ -45,7 +45,6 @@
 .ctaBand h2 {
   max-width: 820px;
   line-height: 60px;
-  letter-spacing: -3px;
 }
 
 .ctaBand h2 + p:last-child {

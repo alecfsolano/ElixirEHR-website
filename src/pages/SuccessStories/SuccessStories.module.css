@@ -37,7 +37,7 @@
   letter-spacing: 1.2px;
 }
 
-/* CTA band: tight H2 tracking and one 66px button. */
+/* CTA band: one 66px button. */
 .ctaBand {
   padding: 81px 0 80px;
 }
@@ -45,7 +45,6 @@
 .ctaBand h2 {
   max-width: 700px;
   line-height: 59px;
-  letter-spacing: -3px;
 }
 
 .ctaBand h2 + p:last-child {

@@ -6,7 +6,6 @@
 //   so the button renders as drawn but is not interactive until a URL is set.
 // `detail`: the job posting. Only a job with a `detail` gets a page (and linked card); the frames
 //   supply posting copy for the Senior Product Manager role only, so the other two have none.
-//   Line breaks (\n) in `about`, `responsibilities` and `requirements` reproduce the frame's hard breaks.
 
 export const jobOpenings = [
   {
@@ -21,18 +20,18 @@ export const jobOpenings = [
       location: 'San Ramon, CA',
       level: 'Senior Level',
       about:
-        'At Kratu AI, we are redefining precision medicine through high-stakes clinical intelligence. As a Senior Product\nManager specializing in Electronic Health Records (EHR), you will be the visionary bridge between complex\nclinical data and actionable AI-driven insights. You will drive the roadmap for our core integration engine,\nensuring that clinicians have the right information at the exact moment of care.',
+        'At Kratu AI, we are redefining precision medicine through high-stakes clinical intelligence. As a Senior Product Manager specializing in Electronic Health Records (EHR), you will be the visionary bridge between complex clinical data and actionable AI-driven insights. You will drive the roadmap for our core integration engine, ensuring that clinicians have the right information at the exact moment of care.',
       responsibilities: [
         'Product Strategy: Define and execute the long-term vision for Elixir’s EHR ecosystem, aligning technical capabilities with clinician needs.',
         'Clinical Integration: Orchestrate deep-level integrations with major EHR vendors (Epic, Cerner, Athena) to minimize friction in clinical workflows.',
         'Cross-functional Leadership: Partner with engineering, clinical experts, and data scientists to build robust, scalable AI features.',
-        'Market Analysis: Monitor the healthcare landscape for emerging regulations (HIPAA,\nHL7 FHIR) and technological shifts.',
+        'Market Analysis: Monitor the healthcare landscape for emerging regulations (HIPAA, HL7 FHIR) and technological shifts.',
       ],
       requirements: [
         '5+ years of Product Management experience in a high-growth tech environment.',
         'Extensive Healthcare/EHR domain knowledge, including HL7 and FHIR standards.',
         'Strong technical background with the ability to discuss API architecture and data models.',
-        'Experience leading cross-functional teams\nusing Agile methodologies.',
+        'Experience leading cross-functional teams using Agile methodologies.',
       ],
       facts: {
         location: 'San Ramon, CA',

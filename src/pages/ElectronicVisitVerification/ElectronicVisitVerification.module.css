@@ -20,7 +20,7 @@
   letter-spacing: 1.2px;
 }
 
-/* CTA band: Inter caps eyebrow, tight H2 tracking, two 66px buttons (secondary outlined in white)
+/* CTA band: Inter caps eyebrow, two 66px buttons (secondary outlined in white)
    and a row of yellow text links to the EVV topic pages. */
 .ctaBand {
   padding: 80px 0 79px;
@@ -36,9 +36,8 @@
 }
 
 .ctaBand h2 {
-  max-width: 820px;
+  max-width: 900px;
   line-height: 60px;
-  letter-spacing: -3px;
 }
 
 .ctaBand h2 + p:last-child {

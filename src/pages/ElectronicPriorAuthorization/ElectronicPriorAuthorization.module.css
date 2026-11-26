@@ -9,7 +9,7 @@
   --page-hero-primary-size: 16px;
 }
 
-/* CTA band: lime caps eyebrow, a two-line tight 52px title, two 66px buttons (secondary outlined in white). */
+/* CTA band: lime caps eyebrow, a two-line 52px title, two 66px buttons (secondary outlined in white). */
 .ctaBand {
   padding: 80px 0 80px;
   border-top: 1px solid #8d7f97;
@@ -26,7 +26,6 @@
   max-width: none;
   font-size: 49px;
   line-height: 62px;
-  letter-spacing: -3.6px;
 }
 
 .ctaButton,

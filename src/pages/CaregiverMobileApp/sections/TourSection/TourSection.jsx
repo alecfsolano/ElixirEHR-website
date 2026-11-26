@@ -34,7 +34,7 @@ function TourSection() {
       <p className={styles.description}>{description}</p>
       <p className={styles.note}>{note}</p>
 
-      <div className={styles.tabs} role="tablist" aria-label="Caregiver tour steps">
+      <div className={styles.tabs} role="tablist" aria-label="Caregiver tour steps" data-scroll-cue="">
         {steps.map((step, index) => {
           const isSelected = index === selected;
           return (

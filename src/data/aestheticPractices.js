@@ -309,7 +309,7 @@ export const aeGrowth = {
 export const aeSafety = {
   eyebrow: 'Product safety',
   // The frame breaks the title after "Expiry".
-  title: 'Product, Lot and Expiry\nTracking for Injectables',
+  title: 'Product, Lot and Expiry Tracking for Injectables',
   description: 'In 2024 this stopped being an inventory question and became a patient safety question.',
   paragraphs: [
     'In April 2024 the FDA documented counterfeit Botox in multiple states. Patients were hospitalized with symptoms consistent with the spread of botulinum toxin — blurred or double vision, difficulty swallowing, dry mouth, weakness, shortness of breath. The counterfeit product carried a specific lot number, was labeled “Botulinum Toxin Type A” rather than the correct active ingredient name, and appeared in unit presentations the genuine product does not come in. Source 8.',

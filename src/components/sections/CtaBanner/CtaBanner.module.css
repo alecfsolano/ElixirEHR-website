@@ -3,6 +3,12 @@
   padding: 78px 0 80px;
 }
 
+/* One closing-band heading for every page: the shared tracking (pages used to crush it to -3px)
+   and, on phones, leading that a page's desktop line-height cannot loosen (two classes win). */
+.section .heading h2 {
+  letter-spacing: -0.01em;
+}
+
 .heading > p:last-child {
   margin-top: 22px;
 }
@@ -30,6 +36,15 @@
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 767px) {
+  .section .heading h2 {
+    line-height: 38px;
+  }
+
+  /* The frame's desktop line breaks leave one-word lines on a phone: let the words flow. */
+  .line {
+    display: inline;
+  }
+
   .actions {
     flex-wrap: wrap;
     justify-content: center;

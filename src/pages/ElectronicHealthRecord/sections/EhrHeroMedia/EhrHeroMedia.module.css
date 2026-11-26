@@ -63,9 +63,10 @@
     width: 35.71cqw;
   }
 
+  /* Never below 11px, the readable minimum for this caps label (2.38cqw is 8px on a phone). */
   .label {
-    font-size: 2.38cqw;
-    line-height: 3.17cqw;
+    font-size: max(11px, 2.38cqw);
+    line-height: max(14px, 3.17cqw);
   }
 
   .text {

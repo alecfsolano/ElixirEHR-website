@@ -47,8 +47,8 @@ export const footerBadges = [
   { label: 'HIPAA Compliant', src: hipaaBadge, width: 72, height: 38, to: '/hipaa-compliant-ehr/' },
 ];
 
-export const copyright =
-  '© Copyright Elixir 2026. All Rights Reserved. Designed and Developed by Mirketa';
+// The year follows the calendar (set when the page is built, and again in the visitor's browser).
+export const copyright = `© Copyright Elixir ${new Date().getFullYear()}. All Rights Reserved. Designed and Developed by Mirketa`;
 
 export const legalLinks = [{ label: 'Privacy Policy', to: '/privacy-policy/' }];
 

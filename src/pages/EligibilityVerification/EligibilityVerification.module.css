@@ -11,13 +11,12 @@
   --page-hero-padding: 61.5px;
 }
 
-/* CTA band: tight H2 tracking, one-line description, two 66px buttons (secondary outlined in white). */
+/* CTA band: one-line description, two 66px buttons (secondary outlined in white). */
 .ctaBand {
   padding: 80px 0 81px;
 }
 
 .ctaBand h2 {
-  letter-spacing: -3px;
 }
 
 .ctaBand h2 + p:last-child {

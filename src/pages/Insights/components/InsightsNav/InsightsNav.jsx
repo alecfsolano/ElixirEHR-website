@@ -7,7 +7,7 @@ import styles from './InsightsNav.module.css';
 function InsightsNav() {
   return (
     <nav aria-label="Insights categories" className={styles.bar}>
-      <ul className={styles.list}>
+      <ul className={styles.list} data-scroll-cue="">
         {insightsNav.map((item) => (
           <li key={item.to}>
             <NavLink to={item.to} end className={({ isActive }) => cn(styles.link, isActive && styles.active)}>
