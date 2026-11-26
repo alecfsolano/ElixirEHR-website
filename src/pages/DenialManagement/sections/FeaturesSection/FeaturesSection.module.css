@@ -99,8 +99,13 @@
   margin-top: 9px;
 }
 
-.wideScreen {
+.wideLink {
+  display: block;
   margin-top: 32px;
+}
+
+.zoomHint {
+  display: none;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
@@ -127,12 +132,14 @@
     line-height: 34px;
   }
 
-  /* The 1152×518 panel shrank to an unreadable strip: show its top-left detail (summary and
-     first actions) at a larger scale instead. */
-  .wideScreen {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    object-position: left top;
+  /* The whole 1152×518 panel stays inside the screen; the link under it opens it full size. */
+  .zoomHint {
+    display: block;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    text-decoration: underline;
+    color: var(--color-primary);
   }
 }

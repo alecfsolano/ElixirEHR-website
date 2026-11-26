@@ -275,7 +275,7 @@ export const fsTalk = {
 export const fsCtaBand = {
   title: 'See Salesforce-Native EVV in Elixir',
   description:
-    'If you use Salesforce Field Service, Health Cloud, Service Cloud or a Salesforce-based home- care workflow, see how Elixir can connect EVV to the rest of your care-delivery and billing process.',
+    'If you use Salesforce Field Service, Health Cloud, Service Cloud or a Salesforce-based home-care workflow, see how Elixir can connect EVV to the rest of your care-delivery and billing process.',
   cta: { label: 'Request EVV Demo', to: '/request-demo/' },
   secondaryCta: { label: 'Schedule a Demo', to: '/request-demo/' },
 };
