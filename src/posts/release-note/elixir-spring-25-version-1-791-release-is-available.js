@@ -16,7 +16,8 @@ export default {
   publishDate: '2025-05-01',
   author: 'Elixir Team',
   version: '1.791',
-  cardImage: { src: featuredImage, alt: 'Clinician reviewing a patient chart in Elixir EHR, with the Spring’25 release areas: EHR & Patient Portal, Appointments & Telehealth, Medications & Prescriptions, RCM and System & Usability Enhancements' },
+  // Anchored right: centred, the card's crop cut off the release-area labels on the right edge.
+  cardImage: { src: featuredImage, alt: 'Clinician reviewing a patient chart in Elixir EHR, with the Spring’25 release areas: EHR & Patient Portal, Appointments & Telehealth, Medications & Prescriptions, RCM and System & Usability Enhancements', position: 'right center' },
   heroImage: {
     src: featuredImage,
     alt: 'Clinician reviewing a patient chart in Elixir EHR, with the Spring’25 release areas: EHR & Patient Portal, Appointments & Telehealth, Medications & Prescriptions, RCM and System & Usability Enhancements',

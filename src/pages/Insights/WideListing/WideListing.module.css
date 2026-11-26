@@ -4,6 +4,13 @@
   gap: 50px 28px;
 }
 
+/* A lone card is centred, not left in one half of an otherwise empty grid. */
+.grid > li:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc((100% - 28px) / 2);
+}
+
 .pagination {
   margin-top: 50px;
 }
@@ -13,5 +20,9 @@
   .grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
+  }
+
+  .grid > li:only-child {
+    width: 100%;
   }
 }

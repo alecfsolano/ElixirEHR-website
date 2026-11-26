@@ -21,7 +21,7 @@ function action(post) {
 
 /** /guides-ebooks — "Clinical E-Books & Guides". */
 function EbookListing() {
-  return <WideListing type="e-book" page={insightsPages.ebook} noun="e-book" meta={meta} action={action} />;
+  return <WideListing type="e-book" page={insightsPages.ebook} noun="e-book" tag="E-Book" meta={meta} action={action} />;
 }
 
 export default EbookListing;

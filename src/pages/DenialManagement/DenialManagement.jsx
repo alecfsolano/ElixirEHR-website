@@ -16,7 +16,15 @@ function DenialManagement() {
   return (
     <>
       <PageSeo path="/denial-management-software" />
-      <PageHero {...hero} className={styles.hero} media={<TiltedHeroMedia {...media} />} />
+      <PageHero
+        {...hero}
+        className={styles.hero}
+        media={
+          <div className={styles.heroMedia}>
+            <TiltedHeroMedia {...media} />
+          </div>
+        }
+      />
       <ChallengeSection />
       <WorkflowSection />
       <FeaturesSection />

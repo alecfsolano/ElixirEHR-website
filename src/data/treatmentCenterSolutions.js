@@ -135,7 +135,7 @@ export const financialFeatures = {
 // Same band as About Us. There is no contact form on this page, so the button goes to the
 // contact route used by the EHR page's "Contact Us Now".
 export const tcCtaBand = {
-  title: 'Take The next Step',
-  description: 'Ready To Change How You Handle Your Patients? Click Here To Be Future Ready With Elixir',
+  title: 'Take the Next Step',
+  description: 'Ready to change how you handle your patients? Be future-ready with Elixir.',
   cta: { label: 'Contact Us Now', to: '/contact-us/#contact' },
 };

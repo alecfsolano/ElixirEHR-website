@@ -18,3 +18,13 @@
   padding: 0 31px;
   letter-spacing: 0.04em;
 }
+
+/* The hero photo's exported backdrop has no left margin (the photo starts at the file's left
+   edge), unlike the asset TiltedHeroMedia is tuned for: below desktop, pin the photo to the
+   column so it does not bleed into the left gutter. */
+@media (max-width: 1199px) {
+  .heroMedia img {
+    left: 0;
+    width: 104.29%;
+  }
+}

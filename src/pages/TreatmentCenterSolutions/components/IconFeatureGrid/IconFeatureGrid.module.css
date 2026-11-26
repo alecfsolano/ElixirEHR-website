@@ -5,14 +5,25 @@
   row-gap: var(--feature-row-gap, 40px);
 }
 
+/* Icons (up to 40px tall) sit centred in a fixed 40px box and every label fills the rest of its
+   row, with the bar pinned to the bottom, so labels and bars line up across a row whatever the
+   icon height or the number of label lines. */
 .item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-rows: 40px 1fr;
+  justify-items: center;
   text-align: center;
 }
 
+.item img {
+  align-self: center;
+}
+
 .label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--feature-bar-gap, 16px);
   max-width: var(--feature-label-width, 170px);
   margin-top: var(--feature-label-gap, 16px);
   font-family: var(--font-display);
@@ -25,9 +36,10 @@
 .label::after {
   content: '';
   display: block;
+  flex: none;
   width: 32px;
   height: 4px;
-  margin: var(--feature-bar-gap, 16px) auto 0;
+  margin-top: auto;
   background: var(--color-tertiary);
 }
 

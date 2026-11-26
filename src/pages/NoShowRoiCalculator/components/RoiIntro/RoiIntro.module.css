@@ -37,3 +37,7 @@
     line-height: 26px;
   }
 }
+
+.nowrap {
+  white-space: nowrap;
+}
