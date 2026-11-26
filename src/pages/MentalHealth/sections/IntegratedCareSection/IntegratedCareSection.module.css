@@ -4,8 +4,10 @@
 
 .intro {
   --bh-title-width: 780px;
+  --bh-title-size: 36px;
+  --bh-title-leading: 44px;
+  --bh-title-tracking: -0.01em;
   --bh-title-gap: 4px;
-  --bh-title-tracking: -0.025em;
 }
 
 .copy {

@@ -4,10 +4,10 @@
 
 /* Same deep purple heading and warm grey paragraph as the ERA section. */
 .title {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 700;
-  line-height: 56px;
-  letter-spacing: -0.025em;
+  line-height: 44px;
+  letter-spacing: -0.01em;
   color: #1c0339;
 }
 

@@ -26,7 +26,10 @@
   max-width: 1440px;
   height: calc(var(--active-h) + 64px);
   margin: 32px auto 0;
+  /* Clip the row sideways only: the active card's shadow (60px deep) runs past the 32px below it
+     and would otherwise end in a hard line. `hidden` is the fallback where `clip` is unsupported. */
   overflow: hidden;
+  overflow: clip visible;
   /* Horizontal touch drags go to the carousel's swipe; vertical ones still scroll the page. */
   touch-action: pan-y;
 }
@@ -38,7 +41,10 @@
   --solid: calc(var(--w) * 1.5 + var(--gap));
 
   position: absolute;
-  inset: 0;
+  /* Taller than the row by the shadow's depth both ways (the cards stay centred), so the mask
+     does not cut the shadow; it lets pointer events through except on the cards. */
+  inset: -64px 0;
+  pointer-events: none;
   mask-image: linear-gradient(
     to right,
     transparent,
@@ -60,6 +66,7 @@
   border-radius: 16px;
   background: var(--color-white);
   box-shadow: 0 10px 30px rgb(31 24 35 / 0.08);
+  pointer-events: auto;
   transform: translate3d(calc(-50% + var(--offset) * (var(--w) + var(--gap))), -50%, 0);
   transition:
     transform 0.7s cubic-bezier(0.4, 0, 0.2, 1),

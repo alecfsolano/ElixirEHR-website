@@ -61,6 +61,9 @@
 
 .answer {
   margin-top: 6px;
+  /* Greedy wrapping: the global `pretty` pulls words down early in this narrow measure, which
+     reads as a hard break ("the revised / Notice to Accompany…"). */
+  text-wrap: wrap;
   font-size: 14px;
   line-height: 22px;
 }
