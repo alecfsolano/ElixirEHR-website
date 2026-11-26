@@ -63,39 +63,50 @@ const CALL_SENTENCE = 'You can book a discovery call with the Elixir team using 
 // A sentence that judges the visitor's timeline: a time word together with a verdict word. Fitz must
 // not say whether a plan is realistic; the team scopes that.
 const TIME_WORD = /\b(?:timelines?|time ?frames?|months?|weeks?|quarters?|window|go-?live|schedule|deadline)\b/i;
-const TIMELINE_VERDICT = /\b(?:realistic|unrealistic|achievable|doable|feasible|possible|workable|manageable|good window|tight|plenty of time|(?:not )?enough time|sufficient time|ample time|aggressive|reasonable|on track)\b/i;
+const TIMELINE_VERDICT = /\b(?:realistic|unrealistic|achievable|doable|feasible|possible|workable|manageable|good window|tight|plenty of (?:time|room)|(?:not )?enough (?:time|room|runway)|sufficient (?:time|room)|ample (?:time|room)|comfortabl\w*|aggressive|reasonable|on track)\b/i;
 const TIMELINE_NOTE = 'The Elixir team confirms timing during scoping.';
 // Partner-program replies are for referral partners, not buyers: no buyer qualifying question.
 const PARTNER_SOURCES = new Set(['referral-program']);
 // Buying intent in the visitor's latest message earns the discovery-call sentence whatever intent the model chose.
 const BUYING_INTENT = /\b(?:pric\w*|costs?|how much|quotes?|licen[cs]\w*|demo|implement\w*|onboard\w*|migrat\w*|switch\w*|go-?live|compar\w*|versus|vs|better than|alternatives?)\b/i;
+// The visitor asks how to book a call or demo: the call sentence answers it even right after an earlier one.
+const ASKS_TO_BOOK = /\b(?:book|schedule|set up|arrange)\b (?:me |us )?(?:a |an |the )?(?:discovery |intro |short )?(?:call|demo|meeting)\b|\bhow (?:do|can|would) (?:I|we) (?:get|have) (?:a )?(?:call|demo)\b/i;
+// The visitor asks where to start: an invented first step ("Start with one workflow…") is not an answer.
+const ASKS_WHERE_TO_START = /\b(?:where|how) (?:do|should|would|can) (?:we|I) (?:start|begin)\b|\bfirst steps?\b|\bget(?:ting)? started\b/i;
+const START_STEP = /^(?:Start|Begin) (?:with|by)\b|^(?:First,|The first step)\b/i;
+// Licensing talk the visitor did not ask for (a reply about caregivers that turns to per-provider pricing).
+const PRICING_TALK = /\bper credentialed provider\b|\bpriced per\b|\bper-user\b|\bwritten quote\b|\bno standard price\b/i;
+// "Can Elixir help?" about a result or a deadline is not settled by the knowledge: no bare "Yes." opener.
+const ASKS_CAN_HELP = /\bcan (?:Elixir|it|you) help\b/i;
 // Limits the approved knowledge attaches to a fact: when the answer states the fact, the limit goes with it.
 const CAVEATS = [
   { when: /\bPart 2\b|\b42 CFR\b|substance use[^.!?]*\bconsent|\bconsent[^.!?]*substance use/i, has: /privacy reviewer/i, text: 'Applicable Part 2 requirements should be confirmed with your privacy reviewer.' },
   { when: /\bFHIR\b/, has: /standardized API/i, text: 'Elixir is not certified to the ONC standardized API criterion.' },
-  { when: /\b(?:aggregators?|connectors?|Sandata|HHAeXchange|visit data)\b/i, has: /availability[^.?!]*confirm|confirm\w*[^.?!]*\b(?:payer|state)\b/i, text: 'Connector availability is confirmed for your specific payer and state.' },
+  { when: /\b(?:aggregators?|connectors?|Sandata|HHAeXchange|visit data)\b|\bEVV\b[^.!?]*\b(?:Medicaid|state|Field Service)\b|\b(?:Medicaid|state|Field Service)\b[^.!?]*\bEVV\b/i, has: /availability[^.?!]*confirm|confirm\w*[^.?!]*\b(?:payer|state)\b/i, text: 'Connector availability is confirmed for your specific payer and state.' },
   { when: /\b6 (?:to|–|-) ?10 weeks\b/, has: /^(?=[\s\S]*standard (?:configuration|setup))(?=[\s\S]*\bscop)/i, text: 'That typical go-live assumes a small practice on a standard configuration; larger or multi-program organizations have their timeline scoped with the team.' },
   { when: /\bper credentialed provider\b|\bpriced per\b/i, has: /\bquote\b/i, text: 'There is no standard price: the Elixir team gives a written quote after scoping.' },
-  { when: /\bSOC 2\b/, has: /^(?=[\s\S]*Mirketa)(?=[\s\S]*(?:non-disclosure|\bNDA\b))/, text: 'The SOC 2 Type II report belongs to Mirketa, which develops and operates Elixir, and is shared under a non-disclosure agreement.' },
+  { when: /\bSOC 2\b/, has: /^(?=[\s\S]*Mirketa)(?=[\s\S]*\b(?:develops|operates)\b)(?=[\s\S]*(?:non-disclosure|\bNDA\b))/, text: 'The SOC 2 Type II report belongs to Mirketa, which develops and operates Elixir, and is shared under a non-disclosure agreement.' },
+  { when: /\boffline\b|\bwithout (?:a )?(?:signal|connection|internet)\b|\bno (?:signal|connection)\b/i, has: /\bdownload/i, text: 'Assigned visits and tasks are downloaded to the device while connected.' },
   { when: /\bBAAs?\b|Business Associate/i, has: /platform provider/i, text: 'The BAA covering the platform services is between your organization and the platform provider.' },
 ];
 // Claims about fit, value or who uses Elixir that the knowledge never makes; such a sentence is dropped.
 // An offer instead of a question ("If you want, I can…"), which the instructions forbid.
 const OFFER = /^(?:If (?:you(?:['’]d)? (?:want|like)|helpful|useful|it helps)\b|Would you like me to\b|I can also\b)/i;
 // An outcome sentence leaning on the one before it ("That helps…"), a result the knowledge never states.
-const OUTCOME_SENTENCE = /^(?:That|This|Which) (?:helps|lets|means|makes|gives)\b/i;
-const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bis a (?:good |great |strong |natural )?fit\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b/i;
+const OUTCOME_SENTENCE = /^(?:That|This|Which) (?:helps|lets|means|makes|gives)\b|^(?:Those|These) (?:pieces|features|tools|capabilities|parts) help\b/i;
+const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bis a (?:good |great |strong |natural )?fit\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b|\bfits? (?:\w+ ){0,2}(?:well|nicely|perfectly)\b|\b(?:is|are) (?:especially |particularly )?(?:useful|helpful|valuable) (?:when|if|for)\b|\boutgrows?\b/i;
 // Function words: a reply where Spanish, French or German ones outnumber the English ones is in another
 // language and gets no English insertions. With neither (a very short reply) it counts as English.
 const ENGLISH_WORD = /\b(?:the|and|for|with|your|you|is|are|to|of|in|it|can|on|that|this)\b/gi;
 const FOREIGN_WORD = /(?<![\p{L}])(?:el|la|los|las|del|que|y|en|para|con|por|una|es|sí|tiene|puede|su|sus|le|les|des|et|est|pour|avec|vous|une|und|der|die|das|mit|ist|sie|ein|eine)(?![\p{L}])/giu;
 // A trailing benefit clause the knowledge never states (", which helps teams see…").
-const BENEFIT_CLAUSE = /,\s*(?:which|that)\s+(?:helps?|fits?)\b[^.!?]*(?=[.!?])/gi;
+// Also ", so <subject> …" endings that claim a comparison or an improvement ("rather than rebuilding…", "is tighter").
+const BENEFIT_CLAUSE = /,\s*(?:which|that)\s+(?:helps?|fits?|(?:is|are)\s+(?:useful|helpful|valuable))\b[^.!?]*(?=[.!?])|,?\s+so (?:that )?(?:teams?|staff|you|your (?:team|staff)|the (?:handoff|team|process|workflow)s?)\b[^.!?]*\b(?:rather than|tighter|faster|easier|smoother|simpler|better|fewer|more efficient)\b[^.!?]*(?=[.!?])/gi;
 // Source talk: "The site …" at a sentence start reads as Elixir; "the site does not say/list/name" as
-// "Elixir has not published"; "I do not have … here" sentences go.
+// "Elixir does not say/list/name"; "I do not have … here" and "I can't list … here" sentences go.
 const SITE_SUBJECT = /(^|[.!?]["”’)]*\s+)The (?:web)?site\b/g;
 const SITE_SILENT = /\b(?:the|this) (?:web)?site (?:does not|doesn['’]t) (?:say|list|name|state|mention)\b/gi;
-const NOT_HAVE_HERE = /\bI (?:do not|don['’]t|can['’]t see|cannot see) (?:have )?[^.!?]*\bhere\b/i;
+const NOT_HAVE_HERE = /\bI (?:do not|don['’]t|can['’]t see|cannot see) (?:have )?[^.!?]*\bhere\b|\bI (?:can['’]t|cannot)(?: \w+)? (?:list|name|share|say|give)\b[^.!?]*\bhere\b/i;
 // What a closing question asks about, for a question the model worded its own way.
 const FIELD_HINTS = [
   ['salesforceUsage', /\bSalesforce\b/i],
@@ -124,7 +135,7 @@ function withoutPatientDetails(body, latest) {
 }
 
 // A reply that opens by declining (off-topic, clinical or unsafe requests) asks no qualifying question.
-const REFUSAL_START = /^(?:I can['’]t|I cannot|I can not|I['’]m not able|I am not able|I['’]m unable|I am unable|I can only help|I only help|Sorry)\b/i;
+const REFUSAL_START = /^(?:I can['’]t(?! (?:book|schedule|set up|arrange))|I cannot(?! (?:book|schedule|set up|arrange))|I can not|I['’]m not able|I am not able|I['’]m unable|I am unable|I can only help|I only help|Sorry)\b/i;
 // One sentence merging the two Business Associate Agreements becomes the two facts as the knowledge states them.
 const BAA_FACT = 'Elixir signs a BAA covering its own access to protected health information, and the BAA for the platform services is between your organization and the platform provider.';
 const isBaaMerge = (sentence) => /\bBAAs?\b/.test(sentence) && /platform[- ]services?/i.test(sentence) && !/platform provider/i.test(sentence);
@@ -209,7 +220,7 @@ const isTimelineVerdict = (sentence) => TIME_WORD.test(sentence) && TIMELINE_VER
 function withoutTimelineVerdicts(body) {
   if (!sentencesOf(body).some(isTimelineVerdict)) return body;
   const kept = dropSentences(body, isTimelineVerdict);
-  return /\bscop/i.test(kept) ? kept : [kept, TIMELINE_NOTE].filter(Boolean).join(' ');
+  return /\b(?:timing|timelines?)\b[^.!?]*\bscop|\bscop[^.!?]*\b(?:timing|timelines?)\b/i.test(kept) ? kept : [kept, TIMELINE_NOTE].filter(Boolean).join(' ');
 }
 
 /** Drops sentences that mostly restate an earlier reply or an earlier sentence of this one; says so plainly when nothing new is left. */
@@ -270,14 +281,21 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   // English-only insertions (limits, the call sentence, canonical questions) never go into a reply in another language.
   const english = isEnglish(body || closing);
   body = withoutPatientDetails(body, latest);
-  body = withoutBenefitClauses(body.replace(SOURCE_TALK, '').replace(NOT_HERE_CLAUSE, '').replace(SITE_SILENT, 'Elixir has not published').replace(SITE_SUBJECT, (match, lead) => `${lead}Elixir`));
+  body = withoutBenefitClauses(body.replace(SOURCE_TALK, '').replace(NOT_HERE_CLAUSE, '').replace(SITE_SILENT, (match) => match.replace(/^(?:the|this) (?:web)?site/i, 'Elixir')).replace(SITE_SUBJECT, (match, lead) => `${lead}Elixir`));
   body = body.replace(/(^|[.!?]["”’)]*\s+)Elixir team\b/g, '$1The Elixir team').replace(/(?<=\s)(?<![Tt]he )Elixir team\b/g, 'the Elixir team');
   if (sentencesOf(body).some(isBaaMerge)) {
     let replaced = false;
     body = sentencesOf(body).length ? body.split('\n\n').map((paragraph) => paragraph.split(SENTENCE_BREAK).map((part) => (isBaaMerge(part) ? (replaced ? '' : ((replaced = true), BAA_FACT)) : part)).join('').replace(/\s{2,}/g, ' ').trim()).filter(Boolean).join('\n\n') : body;
   }
   body = dropSentences(body, (sentence) => NOT_HERE.test(sentence) || NOT_HAVE_HERE.test(sentence));
+  if (ASKS_WHERE_TO_START.test(latest)) body = dropSentences(body, (sentence) => START_STEP.test(sentence));
+  const pricingAsked = BUYING_INTENT.test(latest) || reply.intent === 'demo' || reply.citations.some((citation) => citation.id === 'pricing-implementation');
+  if (!pricingAsked) body = dropSentences(body, (sentence) => PRICING_TALK.test(sentence));
+  if (ASKS_CAN_HELP.test(latest)) body = body.replace(/^Yes[.,!]\s+(\S)/, (match, first) => first.toUpperCase());
   body = withoutRepeats(withoutUnsupportedJudgments(withoutTimelineVerdicts(body)), earlierReplies);
+  // The model's own booking sentence is replaced by the standard one first, so a limit it mentioned is
+  // judged on what the visitor will actually see.
+  if (english) body = dropSentences(body, () => false).replace(/(^|(?<=[.!?]["”’)]*)\s+)[^.!?\n]*\bdiscovery call\b[^.!?\n]*\b(?:button|in this chat|here in the chat)\b[^.!?\n]*[.!]/i, (match, lead) => `${lead}${CALL_SENTENCE}`);
   if (english) body = withCaveats(body);
   // A canonical question about an answered or already-asked field never stays in the body.
   for (const field of QUESTION_ORDER) {
@@ -296,9 +314,8 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   }
   if (mayAsk && ((nextField && !open(nextField)) || (!nextField && reply.citations.length > 0 && !closing))) nextField = QUESTION_ORDER.find(open) ?? null;
   const buying = reply.intent === 'demo' || firstFunnelTurn || BUYING_INTENT.test(latest);
-  // The model's own booking sentence is replaced by the standard one, so it never implies booking happens in the chat.
-  if (english) body = dropSentences(body, () => false).replace(/(^|(?<=[.!?]["”’)]*)\s+)[^.!?\n]*\bdiscovery call\b[^.!?\n]*\b(?:button|in this chat|here in the chat)\b[^.!?\n]*[.!]/i, (match, lead) => `${lead}${CALL_SENTENCE}`);
-  const wantsCall = english && buying && !declined && reply.intent !== 'support' && !partnerOnly && !recentCall && !/discovery call/i.test(body);
+  const asksToBook = ASKS_TO_BOOK.test(latest);
+  const wantsCall = english && (buying || asksToBook) && !declined && reply.intent !== 'support' && !partnerOnly && (!recentCall || asksToBook) && !/discovery call/i.test(body);
   if (wantsCall) body = `${body} ${CALL_SENTENCE}`.trim();
   if (OFFER.test(closing)) closing = '';
   // The closing question is always the canonical one for the next field, so a reworded copy of an
