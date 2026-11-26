@@ -115,28 +115,47 @@ function shortestLimit(limits) {
   return limits.reduce((best, limit) => (Number(limit.retryAfter) < Number(best.retryAfter) ? limit : best));
 }
 
+/** Groq's models in order, or none when Groq is not fully configured. */
+function groqTargets(env) {
+  if (!env.GROQ_API_KEY || !env.GROQ_MODEL) return [];
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+  const auth = { Authorization: `Bearer ${env.GROQ_API_KEY}` };
+  // Each Groq model has its own request and token allowance, so a second model keeps Fitz
+  // answering when the first is rate-limited. GPT-OSS JSON-object mode can emit tool_use_failed
+  // even with no tools configured; its strict decoder constrains the reply to the contract.
+  return modelChain(env.GROQ_MODEL, env.GROQ_FALLBACK_MODELS).map((model) => ({
+    provider: 'groq', url, auth, model,
+    strict: STRICT_MODELS.has(model),
+    reasoningEffort: model.startsWith('openai/gpt-oss-') ? 'low' : null,
+  }));
+}
+
+/** The Azure OpenAI deployment; strict schema and reasoning effort are opt-in per deployment. */
+function azureTarget(env) {
+  const endpoint = new URL(env.AZURE_OPENAI_ENDPOINT);
+  if (endpoint.protocol !== 'https:' || !/\.(openai\.azure\.com|services\.ai\.azure\.com)$/.test(endpoint.hostname) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash || endpoint.port) throw new Error('Invalid model endpoint configuration.');
+  if (!env.AZURE_OPENAI_API_KEY || !env.AZURE_OPENAI_DEPLOYMENT) throw new Error('Missing model configuration.');
+  return {
+    provider: 'azure', url: `${endpoint.origin}/openai/v1/chat/completions`, auth: { 'api-key': env.AZURE_OPENAI_API_KEY }, model: env.AZURE_OPENAI_DEPLOYMENT,
+    strict: env.AZURE_OPENAI_STRICT_SCHEMA === 'true',
+    reasoningEffort: REASONING_EFFORTS.has(env.AZURE_OPENAI_REASONING_EFFORT) ? env.AZURE_OPENAI_REASONING_EFFORT : null,
+  };
+}
+
+const REASONING_EFFORTS = new Set(['none', 'minimal', 'low', 'medium']);
+
 export function createHostedModel({ env, fetchImpl = fetch }) {
   const provider = env.ASSISTANT_PROVIDER ?? 'azure';
-  let url, auth, models;
+  let targets;
   if (provider === 'groq') {
-    if (!env.GROQ_API_KEY || !env.GROQ_MODEL) throw new Error('Missing model configuration.');
-    url = 'https://api.groq.com/openai/v1/chat/completions';
-    auth = { Authorization: `Bearer ${env.GROQ_API_KEY}` };
-    // Each Groq model has its own request and token allowance, so a second model keeps Fitz
-    // answering when the first is rate-limited.
-    models = modelChain(env.GROQ_MODEL, env.GROQ_FALLBACK_MODELS);
+    targets = groqTargets(env);
+    if (!targets.length) throw new Error('Missing model configuration.');
   } else if (provider === 'azure') {
-    const endpoint = new URL(env.AZURE_OPENAI_ENDPOINT);
-    if (endpoint.protocol !== 'https:' || !/\.(openai\.azure\.com|services\.ai\.azure\.com)$/.test(endpoint.hostname) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash || endpoint.port) throw new Error('Invalid model endpoint configuration.');
-    if (!env.AZURE_OPENAI_API_KEY || !env.AZURE_OPENAI_DEPLOYMENT) throw new Error('Missing model configuration.');
-    url = `${endpoint.origin}/openai/v1/chat/completions`;
-    auth = { 'api-key': env.AZURE_OPENAI_API_KEY };
-    models = [env.AZURE_OPENAI_DEPLOYMENT];
+    // Azure first; when Groq is also configured its models take over a turn Azure cannot answer.
+    targets = [azureTarget(env), ...groqTargets(env)];
   } else throw new Error('Unsupported model provider.');
   const review = env.ASSISTANT_KNOWLEDGE_MODE === 'review' && env.ASSISTANT_REVIEW_ENVIRONMENT === 'latest';
-  // GPT-OSS JSON-object mode can emit tool_use_failed even with no tools configured.
-  // Its supported strict decoder constrains the reply to the application contract.
-  const responseFormat = (model) => (provider === 'groq' && STRICT_MODELS.has(model) ? { type: 'json_schema', json_schema: { name: 'elixir_sales_reply', strict: true, schema: replySchema } } : { type: 'json_object' });
+  const responseFormat = (target) => (target.strict ? { type: 'json_schema', json_schema: { name: 'elixir_sales_reply', strict: true, schema: replySchema } } : { type: 'json_object' });
   return {
     // `onAttemptFailed` receives the safe reason code of each failed attempt.
     async complete(request, sources, { onAttemptFailed = () => {}, onModel = () => {} } = {}) {
@@ -158,7 +177,7 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
         `Contact preference: ${request.contactPreference}. When declined, do not invite contact, ask for contact information or suggest a demo or discovery call. The application changes this preference only after a visitor-initiated request.`,
         `Knowledge data: ${JSON.stringify(sources.map(({ id, title, content }) => ({ id, title, content })))}`,
       ].join('\n');
-      const requestBody = (model, plain) => JSON.stringify({ model, messages: [{ role: 'system', content: instructions(plain ? PLAIN_REPLY_RULE : JSON_REPLY_RULE) }, ...request.messages], ...(plain ? {} : { response_format: responseFormat(model) }), max_completion_tokens: 1200, ...(provider === 'groq' && model.startsWith('openai/gpt-oss-') ? { reasoning_effort: 'low' } : {}) });
+      const requestBody = (target, plain) => JSON.stringify({ model: target.model, messages: [{ role: 'system', content: instructions(plain ? PLAIN_REPLY_RULE : JSON_REPLY_RULE) }, ...request.messages], ...(plain ? {} : { response_format: responseFormat(target) }), max_completion_tokens: 1200, ...(target.reasoningEffort ? { reasoning_effort: target.reasoningEffort } : {}) });
       const parseReply = (content, { plain, truncated }) => {
         if (typeof content !== 'string' || !content.trim()) throw new ModelAttemptError('empty', { format: true });
         let value;
@@ -180,15 +199,15 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
         try { return normalizeChatReply(value, sources); }
         catch { throw new ModelAttemptError('invalid-reply', { format: true }); }
       };
-      const attempt = async (model, plain) => {
+      const attempt = async (target, plain) => {
         const remaining = deadline - Date.now();
         if (remaining < MIN_ATTEMPT_MS) throw new ModelAttemptError('deadline');
         let response, payload;
         try {
-          response = await fetchImpl(url, {
+          response = await fetchImpl(target.url, {
             method: 'POST', redirect: 'error',
-            headers: { 'Content-Type': 'application/json', ...auth },
-            body: requestBody(model, plain),
+            headers: { 'Content-Type': 'application/json', ...target.auth },
+            body: requestBody(target, plain),
             signal: AbortSignal.timeout(Math.min(MODEL_TIMEOUT_MS, remaining)),
           });
         } catch (error) {
@@ -206,14 +225,14 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
       // connection, plain text after a reply the structured mode could not produce (repeating that
       // request tends to fail again). Never for a rate limit or a rejected key, and never after a
       // timeout: a second full wait on the same model would outlast the function's time limit.
-      const tryModel = async (model) => {
-        try { return await attempt(model, false); }
+      const tryModel = async (target) => {
+        try { return await attempt(target, false); }
         catch (error) {
           if (!(error instanceof ModelAttemptError)) throw error;
           onAttemptFailed(error.reason);
           if (error.slow) throw error;
           await new Promise((resolve) => setTimeout(resolve, MODEL_RETRY_DELAY_MS));
-          try { return await attempt(model, error.format); }
+          try { return await attempt(target, error.format); }
           catch (second) {
             if (second instanceof ModelAttemptError) onAttemptFailed(second.reason);
             throw second;
@@ -223,19 +242,22 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
       let reply;
       const limits = [];
       let lastError;
-      for (const [index, model] of models.entries()) {
+      const rejected = new Set();
+      for (const [index, target] of targets.entries()) {
+        // A rejected key is the same for every model of that provider.
+        if (rejected.has(target.provider)) continue;
         try {
-          reply = await tryModel(model);
+          reply = await tryModel(target);
           onModel(index ? `fallback-${index}` : 'primary');
           break;
         } catch (error) {
-          // A rejected key is the same for every model; anything unexpected is not retried.
           if (error instanceof ModelRateLimitError) { limits.push(error); onAttemptFailed('rate-limited'); }
-          else if (!(error instanceof ModelAttemptError)) throw error;
+          else if (error instanceof ModelConfigError) { rejected.add(target.provider); onAttemptFailed('config'); }
+          else if (!(error instanceof ModelAttemptError)) throw error; // anything unexpected is not retried
           lastError = error;
         }
       }
-      if (!reply) throw limits.length === models.length ? shortestLimit(limits) : lastError;
+      if (!reply) throw limits.length === targets.length ? shortestLimit(limits) : lastError;
       // The model may only extract literal visitor text, not infer or invent qualification facts.
       const latest = request.messages.at(-1).content.toLowerCase();
       reply.qualification = Object.fromEntries(Object.entries(reply.qualification).filter(([, value]) => latest.includes(value.toLowerCase())));

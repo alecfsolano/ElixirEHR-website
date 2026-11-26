@@ -372,6 +372,61 @@ test('a rate-limited, failing or slow model hands the turn to the configured fal
 });
 
 // AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('Azure is primary and the Groq models back it up across providers', async () => {
+  const crossEnv = { ...env, ASSISTANT_PROVIDER: 'azure', AZURE_OPENAI_STRICT_SCHEMA: 'true', AZURE_OPENAI_REASONING_EFFORT: 'low', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b', GROQ_FALLBACK_MODELS: 'openai/gpt-oss-120b' };
+  const good = () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: 'Hello from a model.', citationIds: [] }) } }] }));
+  const limited = (seconds) => () => new Response('limited', { status: 429, headers: { 'retry-after': String(seconds) } });
+  const run = async (steps, runEnv = crossEnv) => {
+    const sent = [];
+    const result = await createChatHandler({ env: runEnv, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async (url, options) => { sent.push({ url, headers: options.headers, body: JSON.parse(options.body) }); return steps[sent.length - 1](); } })(body);
+    return { result, sent };
+  };
+  // Azure answers first, with the strict reply schema and the configured reasoning effort.
+  let { result, sent } = await run([good]);
+  assert.equal(result.status, 200);
+  assert.equal(result.headers['X-Assistant-Model'], 'primary');
+  assert.equal(sent[0].url, 'https://example.openai.azure.com/openai/v1/chat/completions');
+  assert.equal(sent[0].headers['api-key'], env.AZURE_OPENAI_API_KEY);
+  assert.equal(sent[0].headers.Authorization, undefined);
+  assert.equal(sent[0].body.response_format.type, 'json_schema');
+  assert.equal(sent[0].body.response_format.json_schema.strict, true);
+  assert.equal(sent[0].body.reasoning_effort, 'low');
+  // A rate-limited Azure deployment hands the turn to Groq with Groq's own key; the Azure key never leaves for Groq.
+  ({ result, sent } = await run([limited(30), good]));
+  assert.equal(result.status, 200);
+  assert.equal(result.headers['X-Assistant-Model'], 'fallback-1');
+  assert.equal(sent[1].url, 'https://api.groq.com/openai/v1/chat/completions');
+  assert.equal(sent[1].body.model, 'openai/gpt-oss-20b');
+  assert.equal(sent[1].headers['api-key'], undefined);
+  assert.equal(sent[1].headers.Authorization, 'Bearer test-placeholder-key');
+  // A rejected Azure key skips to Groq instead of failing the visitor.
+  ({ result, sent } = await run([() => new Response('no', { status: 401 }), good]));
+  assert.equal(result.status, 200);
+  assert.equal(result.headers['X-Assistant-Model'], 'fallback-1');
+  assert.equal(result.headers['X-Assistant-Recovered'], 'config');
+  // A rejected Groq key skips the other Groq model too; with every provider down the visitor gets the 503.
+  ({ result, sent } = await run([() => new Response('no', { status: 401 }), () => new Response('no', { status: 403 })]));
+  assert.equal(result.status, 503);
+  assert.equal(sent.length, 2);
+  // All three limited: the shortest wait is returned.
+  ({ result, sent } = await run([limited(30), limited(9), limited(4)]));
+  assert.equal(result.status, 429);
+  assert.equal(result.headers['Retry-After'], '4');
+  // Without a Groq key, Azure stands alone; without the opt-ins, Azure keeps JSON-object mode and no reasoning setting.
+  ({ result, sent } = await run([limited(5), good], { ...env, ASSISTANT_PROVIDER: 'azure' }));
+  assert.equal(result.status, 429);
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].body.response_format.type, 'json_object');
+  assert.equal(sent[0].body.reasoning_effort, undefined);
+  // An unknown reasoning effort is ignored rather than sent.
+  ({ sent } = await run([good], { ...crossEnv, AZURE_OPENAI_REASONING_EFFORT: 'turbo' }));
+  assert.equal(sent[0].body.reasoning_effort, undefined);
+  // An incomplete Groq setting is ignored: Azure still serves alone.
+  ({ result, sent } = await run([good], { ...crossEnv, GROQ_MODEL: '' }));
+  assert.equal(result.status, 200);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
 test('a structured or marked reply carrying notes, markup, links or the instructions is never shown', async () => {
   const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
   const structured = (answer) => () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer, citationIds: [] }) } }] }));

@@ -26,6 +26,11 @@ import { outcome as o, defaultAnswer } from './fake-model.mjs';
 
 const BUDGET_KEY = 'elixir-assistant-visitor-messages';
 const BH = '/behavioral-health-ehr/';
+// The production model settings with dummy keys: Azure OpenAI first, then the two Groq models.
+const PROD_ENV = {
+  ASSISTANT_PROVIDER: 'azure', AZURE_OPENAI_ENDPOINT: 'https://e2e-fake.openai.azure.com', AZURE_OPENAI_DEPLOYMENT: 'e2e-deployment', AZURE_OPENAI_API_KEY: 'e2e-dummy-not-a-key',
+  AZURE_OPENAI_STRICT_SCHEMA: 'true', AZURE_OPENAI_REASONING_EFFORT: 'low', GROQ_FALLBACK_MODELS: 'openai/gpt-oss-120b',
+};
 /** Everything Fitz showed in this turn: its messages and any error, never the visitor's own text. */
 const fitzText = (shown) => [...shown.messages.filter((message) => message.speaker === 'Fitz').map((message) => message.text), shown.error].join('\n');
 const KNOWLEDGE_URLS = new Set(approvedKnowledge.map((entry) => entry.url));
@@ -88,6 +93,11 @@ const OUTCOMES = {
   'network-then-good': { make: (c) => (c.attempt === 1 ? o.network() : null), expect: 'answer', recovered: 'network' },
   'key-rejected-401': { make: () => o.http(401, { error: { message: 'Invalid API Key', code: 'invalid_api_key' } }), expect: 'error', allowStatuses: [503] },
   'model-header-primary': { make: () => null, expect: 'answer', pending: 'b', check: async (t, shown, at) => { t.assert.equal(t.apiLog[at - 1]?.headers?.['X-Assistant-Model'], 'primary', 'X-Assistant-Model: primary on a primary-model reply'); } },
+  // Production shape: Azure OpenAI primary, then the Groq models.
+  'prod-azure-primary-answers': { make: () => null, env: PROD_ENV, expect: 'answer', check: async (t, shown, at) => { t.assert.equal(t.apiLog[at - 1]?.headers?.['X-Assistant-Model'], 'primary', 'Azure answers as the primary'); } },
+  'prod-azure-limited-groq-answers': { make: (c) => (c.model === 'e2e-deployment' ? o.http(429, { error: { code: '429', message: 'Rate limit' } }, { 'retry-after': '30' }) : null), env: PROD_ENV, expect: 'answer', allowStatuses: [429], check: async (t, shown, at) => { t.assert.equal(t.apiLog[at - 1]?.headers?.['X-Assistant-Model'], 'fallback-1', 'Groq answers when Azure is rate-limited'); } },
+  'prod-azure-key-rejected-groq-answers': { make: (c) => (c.model === 'e2e-deployment' ? o.http(401, { error: { code: '401', message: 'Access denied' } }) : null), env: PROD_ENV, expect: 'answer', recovered: 'config' },
+  'prod-every-model-limited': { make: () => o.http(429, { error: { message: 'Rate limit reached', code: 'rate_limit_exceeded' } }, { 'retry-after': '30' }), env: PROD_ENV, expect: 'error', allowStatuses: [429], noAutoRetry: true },
   'primary-limited-fallback-answers': { make: (c) => (c.model === 'openai/gpt-oss-20b' ? o.http(429, { error: { message: 'Rate limit reached', code: 'rate_limit_exceeded' } }, { 'retry-after': '30' }) : null), env: { GROQ_FALLBACK_MODEL: 'openai/gpt-oss-120b', GROQ_FALLBACK_MODELS: 'openai/gpt-oss-120b' }, expect: 'answer', pending: 'b', allowStatuses: [429], check: async (t, shown, at) => { t.assert.equal(t.apiLog[at - 1]?.headers?.['X-Assistant-Model'], 'fallback-1', 'X-Assistant-Model: fallback-1 when the fallback model answered'); } },
 };
 
