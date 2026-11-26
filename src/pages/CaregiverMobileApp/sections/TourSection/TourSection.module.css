@@ -22,13 +22,13 @@
   color: rgb(31 24 35 / 0.6);
 }
 
-/* The six pills run past the content edge in the frame: the row scrolls sideways. */
+/* The six pills fit one row at desktop width and wrap on tablets, so no label is clipped; on
+   phones the row scrolls sideways under the shared scroll cue. */
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 31px;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
 
 .tab {
@@ -37,7 +37,7 @@
   align-items: center;
   gap: 4px;
   height: 36px;
-  padding: 0 16px;
+  padding: 0 14px;
   border: 0;
   border-radius: 999px;
   background: var(--color-surface);
@@ -195,6 +195,12 @@
 @media (max-width: 767px) {
   .section {
     padding: 64px 0;
+  }
+
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .description {
