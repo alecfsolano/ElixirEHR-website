@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createChatHandler, DEFAULT_DAILY_CAP, GROQ_DAILY_CAP, workerDailyCap } from '../api/lib/chat-handler.mjs';
+import { createChatHandler, DEFAULT_DAILY_CAP, GROQ_DAILY_CAP, workerAzureLimit, workerDailyCap } from '../api/lib/chat-handler.mjs';
 
 const azureEnv = { ASSISTANT_ENABLED: 'true', AZURE_OPENAI_ENDPOINT: 'https://example.openai.azure.com', AZURE_OPENAI_DEPLOYMENT: 'configured-small-model', AZURE_OPENAI_API_KEY: 'test-only-not-a-real-key' };
 const knowledge = [{ id: 'ehr', status: 'approved', owner: 'Test product owner', reviewedAt: '2026-11-13', title: 'EHR overview', url: 'https://www.elixirehr.com/electronic-health-record/', content: 'Approved test fixture: EHR information for a test organization.' }];
@@ -29,4 +29,27 @@ test('the Azure daily cap stops model calls once reached and asks the visitor to
   assert.equal(third.body.code, 'PLEASE_WAIT');
   assert.equal(third.headers['Retry-After'], '3600');
   assert.equal(calls, 2);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('the Azure per-minute and concurrency caps are configurable with the old defaults', async () => {
+  assert.equal(workerAzureLimit({}, 'ASSISTANT_AZURE_PER_MINUTE', 30), 30);
+  assert.equal(workerAzureLimit({ ASSISTANT_AZURE_PER_MINUTE: '200' }, 'ASSISTANT_AZURE_PER_MINUTE', 30), 200);
+  for (const bad of ['0', '-3', '2.5', 'lots', '', ' ']) assert.equal(workerAzureLimit({ ASSISTANT_AZURE_PER_MINUTE: bad }, 'ASSISTANT_AZURE_PER_MINUTE', 30), 30, `invalid limit ${JSON.stringify(bad)} falls back`);
+  // Per minute: 3 allowed, the 4th waits.
+  let calls = 0;
+  let handler = createChatHandler({ env: { ...azureEnv, ASSISTANT_AZURE_PER_MINUTE: '3' }, knowledge, clientLimiter: openLimiter, fetchImpl: async () => { calls++; return reply(); } });
+  for (let n = 0; n < 3; n++) assert.equal((await handler(body)).status, 200);
+  assert.equal((await handler(body)).status, 429);
+  assert.equal(calls, 3);
+  // Concurrency: with 6 allowed, 6 slow turns run at once and the 7th waits.
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  handler = createChatHandler({ env: { ...azureEnv, ASSISTANT_AZURE_CONCURRENT: '6' }, knowledge, clientLimiter: openLimiter, fetchImpl: async () => { await gate; return reply(); } });
+  const running = Array.from({ length: 6 }, () => handler(body));
+  const seventh = await handler(body);
+  assert.equal(seventh.status, 429);
+  assert.equal(seventh.headers['Retry-After'], '3');
+  release();
+  for (const result of await Promise.all(running)) assert.equal(result.status, 200);
 });

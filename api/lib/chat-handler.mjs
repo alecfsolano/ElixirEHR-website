@@ -17,6 +17,13 @@ const AZURE_PER_MINUTE = 30;
 const AZURE_CONCURRENT = 4;
 const CONCURRENT_RETRY_SECONDS = 3;
 
+/** A positive whole-number Azure limit from the environment, or the default when unset or invalid. */
+export function workerAzureLimit(env, name, fallback) {
+  const configured = String(env[name] ?? '').trim();
+  const value = /^\d+$/.test(configured) ? Number.parseInt(configured, 10) : NaN;
+  return Number.isSafeInteger(value) && value > 0 ? value : fallback;
+}
+
 /** The most model calls one worker admits per day for the configured provider. */
 export function workerDailyCap(env = {}) {
   if (env.ASSISTANT_PROVIDER === 'groq') return GROQ_DAILY_CAP;
@@ -32,6 +39,10 @@ export function createChatHandler({ env = process.env, fetchImpl = fetch, knowle
   // Every provider has a per-worker daily cap: Groq's free tier is fixed at 100; other providers
   // (Azure) use ASSISTANT_AZURE_DAILY_CAP, a positive whole number, default 300.
   const dailyCap = workerDailyCap(env);
+  // Azure's per-minute and concurrent limits per worker: ASSISTANT_AZURE_PER_MINUTE and
+  // ASSISTANT_AZURE_CONCURRENT, positive whole numbers, defaults 30 and 4.
+  const perMinute = env.ASSISTANT_PROVIDER === 'groq' ? GROQ_PER_MINUTE : workerAzureLimit(env, 'ASSISTANT_AZURE_PER_MINUTE', AZURE_PER_MINUTE);
+  const concurrent = env.ASSISTANT_PROVIDER === 'groq' ? GROQ_CONCURRENT : workerAzureLimit(env, 'ASSISTANT_AZURE_CONCURRENT', AZURE_CONCURRENT);
   let windowStart = Date.now();
   let dayStart = Date.now();
   let admissions = 0;
@@ -70,9 +81,8 @@ export function createChatHandler({ env = process.env, fetchImpl = fetch, knowle
     // Checked before the per-client limit, so a call the worker turns away does not use up the visitor's allowance.
     if (Date.now() - windowStart >= 60000) { windowStart = Date.now(); admissions = 0; }
     if (Date.now() - dayStart >= 86400000) { dayStart = Date.now(); dailyAdmissions = 0; }
-    const groq = env.ASSISTANT_PROVIDER === 'groq';
     const dailyFull = dailyAdmissions >= dailyCap;
-    const busy = dailyFull ? 'day' : inFlight >= (groq ? GROQ_CONCURRENT : AZURE_CONCURRENT) ? 'concurrent' : admissions >= (groq ? GROQ_PER_MINUTE : AZURE_PER_MINUTE) ? 'minute' : null;
+    const busy = dailyFull ? 'day' : inFlight >= concurrent ? 'concurrent' : admissions >= perMinute ? 'minute' : null;
     if (busy) {
       // A short, honest wait lets the page wait it out instead of showing an error.
       const retryAfter = busy === 'day' ? 3600 : busy === 'concurrent' ? CONCURRENT_RETRY_SECONDS : Math.max(1, Math.ceil((windowStart + 60000 - Date.now()) / 1000));
