@@ -102,20 +102,51 @@
   color: #444;
 }
 
-/* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
+/* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18.
+   On phones the five columns do not fit, so each claim stacks into a small card:
+   ID and risk pill, then payer and balance, then status. The headings stay for assistive tech. */
 @media (max-width: 767px) {
-  .table {
+  .table,
+  .table tbody {
     display: block;
-    overflow-x: auto;
   }
 
-  .table thead th {
-    width: auto;
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
     white-space: nowrap;
+  }
+
+  .table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0edee;
   }
 
   .table tbody th,
   .table tbody td {
-    white-space: nowrap;
+    height: auto;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .table tbody td:nth-child(3),
+  .table tbody td:nth-child(4) {
+    justify-self: end;
+  }
+
+  .table tbody td:nth-child(4) {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .table tbody td:nth-child(5) {
+    grid-column: 1 / -1;
+    color: var(--color-body);
   }
 }

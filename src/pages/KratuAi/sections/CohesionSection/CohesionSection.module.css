@@ -59,6 +59,11 @@
 }
 
 @media (max-width: 767px) {
+  /* The desktop line-height above is for the 44px title; keep the phone title at 38px. */
+  .intro h2 {
+    line-height: 38px;
+  }
+
   .section {
     padding: 64px 0;
   }

@@ -74,7 +74,7 @@ export const cpInterventions = {
     'Everyone knows what to do, when to do it and why it matters, so coordinated care stops being an aspiration and becomes the everyday norm.',
   ],
   items: [
-    { level: 'Care plan', tone: 'dark', title: 'Monthly care coordination call', owner: 'MG', ownerTone: 'purple' },
+    { level: 'Care plan', tone: 'lavender', title: 'Monthly care coordination call', owner: 'MG', ownerTone: 'purple' },
     { level: 'Goal', tone: 'lime', title: 'Medication adherence check-in', owner: 'DP', ownerTone: 'ink' },
     { level: 'Objective', tone: 'blue', title: 'Nutrition coaching session', owner: 'LR', ownerTone: 'lime' },
   ],

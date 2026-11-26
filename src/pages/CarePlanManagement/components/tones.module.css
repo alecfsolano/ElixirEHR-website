@@ -20,11 +20,6 @@
   color: #493266;
 }
 
-.tagDark {
-  background: var(--color-heading);
-  color: var(--color-white);
-}
-
 /* Status pills. */
 .pill {
   flex-shrink: 0;

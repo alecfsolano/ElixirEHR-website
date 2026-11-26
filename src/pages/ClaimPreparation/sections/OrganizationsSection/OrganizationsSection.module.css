@@ -88,7 +88,12 @@
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
-  color: var(--color-tertiary);
+  color: #725c00;
+}
+
+/* The arrow asset is the bright yellow; darken it to match the label. */
+.link img {
+  filter: brightness(0.5);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

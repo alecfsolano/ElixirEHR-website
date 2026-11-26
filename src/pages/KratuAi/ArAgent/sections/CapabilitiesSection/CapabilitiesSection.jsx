@@ -1,6 +1,5 @@
 import { arCapabilities } from '../../../../../data/arAgent';
 import Section from '../../../../../components/layout/Section/Section';
-import modelTag from '../../../../../assets/kratu-ai/ar-model-tag.png';
 import styles from './CapabilitiesSection.module.css';
 
 /** "A/R Agent capabilities" (dark) — eight model cards, each with its stage pill. */
@@ -22,7 +21,7 @@ function CapabilitiesSection() {
         {items.map((item) => (
           <li key={item.title} className={styles.card}>
             <p className={styles.top}>
-              <img loading="lazy" decoding="async" src={modelTag} alt="" width="7" height="22" />
+              <span className={styles.mark} aria-hidden="true" />
               <span className={styles.tag}>{item.tag}</span>
             </p>
             <h3 className={styles.title}>{item.title}</h3>
