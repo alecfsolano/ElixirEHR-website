@@ -129,7 +129,14 @@ function FeedCard({ post }) {
   return (
     <article className={styles.card}>
       <div className={styles.cardMedia}>
-        <img loading="lazy" decoding="async" src={post.cardImage.src} alt={post.cardImage.alt} className={styles.cardImage} />
+        <img
+          loading="lazy"
+          decoding="async"
+          src={post.cardImage.src}
+          alt={post.cardImage.alt}
+          className={styles.cardImage}
+          style={{ objectPosition: post.cardImage.position }}
+        />
         <span className={styles.cardTag}>{labels.tag}</span>
       </div>
       <div className={styles.cardBody}>
