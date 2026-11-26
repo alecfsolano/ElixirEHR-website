@@ -13,11 +13,9 @@
 
 .grid {
   display: grid;
-  /* The last title ("Connected to the claim") is the longest; a slightly wider last column keeps all
-     four on one line at desktop widths, and top alignment keeps them level if one ever wraps. */
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.15fr);
-  align-items: start;
-  gap: 24px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: 32px;
   padding-left: 8px;
 }
 
@@ -30,6 +28,7 @@
 }
 
 .text {
+  max-width: 245px;
   margin-top: 4px;
   font-size: 14px;
   line-height: 20px;

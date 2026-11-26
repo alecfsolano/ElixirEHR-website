@@ -22,12 +22,10 @@
   margin-top: 32px;
 }
 
-/* White card with a 6px yellow rule; the tag sits in a fixed column so every title starts at the
-   same x, whatever the tag's length. */
+/* White card with a 6px yellow rule; the tag sets where the text column starts. */
 .card {
-  display: grid;
-  grid-template-columns: 136px minmax(0, 1fr);
-  align-items: start;
+  display: flex;
+  align-items: flex-start;
   gap: 16px;
   padding: 24px 24px 24px 18px;
   border-left: 6px solid var(--color-tertiary);
@@ -37,7 +35,7 @@
 }
 
 .tag {
-  justify-self: start;
+  flex-shrink: 0;
   padding: 0 16px;
   border-radius: 999px;
   background: var(--color-secondary);
@@ -46,7 +44,7 @@
   font-weight: 700;
   line-height: 24px;
   text-transform: uppercase;
-  color: var(--color-heading);
+  color: var(--color-white);
 }
 
 .title {
@@ -81,7 +79,6 @@
   gap: 8px;
   margin-top: 15px;
   padding-left: 20px;
-  list-style: disc;
   font-size: 16px;
   line-height: 24px;
 }
@@ -129,12 +126,16 @@
   }
 
   .card {
-    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
     gap: 12px;
     padding: 20px;
   }
 
   .milestones {
     padding: 24px 20px;
+  }
+
+  .points {
+    padding-left: 0;
   }
 }

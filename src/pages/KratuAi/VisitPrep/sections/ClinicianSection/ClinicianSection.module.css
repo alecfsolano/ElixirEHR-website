@@ -137,7 +137,7 @@
 
 .confirmed {
   --edge: var(--color-secondary);
-  --status: var(--color-secondary-on-light);
+  --status: var(--color-secondary);
 }
 
 .added {

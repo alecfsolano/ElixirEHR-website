@@ -10,7 +10,7 @@
 .eyebrow {
   font-size: 16px;
   line-height: 24px;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .title {

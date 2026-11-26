@@ -42,11 +42,8 @@
     padding: 24px 0;
   }
 
-  /* Wrap onto several rows: a sideways strip hid "Benchmark Surveys" onwards with no cue. */
   .list {
-    flex-wrap: wrap;
     justify-content: flex-start;
     padding-inline: 20px;
-    overflow-x: visible;
   }
 }

@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import Section from '../../../../components/layout/Section/Section';
 import { cn } from '../../../../utils/cn';
-import { keepHyphenated } from '../../../../utils/keepHyphenated';
 import KrIntro from '../KrIntro/KrIntro';
 import styles from './AgentSection.module.css';
 
@@ -26,7 +25,7 @@ function AgentSection({ agent, tone = 'white', reverse = false, className, child
     >
       <div className={cn(styles.layout, reverse && styles.reverse)}>
         <div className={styles.copy}>
-          <KrIntro id={titleId} eyebrow={agent.chip} title={keepHyphenated(agent.title)} eyebrowStyle="chip" tone="agent" className={styles.intro} />
+          <KrIntro id={titleId} eyebrow={agent.chip} title={agent.title} eyebrowStyle="chip" tone="agent" className={styles.intro} />
           {agent.paragraphs.map((paragraph) => (
             <p key={paragraph} className={styles.paragraph}>
               {paragraph}

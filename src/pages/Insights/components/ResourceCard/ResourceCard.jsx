@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../../../components/ui/Icon/Icon';
-import KeepHyphenated from '../../../../components/ui/KeepHyphenated/KeepHyphenated';
 import { cn } from '../../../../utils/cn';
 import styles from './ResourceCard.module.css';
 
@@ -8,7 +7,7 @@ import styles from './ResourceCard.module.css';
  * Insights resource card: photo with a yellow tag, a meta row, title, optional excerpt and an
  * action. `layout`: 'stacked' (photo on top) or 'horizontal' (photo left — featured items).
  * `size` sets the photo height of stacked cards ('compact' 225px, 'wide' 360px).
- * `meta` is [{ icon, text }]. `post.cardImage.position` (CSS object-position) moves the crop. `action` is { label, to } (router link) or { label, href, download }
+ * `meta` is [{ icon, text }]. `action` is { label, to } (router link) or { label, href, download }
  * (file); `button: true` draws it as the lime "Download" button.
  */
 function ResourceCard({ post, tag, meta = [], excerpt, action, layout = 'stacked', size = 'compact' }) {
@@ -47,14 +46,8 @@ function ResourceCard({ post, tag, meta = [], excerpt, action, layout = 'stacked
             ))}
           </ul>
         )}
-        <h2 className={styles.title}>
-          <KeepHyphenated text={title} />
-        </h2>
-        {excerpt && (
-          <p className={styles.excerpt}>
-            <KeepHyphenated text={post.excerpt} />
-          </p>
-        )}
+        <h2 className={styles.title}>{title}</h2>
+        {excerpt && <p className={styles.excerpt}>{post.excerpt}</p>}
         {action.to ? (
           <Link to={action.to} className={actionClass}>
             {label}

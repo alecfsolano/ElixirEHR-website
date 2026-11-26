@@ -13,7 +13,7 @@ function ScopeSection() {
         <p className={styles.description}>{description}</p>
       </div>
 
-      {/* On phones each row becomes a card, with every value under its column name (data-label). */}
+      {/* Scrolls sideways on narrow screens rather than squeezing three text columns. */}
       <div className={styles.frame} role="region" aria-label="EVV scope by service area" tabIndex={0}>
         <table className={styles.table}>
           <colgroup>
@@ -33,13 +33,9 @@ function ScopeSection() {
           <tbody>
             {rows.map((row) => (
               <tr key={row.area}>
-                <th scope="row" data-label={columns[0]}>
-                  {row.area}
-                </th>
-                <td className={styles.federal} data-label={columns[1]}>
-                  {row.federal}
-                </td>
-                <td data-label={columns[2]}>{row.confirm}</td>
+                <th scope="row">{row.area}</th>
+                <td className={styles.federal}>{row.federal}</td>
+                <td>{row.confirm}</td>
               </tr>
             ))}
           </tbody>

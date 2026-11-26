@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { getPosts } from '../../../posts';
-import { cn } from '../../../utils/cn';
 import Pagination from '../../../components/ui/Pagination/Pagination';
 import InsightsShell from '../components/InsightsShell/InsightsShell';
 import ResourceCard from '../components/ResourceCard/ResourceCard';
@@ -10,14 +9,12 @@ import styles from './WideListing.module.css';
 
 /**
  * Full-width two-up listing (E-Book, Benchmark Surveys): 562px cards with a 360px photo, four per
- * page; a single result spans the row as a horizontal card. `meta(post)` and `action(post)` give
- * each card's meta row and link/button; `tag` is the cards' type badge.
+ * page. `meta(post)` and `action(post)` give each card's meta row and link/button; `tag` is the
+ * cards' type badge.
  */
 function WideListing({ type, page, noun, meta, action, tag = 'Article' }) {
   const posts = useMemo(() => getPosts(type), [type]);
   const listing = useResourceListing(posts, { pageSize: 4 });
-  // A lone result would leave half the two-up grid empty, so it spans the row as a featured card.
-  const single = listing.items.length === 1;
 
   return (
     <InsightsShell
@@ -28,18 +25,10 @@ function WideListing({ type, page, noun, meta, action, tag = 'Article' }) {
     >
       <ListingStatus count={listing.results.length} noun={noun} />
       {listing.items.length > 0 && (
-        <ul className={cn(styles.grid, single && styles.single)}>
+        <ul className={styles.grid}>
           {listing.items.map((post) => (
             <li key={post.id}>
-              <ResourceCard
-                post={post}
-                layout={single ? 'horizontal' : 'stacked'}
-                size="wide"
-                tag={tag}
-                meta={meta(post)}
-                excerpt
-                action={action(post)}
-              />
+              <ResourceCard post={post} size="wide" tag={tag} meta={meta(post)} excerpt action={action(post)} />
             </li>
           ))}
         </ul>

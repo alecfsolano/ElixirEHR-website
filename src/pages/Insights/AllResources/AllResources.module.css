@@ -6,11 +6,8 @@
   align-items: start;
 }
 
-/* The side column's cards size to their content: stretched to the e-book card's height, the video
-   card was a block of empty purple above its link. */
 .side {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 26px;
 }
 
@@ -85,7 +82,7 @@
   font-size: 16px;
   font-weight: 600;
   line-height: 20px;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .featuredText + .link {
@@ -192,23 +189,36 @@
   color: var(--color-white);
 }
 
-/* Featured video: the YouTube thumbnail, uncovered, above a Deep Purple body sized to its text. */
+/* Featured video: photo under a Deep Purple gradient. */
 .video {
   position: relative;
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
+  min-height: 277px;
   overflow: hidden;
   border-radius: 20px;
   background: var(--color-surface-dark);
 }
 
+.video::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* Near-opaque from mid-height down: the video thumbnails carry their own title text there, which
+     otherwise shows through behind the tag and title. */
+  background: linear-gradient(180deg, rgb(73 50 102 / 0.3), rgb(50 27 79 / 0.95) 42%, rgb(50 27 79) 52%);
+}
+
 .videoImage {
-  display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   object-fit: cover;
 }
 
+/* Top-right corner, clear of the thumbnail's own title text (centred, it sat on top of it). */
 .videoPlay {
   position: absolute;
   top: 20px;
@@ -219,16 +229,17 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgb(50 27 79 / 0.6);
+  background: rgb(255 255 255 / 0.3);
   color: var(--color-white);
 }
 
 .videoBody {
+  position: relative;
+  z-index: 2;
   display: flex;
-  flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  padding: 20px 21px 24px;
+  padding: 0 21px 20px;
 }
 
 .videoTag {
@@ -236,10 +247,10 @@
   border-radius: var(--radius-xs);
   background: rgb(255 255 255 / 0.2);
   font-family: var(--font-label);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 600;
   line-height: 18px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-white);
 }
@@ -250,25 +261,6 @@
   font-weight: 600;
   line-height: 24px;
   color: var(--color-white);
-}
-
-.videoText {
-  margin-top: 8px;
-  font-size: 14px;
-  line-height: 22px;
-  color: #ddd6e4;
-}
-
-.videoLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 16px;
-  font-family: var(--font-label);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-secondary);
 }
 
 /* Mixed feed */
@@ -358,7 +350,6 @@
   }
 
   .side {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
