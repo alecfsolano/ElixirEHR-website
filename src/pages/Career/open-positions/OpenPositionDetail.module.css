@@ -183,6 +183,13 @@
   color: var(--color-white);
 }
 
+/* No link yet: a flat, muted note in the button's place, not a green action that looks clickable. */
+.unavailable {
+  background: var(--color-surface);
+  font-weight: 500;
+  color: var(--color-body);
+}
+
 .factsTitle {
   margin-top: 33px;
   padding-bottom: 7px;
