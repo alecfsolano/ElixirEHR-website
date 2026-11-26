@@ -576,7 +576,7 @@ test('buying intent and provider-funnel questions always carry one discovery-cal
   const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, nextField: 'size', ...reply }) } }] })) })({ ...body, ...extra })).body;
   const CALL = 'You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat.';
   let out = await run({ answer: 'Elixir is priced per credentialed provider per month.', intent: 'demo' }, { qualification: { organizationType: 'outpatient clinic' } });
-  assert.equal(out.answer, `Elixir is priced per credentialed provider per month. ${CALL}\n\nRoughly how many providers or locations would use Elixir?`);
+  assert.equal(out.answer, `Elixir is priced per credentialed provider per month. There is no standard price: the Elixir team gives a written quote after scoping. ${CALL}\n\nRoughly how many providers or locations would use Elixir?`);
   out = await run({ answer: 'Elixir routes CYBHI claims from the note.', intent: 'explore' }, { providerType: 'cybhi' });
   assert.match(out.answer, /Book a discovery call/);
   // Already mentioned, ordinary exploring, declined contact, or recommended in the previous reply: nothing added.
@@ -652,7 +652,7 @@ test('limits go before the booking sentence, repeats never leave a dangling sent
   assert.equal(out.answer, 'Elixir scopes the EHR plan with the team.');
   // A missing limit is placed before a closing booking sentence, not after it.
   out = await run({ answer: 'Typical EHR go-live is 6 to 10 weeks from kick-off. You can book a discovery call with the Elixir team.' });
-  assert.equal(out.answer, 'Typical EHR go-live is 6 to 10 weeks from kick-off. That typical go-live assumes a small practice on a standard configuration. You can book a discovery call with the Elixir team.');
+  assert.equal(out.answer, 'Typical EHR go-live is 6 to 10 weeks from kick-off. That typical go-live assumes a small practice on a standard configuration; larger or multi-program organizations have their timeline scoped with the team. You can book a discovery call with the Elixir team.');
   // Routing visit data carries the connector limit.
   out = await run({ answer: 'Elixir routes EHR visit data to the system your state requires.' });
   assert.equal(out.answer, 'Elixir routes EHR visit data to the system your state requires. Connector availability is confirmed for your specific payer and state.');
@@ -775,4 +775,20 @@ test('drops never leave a dangling or clipped sentence, refusals ask nothing, an
   // "Elixir team" always reads "the Elixir team".
   out = await run({ answer: 'Elixir team confirms EHR migration scope. Pricing is confirmed by Elixir team after scoping.' });
   assert.equal(out.answer, 'The Elixir team confirms EHR migration scope. Pricing is confirmed by the Elixir team after scoping.');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+// Round-10 live review (2026-11-26) guardrails.
+test('enough-time verdicts, offers and outcome sentences go, prices carry the quote note, and facts stated in passing are not asked again', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  let out = await run({ answer: 'Elixir supports EHR admissions. A six-month move is enough time for most teams. The team scopes the plan.' });
+  assert.equal(out.answer, 'Elixir supports EHR admissions. The team scopes the plan.');
+  out = await run({ answer: 'Elixir keeps EHR claims on one record. That helps teams get to a claim-ready workflow this year. If you want, I can outline the steps.' });
+  assert.equal(out.answer, 'Elixir keeps EHR claims on one record.');
+  // A visitor who says "for a group of 12 therapists" is not asked their organization type or size.
+  out = await run({ answer: 'Elixir schedules PHQ-9 in the EHR.\n\nWhat kind of healthcare organization are you with?', nextField: 'organizationType' }, { messages: [{ role: 'user', content: 'Can the EHR collect PHQ-9 on a schedule, and what would it cost for a group of 12 therapists?' }] });
+  assert.match(out.answer, /\n\nWhich EHR or practice-management system do you use today\?$/);
+  // "I can only help…" is a refusal: no qualifying question.
+  out = await run({ answer: 'I can only help with Elixir EHR questions.\n\nWhat kind of healthcare organization are you with?', nextField: 'organizationType' });
+  assert.equal(out.answer, 'I can only help with Elixir EHR questions.');
 });

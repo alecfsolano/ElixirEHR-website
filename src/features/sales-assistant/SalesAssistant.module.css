@@ -1,7 +1,7 @@
 .launcher { position: fixed; z-index: 90; right: max(24px, env(safe-area-inset-right)); bottom: calc(max(24px, env(safe-area-inset-bottom)) + var(--consent-banner-height, 0px)); display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 22px 8px 8px; border: 2px solid var(--color-secondary); border-radius: var(--radius-pill); background: var(--color-primary); color: #fff; box-shadow: 0 12px 32px rgb(50 27 79 / .35); font: 700 16px/1.2 var(--font-label); letter-spacing: .01em; transition: background-color .2s ease, transform .2s ease; }
 .launcher:hover { background: var(--color-surface-dark); transform: translateY(-1px); }
 .launcher:focus-visible { outline: 3px solid var(--color-tertiary); outline-offset: 3px; }
-/* Scrolled: the icon alone; the name stays for screen readers and comes back on hover or keyboard focus. */
+/* The icon alone; the name stays for screen readers and comes back on hover or keyboard focus. */
 .launcherLabel { white-space: nowrap; }
 .compact:not(:hover):not(:focus-visible) { gap: 0; padding: 8px; }
 .compact:not(:hover):not(:focus-visible) .launcherLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); }

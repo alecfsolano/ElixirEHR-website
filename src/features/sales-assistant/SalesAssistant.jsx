@@ -15,7 +15,7 @@ function DiscoveryLink({ cta, className }) {
   return <a className={className} href={cta.href}>{cta.label}<span aria-hidden="true"> →</span></a>;
 }
 
-// How much shorter than the visible area a reply must be to be shown whole with the conversation's end.
+// Room kept at the bottom of the view when deciding whether a reply and what follows it fit.
 const TALL_REPLY_MARGIN = 40;
 
 /** A reply's sources, one per line; the discovery page is left out because the booking bar already links to it. */
@@ -63,7 +63,10 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
     if (!view || !last) return;
     // A reply taller than the view opens at its first line; otherwise the view shows the end of the
     // conversation, so a discovery card or tailoring form under the reply comes into view too.
-    if (last.tagName === 'ARTICLE' && last.offsetHeight > view.clientHeight - TALL_REPLY_MARGIN) last.scrollIntoView?.({ block: 'start' });
+    // From the reply's first line to the end of the conversation (card and form included): when that does
+    // not fit, the reply is shown from its first line; otherwise the view shows the end.
+    const replyTop = last.getBoundingClientRect().top - view.getBoundingClientRect().top + view.scrollTop;
+    if (last.tagName === 'ARTICLE' && view.scrollHeight - replyTop > view.clientHeight - TALL_REPLY_MARGIN) last.scrollIntoView?.({ block: 'start' });
     else view.scrollTop = view.scrollHeight;
   }, [state.messages.length, state.pending, cta.tone]);
   useEffect(() => () => controller.current?.abort(), []);
@@ -110,7 +113,7 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
           <div ref={transcript} className={styles.transcript} role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions">
             {state.messages.map((message, index) => <article key={index} className={message.role === 'user' ? styles.userMessage : styles.assistantMessage}>
               <span className={styles.speaker}>{message.role === 'user' ? 'You' : 'Fitz'}</span>
-              <div className={styles.text}>{message.content.split(/\n{2,}/).map((paragraph, part) => <p key={part}>{paragraph}</p>)}</div>
+              <div className={styles.text}>{message.content.split(/\n+/).filter((paragraph) => paragraph.trim()).map((paragraph, part) => <p key={part}>{paragraph}</p>)}</div>
               <Sources citations={message.citations} />
             </article>)}
             {state.pending && <p className={styles.pending} role="status">Finding a helpful reply…</p>}

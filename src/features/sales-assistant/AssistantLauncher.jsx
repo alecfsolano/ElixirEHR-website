@@ -6,8 +6,6 @@ import styles from './SalesAssistant.module.css';
 
 const SalesAssistant = lazy(() => import('./SalesAssistant'));
 const PULSE_KEY = 'elixir-assistant-pulsed';
-// Past this scroll depth the launcher shrinks to its icon so it covers less of the page.
-const COMPACT_AFTER_PX = 240;
 
 // The attention pulse plays once per browser session, never under reduced motion (CSS).
 function shouldPulse() {
@@ -19,22 +17,17 @@ function shouldPulse() {
   } catch { return false; }
 }
 
+// The launcher is its icon alone so it covers as little of the page as possible; the name shows during
+// the one-time attention pulse and on hover or keyboard focus, and screen readers always hear it.
 export default function AssistantLauncher() {
   const [mounted, setMounted] = useState(false);
   const [openedOnce, setOpenedOnce] = useState(false);
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [openRequest, setOpenRequest] = useState(null);
-  const [compact, setCompact] = useState(false);
   const button = useRef(null);
   const requests = useRef(0);
   useEffect(() => { setMounted(true); setPulse(mode !== 'off' && shouldPulse()); }, []);
-  useEffect(() => {
-    const update = () => setCompact(window.scrollY > COMPACT_AFTER_PX);
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
-  }, []);
   // Shared 'elixir:open-assistant' event (see openAssistant.mjs). With the assistant switched off,
   // the visitor goes to the discovery-call page instead of a dead end.
   useEffect(() => listenForOpenAssistant(window, (detail) => {
@@ -51,7 +44,7 @@ export default function AssistantLauncher() {
   }
   return (
     <>
-      <button ref={button} className={`${styles.launcher} ${pulse ? styles.attention : ''} ${compact && !pulse ? styles.compact : ''}`} type="button" onClick={() => { setPulse(false); setOpenedOnce(true); setOpen(true); }} onAnimationEnd={() => setPulse(false)} aria-haspopup="dialog" aria-expanded={open}>
+      <button ref={button} className={`${styles.launcher} ${pulse ? styles.attention : ''} ${!pulse ? styles.compact : ''}`} type="button" onClick={() => { setPulse(false); setOpenedOnce(true); setOpen(true); }} onAnimationEnd={() => setPulse(false)} aria-haspopup="dialog" aria-expanded={open}>
         <span className={styles.launcherIcon} aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 3V6a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><path d="M8 9h8M8 13h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
         </span>

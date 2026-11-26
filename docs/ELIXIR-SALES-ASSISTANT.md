@@ -128,7 +128,10 @@ Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-m
 - A sentence merging the two Business Associate Agreements is restated as the two facts.
 - "Elixir team" always reads "the Elixir team".
 - A sentence that leans on a dropped one ("That also…") goes with it. A sentence that a following one leans on, even across a paragraph break, is not dropped as a repeat or a judgment.
-- A reply that opens by declining ("I can’t…", for off-topic, clinical or unsafe requests) gets no qualifying question.
+- A reply that opens by declining ("I can’t…", "I can only help…", for off-topic, clinical or unsafe requests) gets no qualifying question.
+- Offers ("If you want, I can…") and outcome sentences ("That helps…") the knowledge never states are dropped. "Enough time" counts as a timeline verdict.
+- A pricing answer always carries the fact that there is no standard price and the team gives a written quote after scoping.
+- Size and organization type the visitor states in passing ("for a group of 12 therapists") count as known, so they are not asked again.
 - A patient name the visitor typed after "patient", "client" or "member" reads "that patient". A sentence repeating a date of birth or ID from the visitor's message is dropped.
 - The model's own booking sentence ("book a discovery call … in this chat") is replaced by the standard one, so it never implies booking happens in the chat.
 - Limits the knowledge attaches to a stated fact are added when missing, before any closing booking sentence:
