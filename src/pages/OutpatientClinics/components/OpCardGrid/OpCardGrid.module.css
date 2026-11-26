@@ -73,7 +73,7 @@
 }
 
 .dark .text {
-  color: #d8c4ee;
+  color: var(--color-text-on-purple);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

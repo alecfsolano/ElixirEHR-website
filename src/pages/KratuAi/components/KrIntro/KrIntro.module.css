@@ -19,10 +19,14 @@
   color: var(--color-primary);
 }
 
-.dark .eyebrow,
+.dark .eyebrow {
+  color: var(--color-secondary);
+}
+
+/* 'lime' and 'feature' sit on light sections: the darker lime keeps the eyebrow at AA. */
 .lime .eyebrow,
 .feature .eyebrow {
-  color: var(--color-secondary);
+  color: var(--color-secondary-on-light);
 }
 
 /* The agent sections' lavender pill. */

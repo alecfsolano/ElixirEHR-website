@@ -45,7 +45,7 @@
   font-family: var(--font-label);
   font-size: 16px;
   line-height: 24px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .grid {
@@ -104,7 +104,7 @@
   font-family: var(--font-label);
   font-size: 14px;
   line-height: 23px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

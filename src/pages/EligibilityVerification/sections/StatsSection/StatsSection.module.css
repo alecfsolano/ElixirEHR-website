@@ -22,7 +22,7 @@
 
 .description {
   line-height: 24px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .grid {
