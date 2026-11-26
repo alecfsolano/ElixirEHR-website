@@ -20,14 +20,16 @@ export default {
   excerpt:
     'This release delivers significant improvements across EHR, RCM and Patient Portal, all aimed at enhancing usability, compliance, and operational efficiency.',
   publishDate: '2026-03-12',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   version: '1.960',
   seo: {
     title: 'Elixir AI Features Winter ’26 Release Enhancing EHR & Patient Care',
     description:
       'Explore the Elixir Winter ’26 release featuring advanced AI capabilities designed to enhance EHR workflows, improve patient care, streamline clinical processes, and support smarter healthcare decision-making',
   },
-  cardImage: { src: cardImage, alt: 'Clinician reviewing a tablet beside dashboards on two monitors' },
+  // The image is a hero composite with a lime badge baked into its lower left; the card crop is
+  // moved up so the badge's edge does not show as a stray green strip.
+  cardImage: { src: cardImage, alt: 'Clinician reviewing a tablet beside dashboards on two monitors', position: '50% 25%' },
   content: [
     { type: 'paragraph', text: [strong('Release Date:'), ' January 13, 2026'] },
     { type: 'paragraph', text: 'Welcome to the Elixir Winter’26 Release!' },

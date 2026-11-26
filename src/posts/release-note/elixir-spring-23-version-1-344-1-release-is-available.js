@@ -11,7 +11,7 @@ export default {
   title: 'Elixir Spring’23 Version 1.344.1 Release is available!',
   excerpt: 'Here is a summary of the major updates in this version:',
   publishDate: '2023-05-10',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   version: '1.344.1',
   seo: {
     description:

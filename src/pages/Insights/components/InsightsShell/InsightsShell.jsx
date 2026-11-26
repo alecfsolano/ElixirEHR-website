@@ -14,9 +14,10 @@ import styles from './InsightsShell.module.css';
  * field filters the page's resources through `query` / `onQueryChange`), the category bar, then
  * the page heading and content on the surface band. `aside` adds the 372px right sidebar.
  * `hero` replaces the default hero (All Resources uses its own). Pages with approved SEO copy
- * (data/seo.js) use it; the others keep the generic title.
+ * (data/seo.js) use it; the others keep the generic title. `robots` adds a robots meta tag (an
+ * empty listing is "noindex, follow", which also keeps it out of the sitemap).
  */
-function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero, children }) {
+function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero, robots, children }) {
   const searchId = useId();
   const { image, searchPlaceholder, ...heroCopy } = insightsHero;
   const { pathname } = useLocation();
@@ -32,7 +33,7 @@ function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero
   return (
     <>
       {/* The approved SEO copy (data/seo.js) when the page has it, otherwise the generic title. */}
-      <PageSeo path={seoPath} title={`${documentTitle} | Elixir`} description={heroCopy.description} />
+      <PageSeo path={seoPath} title={`${documentTitle} | Elixir`} description={heroCopy.description} robots={robots} />
       {hero ?? (
         <PageHero
           {...heroCopy}

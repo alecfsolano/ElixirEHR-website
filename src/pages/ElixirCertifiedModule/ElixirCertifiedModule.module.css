@@ -231,6 +231,25 @@
   color: #241434;
 }
 
+/* A download whose PDF is not published yet: a quiet status pill in the button's place. */
+.downloadCard .pending {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 8px 16px;
+  border: 1px dashed #b9adc4;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-label);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #685875;
+}
+
 .note {
   max-width: 900px;
   margin: 28px auto 0;
@@ -521,8 +540,10 @@
     padding: 20px;
   }
 
-  .downloadCard .download {
+  .downloadCard .download,
+  .downloadCard .pending {
     width: 100%;
+    justify-content: center;
   }
 
   .disclosure {

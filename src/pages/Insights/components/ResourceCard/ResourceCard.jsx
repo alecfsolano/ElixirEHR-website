@@ -7,7 +7,7 @@ import styles from './ResourceCard.module.css';
  * Insights resource card: photo with a yellow tag, a meta row, title, optional excerpt and an
  * action. `layout`: 'stacked' (photo on top) or 'horizontal' (photo left — featured items).
  * `size` sets the photo height of stacked cards ('compact' 225px, 'wide' 360px).
- * `meta` is [{ icon, text }]. `action` is { label, to } (router link) or { label, href, download }
+ * `meta` is [{ icon, text }]. `post.cardImage.position` (CSS object-position) moves the crop. `action` is { label, to } (router link) or { label, href, download }
  * (file); `button: true` draws it as the lime "Download" button.
  */
 function ResourceCard({ post, tag, meta = [], excerpt, action, layout = 'stacked', size = 'compact' }) {
@@ -25,7 +25,14 @@ function ResourceCard({ post, tag, meta = [], excerpt, action, layout = 'stacked
   return (
     <article className={cn(styles.card, styles[layout], styles[size])}>
       <div className={styles.media}>
-        <img loading="lazy" decoding="async" src={post.cardImage.src} alt={post.cardImage.alt} className={styles.image} />
+        <img
+          loading="lazy"
+          decoding="async"
+          src={post.cardImage.src}
+          alt={post.cardImage.alt}
+          className={styles.image}
+          style={{ objectPosition: post.cardImage.position }}
+        />
         {tag && <span className={styles.tag}>{tag}</span>}
       </div>
       <div className={styles.body}>

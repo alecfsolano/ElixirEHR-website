@@ -5,7 +5,7 @@ import heroImage from '../../assets/posts/press-release/elixir-launches-patient-
 // from the "Press Release" listing frame. Both reproduced verbatim — see DESIGN-SYSTEM.md.
 export default {
   title: 'Elixir Launches Revolutionary ‘Patient No-Show’ AI Feature with Early Access Offer',
-  listingTitle: "Elixir Launches Revolutionary 'Patient No- Show' AI Feature to Optimize Clinic Efficiency",
+  listingTitle: "Elixir Launches Revolutionary 'Patient No-Show' AI Feature to Optimize Clinic Efficiency",
   excerpt:
     "Harnessing advanced predictive algorithms, Elixir's new module allows clinical administrators to identify high-risk appointments and proactively optimize schedules, reducing waste by up to 40%.",
   publishDate: '2025-01-30',

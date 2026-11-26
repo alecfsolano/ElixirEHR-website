@@ -20,9 +20,11 @@ export default {
   excerpt:
     'This release delivers significant improvements across EHR, Patient Portal and — all aimed at enhancing usability, compliance, and operational efficiency.',
   publishDate: '2025-09-16',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   version: '1.880',
-  cardImage: { src: cardImage, alt: 'Clinician reviewing a tablet in a bright hospital corridor' },
+  // The image is a hero composite with a lime badge baked into its lower left; the card crop is
+  // moved up so the badge's edge does not show as a stray green strip.
+  cardImage: { src: cardImage, alt: 'Clinician reviewing a tablet in a bright hospital corridor', position: '50% 25%' },
   content: [
     { type: 'paragraph', text: [strong('Release Date:'), ' September 10, 2025'] },
     { type: 'paragraph', text: 'Welcome to the Elixir Summer’25 Release!' },

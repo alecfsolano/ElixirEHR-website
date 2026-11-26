@@ -114,7 +114,9 @@ const PRIORITY_PATTERNS = [
 const DEFAULT_PRIORITY = 0.5;
 
 // Prerendered but never listed in the sitemap: pages marked noindex (the Web-to-Lead thank-you page).
+// Any other page that renders a noindex robots meta tag (an empty listing, say) is added below.
 const SITEMAP_EXCLUDED = new Set(['/thank-you/']);
+const NOINDEX_META = /<meta name="robots" content="[^"]*\bnoindex\b[^"]*"\/?>/;
 
 function priorityFor(url) {
   if (PRIORITY_EXACT.has(url)) return PRIORITY_EXACT.get(url);
@@ -138,6 +140,7 @@ function splitHoisted(html) {
 
 function pageHtml(url, html) {
   const { head, body } = splitHoisted(html);
+  if (NOINDEX_META.test(head)) SITEMAP_EXCLUDED.add(url);
   if (!/<title>[^<]+<\/title>/.test(head)) throw new Error(`no <title> rendered for ${url}`);
   // Executable inline scripts would mean React streamed an unfinished page — only JSON-LD is expected.
   const inlineScript = body.match(/<script(?![^>]*type="application\/ld\+json")[^>]*>/);

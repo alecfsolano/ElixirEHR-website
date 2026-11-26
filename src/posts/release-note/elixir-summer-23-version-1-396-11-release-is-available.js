@@ -11,7 +11,7 @@ export default {
   title: 'Elixir Summer’23 Version 1.396.11 Release is available!',
   excerpt: 'Here is a summary of the major updates in this version:',
   publishDate: '2023-09-15',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   version: '1.396.11',
   seo: {
     description:

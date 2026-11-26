@@ -10,7 +10,7 @@ export default {
   title: 'Elixir Spring’24 Version 1.541 Release is available!',
   excerpt: 'Elixir Spring’24 release comes with several improvements in the new version',
   publishDate: '2024-04-02',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   version: '1.541',
   cardImage: { src: featuredImage, alt: 'Elixir Spring’24 Version 1.541 Release is available!' },
   heroImage: {

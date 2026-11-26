@@ -205,7 +205,9 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(180deg, rgb(73 50 102 / 0.3), rgb(50 27 79 / 0.85));
+  /* Near-opaque from mid-height down: the video thumbnails carry their own title text there, which
+     otherwise shows through behind the tag and title. */
+  background: linear-gradient(180deg, rgb(73 50 102 / 0.3), rgb(50 27 79 / 0.95) 42%, rgb(50 27 79) 52%);
 }
 
 .videoImage {
@@ -216,10 +218,11 @@
   object-fit: cover;
 }
 
+/* Top-right corner, clear of the thumbnail's own title text (centred, it sat on top of it). */
 .videoPlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 20px;
+  right: 20px;
   z-index: 2;
   display: grid;
   place-items: center;
@@ -228,7 +231,6 @@
   border-radius: 50%;
   background: rgb(255 255 255 / 0.3);
   color: var(--color-white);
-  transform: translate(-50%, -50%);
 }
 
 .videoBody {
