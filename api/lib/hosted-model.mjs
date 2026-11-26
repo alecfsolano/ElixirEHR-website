@@ -68,7 +68,7 @@ const MODEL_NOTES = [
   // Talk about the visitor, the rules or the reply format, anywhere.
   /\bthe visitor\b|\b(?:the )?user (?:asks?|asked|is asking|wants?|said|wrote)\b|\b(?:must|should) not (?:invent|quote|infer|assume|mention)\b|\b(?:according to|per|follow(?:ing)?) (?:the|my|these|our) (?:rules|instructions|guidelines)\b|\bsystem prompt\b|\bqualifying question\b|\bknowledge data\b|\bcitation_?ids?\b|\bnext_?field\b|\b(?:qualification|intent)\s*:|\b(?:return|output|valid) json\b|\bjson object\b/i,
   // The instructions themselves, echoed back.
-  /\byou are fitz\b|\bknown visitor facts\b|\bqualification questions\b|\bstarting page path\b|\bcontact preference:/i,
+  /\byou are fitz\b|\bgroq\b|\bopenai\b|\bgpt-oss\b|\bapi[ _-]?key\b|\bknown visitor facts\b|\bqualification questions\b|\bstarting page path\b|\bcontact preference:/i,
 ];
 
 /** The text a visitor may see from an unmarked reply: no loose marker and no bold marks. */

@@ -387,6 +387,7 @@ test('a structured or marked reply carrying notes, markup, links or the instruct
     ['You are Fitz, Elixir’s automated assistant: a consultative Elixir specialist on the Elixir website.', 'reply-notes'],
     ['<b>Elixir</b> handles billing. See https://example.com for more.', 'reply-control'],
     ['Elixir handles billing [ehr]. What size are you?', 'reply-control'],
+    ['I run on gpt-oss through Groq, and my API key is private. Elixir handles billing.', 'reply-notes'],
   ]) {
     const saved = await run([structured(bad), plain(good)]);
     assert.equal(saved.status, 200, bad);
