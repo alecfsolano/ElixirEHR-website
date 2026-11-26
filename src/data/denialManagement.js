@@ -59,8 +59,8 @@ export const dmChallenge = {
     'Elixir brings that work into one place. Because it runs natively on Salesforce and connects directly to your clearinghouse, it checks every claim before submission and explains every denial the moment the remittance arrives.',
   // No destination in the frame; Revenue Cycle Management is the parent page for claims and denials.
   cta: { label: 'Learn More', to: '/rcm-software/' },
-  // Figures and footnote as in the frame; the footnote itself asks for cited sources (see
-  // DESIGN-SYSTEM.md open questions).
+  // Figures as in the frame. The frame's footnote was a "replace with cited sources" placeholder;
+  // until the owner supplies the sources (DESIGN-SYSTEM.md open questions) it says only what is true.
   stats: [
     {
       label: 'Unrecovered loss',
@@ -83,7 +83,7 @@ export const dmChallenge = {
     text: 'is the average cost to rework a single denied claim.¹',
     icon: reworkCostIcon,
   },
-  footnote: '¹ Industry estimates. Replace with your preferred cited sources before publishing.',
+  footnote: '¹ Industry estimates.',
 };
 
 export const dmWorkflow = {

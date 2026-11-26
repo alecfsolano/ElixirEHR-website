@@ -157,9 +157,8 @@ export const coPilotVisitFlow = {
     { label: 'Automated Kratu AI Processing', tone: 'purple' },
     { label: 'Clinician Authority & Authorization Action', tone: 'lime' },
   ],
-  // The frame shows a generic image placeholder here (its note asks for a lifestyle photograph);
-  // the photograph has not been supplied, so the frame renders empty.
-  imageAlt: 'Image placeholder',
+  // The frame shows a generic image placeholder here (its note asks for a lifestyle photograph).
+  // The photograph has not been supplied, so the section leaves the slot out instead of an empty box.
 };
 
 // The Insights pane mock-up is an illustration of the frame's example data (static; its actions
@@ -269,10 +268,11 @@ export const coPilotDictation = {
   },
 };
 
-// The frame's forced line breaks inside two of the card texts are dropped.
+// The frame's forced line breaks inside two of the card texts are dropped. The frame had this title and
+// the Clinical Control title the wrong way round; each now heads the cards it describes.
 export const coPilotSafety = {
   eyebrow: 'Clinical Safety Boundary',
-  title: 'AI clinical notes on your own templates, not just SOAP notes',
+  title: 'Approving a note does not send orders or prescriptions',
   description:
     'Kratu strictly decouples documentation generation from clinical orders. The physician remains the absolute, legal barrier between recommendation and execution.',
   checkIcon: { src: safetyCheckIcon, size: [15, 15] },
@@ -312,7 +312,7 @@ export const coPilotSafety = {
 // line break inside the first block is dropped.
 export const coPilotControl = {
   eyebrow: 'Clinical Control',
-  title: 'Approving a note does not send orders or prescriptions',
+  title: 'AI clinical notes on your own templates, not just SOAP notes',
   description:
     'Rigid general-practice SOAP formats fail in psychiatric intakes, addiction therapy, and multi-disciplinary specialties. Kratu Co-Pilot adapts natively to your exact clinical taxonomy.',
   items: [

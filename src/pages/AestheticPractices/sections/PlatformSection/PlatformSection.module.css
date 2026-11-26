@@ -29,29 +29,26 @@
   margin-top: 24px;
 }
 
-/* As drawn: "Related:" and five phrases set as a row of narrow columns. */
+/* "Related:" and its links as one sentence (the frame's narrow columns wrapped two words a line). */
 .related {
-  display: grid;
-  grid-template-columns: 67px 85px 111px 77px 111px 107px 212px;
-  align-items: center;
+  max-width: 770px;
   margin-top: 40px;
   font-family: var(--font-label);
   font-size: 14px;
+  line-height: 22px;
+  color: var(--color-body);
+}
+
+.relatedLabel {
   font-weight: 600;
-  line-height: 20px;
   color: var(--color-surface-dark);
-}
-
-.related > * {
-  padding-right: 20px;
-}
-
-.related > :first-child {
-  padding-right: 0;
 }
 
 .link {
+  font-weight: 600;
   color: var(--color-surface-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .link:focus-visible {
@@ -63,16 +60,6 @@
 @media (max-width: 1023px) {
   .inner {
     padding: 0;
-  }
-
-  .related {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 10px;
-  }
-
-  .related > * {
-    padding-right: 0;
   }
 }
 

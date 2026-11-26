@@ -41,8 +41,10 @@
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 1199px) {
+  /* The fluid columns need a gutter, or two long labels run together as one line. */
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 16px;
   }
 }
 

@@ -17,6 +17,7 @@ import shareIcon from '../../../assets/career/icon-share.png';
 import linkIcon from '../../../assets/career/icon-link.png';
 import mailIcon from '../../../assets/career/icon-mail.png';
 import styles from './OpenPositionDetail.module.css';
+import { cn } from '../../../utils/cn';
 
 const postedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
@@ -31,7 +32,7 @@ function BlockHeading({ id, icon, children }) {
   );
 }
 
-/** "Apply Now": the job's application URL when set; until then shown as drawn but not interactive. */
+/** "Apply Now": the job's application URL when set; until then a muted, non-interactive note. */
 function ApplyButton({ job }) {
   if (job.applyUrl) {
     return (
@@ -41,7 +42,7 @@ function ApplyButton({ job }) {
     );
   }
   return (
-    <span className={styles.apply}>
+    <span className={cn(styles.apply, styles.unavailable)}>
       Application link unavailable
     </span>
   );

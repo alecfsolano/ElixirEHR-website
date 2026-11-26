@@ -458,24 +458,23 @@
   left: 0;
 }
 
-/* The frame's markers: small outlined glyph boxes (red, lime) and a tan arrow. */
+/* The frame's markers were missing-glyph boxes; they read as broken, so the intended marks are drawn:
+   a red cross (removed), a lime tick (survived) and a tan arrow. */
 .removed li::before,
 .survived li::before {
-  content: '';
-  top: 7px;
-  width: 4px;
-  height: 9px;
-  border: 1px solid;
-  border-radius: 1px;
+  top: 0;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .removed li::before {
-  border-color: #8c1d2b;
+  content: '✕';
+  color: #e0566a;
 }
 
 .survived li::before {
-  top: 2px;
-  border-color: #a8d636;
+  content: '✓';
+  color: #a8d636;
 }
 
 .arrow li::before {
@@ -522,11 +521,12 @@
   color: var(--color-surface-dark);
 }
 
+/* Regular body weight, so only the run-in lead-ins (strong) read as bold. */
 .moneyText {
   max-width: 592px;
   font-family: var(--font-body);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 26px;
   color: var(--color-body);
 }

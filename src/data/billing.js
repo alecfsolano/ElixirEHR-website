@@ -21,10 +21,12 @@ import paymentsIcon from '../assets/billing/insight-payments.png';
 
 export const billingHero = {
   currentPage: 'Billing',
-  titleLines: ['360° AI-Powered Patient', 'Intake Management', 'Solution'],
-  titleAccent: '360° AI-Powered',
+  // The frame reused the Contact Center hero (patient intake). These lines come from this page's own
+  // copy (the FAQ's "AI-driven revenue cycle management platform") and the approved RCM meta description.
+  titleLines: ['AI-Driven Revenue', 'Cycle Management', 'Platform'],
+  titleAccent: 'AI-Driven',
   description:
-    "Elixir's 360° Patient Intake Management Solution combines healthcare automation, intelligent workflows, and Salesforce EHR integration.",
+    'From insurance verification to payment follow-up, bring clarity to each stage of the revenue cycle with connected billing workflows.',
   // Same buttons as the About Us hero; "Explore Features" scrolls to this page's AI capabilities.
   primaryCta: { label: 'Take A Test Drive', to: '/request-demo/' },
   secondaryCta: { label: 'Explore Features', href: '#billing-ai-capabilities' },
