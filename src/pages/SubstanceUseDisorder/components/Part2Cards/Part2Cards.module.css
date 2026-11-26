@@ -43,6 +43,8 @@
 .text {
   max-width: var(--part2-text-width, 273px);
   margin-top: var(--part2-text-gap, 4px);
+  /* Greedy wrapping: the global `pretty` left short ragged lines in these cards on phones. */
+  text-wrap: wrap;
   font-size: 14px;
   line-height: 22px;
   color: var(--color-body);
