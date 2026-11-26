@@ -265,10 +265,11 @@ section.transitions {
   text-align: left;
 }
 
+/* The first column starts at the card's 32px inset (the frame's 88px read as a missing column). */
 .table th:nth-child(1),
 .table td:nth-child(1) {
-  width: 344px;
-  padding-left: 88px;
+  width: 288px;
+  padding-left: 32px;
   padding-right: 46px;
 }
 
