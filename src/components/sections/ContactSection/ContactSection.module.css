@@ -82,11 +82,13 @@
   color: var(--color-body);
 }
 
+/* Wraps (rather than overflowing the column) when the logos and gap are wider than the row. */
 .logos {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 45px;
-  height: 82px;
+  min-height: 82px;
   margin-top: 24px;
 }
 
