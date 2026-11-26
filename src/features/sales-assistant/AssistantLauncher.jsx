@@ -17,9 +17,9 @@ function shouldPulse() {
   } catch { return false; }
 }
 
-// The launcher is its icon alone so it covers as little of the page as possible; the name shows during
-// the one-time attention pulse and on hover or keyboard focus (never on phones, see the CSS), and screen
-// readers always hear it.
+// The launcher is its icon alone at every width and at all times, the one-time attention pulse included
+// (the pulse is a ring around the icon), so it covers as little of the page as possible. The name shows
+// on hover or keyboard focus (never on phones, see the CSS), and screen readers always hear it.
 export default function AssistantLauncher() {
   const [mounted, setMounted] = useState(false);
   const [openedOnce, setOpenedOnce] = useState(false);
@@ -45,7 +45,7 @@ export default function AssistantLauncher() {
   }
   return (
     <>
-      <button ref={button} className={`${styles.launcher} ${pulse ? styles.attention : ''} ${!pulse ? styles.compact : ''}`} type="button" onClick={() => { setPulse(false); setOpenedOnce(true); setOpen(true); }} onAnimationEnd={() => setPulse(false)} aria-haspopup="dialog" aria-expanded={open}>
+      <button ref={button} className={`${styles.launcher} ${styles.compact} ${pulse ? styles.attention : ''}`} type="button" onClick={() => { setPulse(false); setOpenedOnce(true); setOpen(true); }} onAnimationEnd={() => setPulse(false)} aria-haspopup="dialog" aria-expanded={open}>
         <span className={styles.launcherIcon} aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 3V6a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><path d="M8 9h8M8 13h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
         </span>

@@ -17,13 +17,31 @@
   min-width: 0;
 }
 
+.heroFrame {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 48px;
+}
+
+.heroFramed {
+  padding: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+}
+
 .heroImage {
+  display: block;
   width: 100%;
   height: auto;
   object-fit: cover;
-  margin-bottom: 48px;
   border-radius: var(--radius-xl);
   box-shadow: 0 12px 30px rgb(0 0 0 / 0.25);
+}
+
+.heroFramed .heroImage {
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.18);
 }
 
 .about {
@@ -52,7 +70,11 @@
     padding-block: 56px;
   }
 
-  .heroImage {
+  .heroFrame {
     margin-bottom: 32px;
+  }
+
+  .heroFramed {
+    padding: 16px;
   }
 }

@@ -6,16 +6,12 @@
   align-items: start;
 }
 
-/* The side column matches the e-book card's height; its last card (the video) takes what is left. */
+/* The side column's cards size to their content: stretched to the e-book card's height, the video
+   card was a block of empty purple above its link. */
 .side {
   display: flex;
   flex-direction: column;
-  align-self: stretch;
   gap: 26px;
-}
-
-.side > :last-child {
-  flex: 1;
 }
 
 .featured,
@@ -196,8 +192,7 @@
   color: var(--color-white);
 }
 
-/* Featured video: the YouTube thumbnail, uncovered, above a Deep Purple body. The card fills the
-   rest of the side column, so with no live webinar it runs the full height of the e-book card. */
+/* Featured video: the YouTube thumbnail, uncovered, above a Deep Purple body sized to its text. */
 .video {
   position: relative;
   display: flex;

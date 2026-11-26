@@ -261,6 +261,16 @@
   color: var(--color-heading);
 }
 
+/* On a case-study title slide the top-right corner is the "elixir" wordmark: the badge straddles the
+   slide's bottom edge at the text's left inset instead, where the slides keep a plain margin. */
+.badgeOnEdge {
+  top: auto;
+  right: auto;
+  bottom: 0;
+  left: 32px;
+  transform: translateY(50%);
+}
+
 .body {
   display: flex;
   flex: 1;
@@ -354,5 +364,9 @@
 
   .body {
     padding: 24px 20px;
+  }
+
+  .badgeOnEdge {
+    left: 20px;
   }
 }

@@ -4,6 +4,7 @@ import { formatShortDate } from '../../../utils/formatDate';
 import mailIcon from '../../../assets/icons/post-mail.png';
 import phoneIcon from '../../../assets/icons/post-phone.png';
 import arrowIcon from '../../../assets/icons/post-arrow.png';
+import KeepHyphenated from '../../ui/KeepHyphenated/KeepHyphenated';
 import styles from './PostSidebar.module.css';
 
 function MediaContact({ contact }) {
@@ -51,7 +52,9 @@ function LatestPosts({ post, type }) {
               {formatShortDate(item.publishDate)}
             </time>
             <h3 className={styles.latestTitle}>
-              <Link to={getPostPath(item)}>{item.title}</Link>
+              <Link to={getPostPath(item)}>
+                <KeepHyphenated text={item.title} />
+              </Link>
             </h3>
           </li>
         ))}

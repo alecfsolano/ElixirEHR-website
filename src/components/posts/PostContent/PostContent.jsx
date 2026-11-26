@@ -21,6 +21,12 @@ import styles from './PostContent.module.css';
  *   table       { head: [text], rows: [[text]], caption? }
  */
 
+/** The YouTube thumbnail for an embed URL (youtube.com or youtube-nocookie.com), else null. */
+function youtubeThumbnail(src) {
+  const id = /youtube(?:-nocookie)?\.com\/embed\/([\w-]{6,})/.exec(src)?.[1];
+  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null;
+}
+
 function Text({ value }) {
   return <RichText content={value} linkClassName={styles.link} />;
 }
@@ -119,11 +125,24 @@ const renderers = {
       {caption && <figcaption className={styles.caption}>{caption}</figcaption>}
     </figure>
   ),
-  video: ({ src, title }) => (
-    <div className={styles.video}>
-      <iframe src={src} title={title} loading="lazy" allowFullScreen />
-    </div>
-  ),
+  video: ({ src, title }) => {
+    const poster = youtubeThumbnail(src);
+    return (
+      <div className={styles.video}>
+        {poster && (
+          <div className={styles.videoPoster} aria-hidden="true">
+            <img src={poster} alt="" loading="lazy" decoding="async" />
+            <span className={styles.videoPlay}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
+              </svg>
+            </span>
+          </div>
+        )}
+        <iframe src={src} title={title} loading="lazy" allowFullScreen />
+      </div>
+    );
+  },
   table: ({ head, rows, caption }) => (
     <div className={styles.tableWrap}>
       <table className={styles.table}>

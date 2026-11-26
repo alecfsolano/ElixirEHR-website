@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../../../components/ui/Icon/Icon';
+import KeepHyphenated from '../../../../components/ui/KeepHyphenated/KeepHyphenated';
 import { cn } from '../../../../utils/cn';
 import styles from './ResourceCard.module.css';
 
@@ -46,8 +47,14 @@ function ResourceCard({ post, tag, meta = [], excerpt, action, layout = 'stacked
             ))}
           </ul>
         )}
-        <h2 className={styles.title}>{title}</h2>
-        {excerpt && <p className={styles.excerpt}>{post.excerpt}</p>}
+        <h2 className={styles.title}>
+          <KeepHyphenated text={title} />
+        </h2>
+        {excerpt && (
+          <p className={styles.excerpt}>
+            <KeepHyphenated text={post.excerpt} />
+          </p>
+        )}
         {action.to ? (
           <Link to={action.to} className={actionClass}>
             {label}

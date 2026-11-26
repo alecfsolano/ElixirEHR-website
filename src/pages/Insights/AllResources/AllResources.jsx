@@ -6,6 +6,7 @@ import { getPostPath, getPosts } from '../../../posts';
 import PageHero from '../../../components/sections/PageHero/PageHero';
 import Button from '../../../components/ui/Button/Button';
 import Icon from '../../../components/ui/Icon/Icon';
+import KeepHyphenated from '../../../components/ui/KeepHyphenated/KeepHyphenated';
 import { formatCardDate } from '../../../utils/formatDate';
 import InsightsShell from '../components/InsightsShell/InsightsShell';
 import { getUpcomingEvent } from '../useResourceListing';
@@ -58,8 +59,12 @@ function FeaturedEbook({ post }) {
         </span>
       </div>
       <div className={styles.featuredBody}>
-        <h2 className={styles.featuredTitle}>{post.title}</h2>
-        <p className={styles.featuredText}>{post.excerpt}</p>
+        <h2 className={styles.featuredTitle}>
+          <KeepHyphenated text={post.title} />
+        </h2>
+        <p className={styles.featuredText}>
+          <KeepHyphenated text={post.excerpt} />
+        </p>
         <Link to={getPostPath(post)} className={styles.link}>
           Read More<span className="visually-hidden">: {post.title}</span>
           <Icon name="arrowRight" size={18} />
@@ -91,8 +96,12 @@ function LiveWebinar({ post }) {
   return (
     <article className={styles.live}>
       <span className={styles.liveTag}>{allResources.liveLabel}</span>
-      <h2 className={styles.liveTitle}>{post.title}</h2>
-      <p className={styles.liveText}>{post.excerpt}</p>
+      <h2 className={styles.liveTitle}>
+        <KeepHyphenated text={post.title} />
+      </h2>
+      <p className={styles.liveText}>
+        <KeepHyphenated text={post.excerpt} />
+      </p>
       <div className={styles.liveFoot}>
         <p className={styles.liveWhen}>
           <span className={styles.liveDate}>
@@ -118,8 +127,14 @@ function FeaturedVideo({ post }) {
       </Link>
       <div className={styles.videoBody}>
         <span className={styles.videoTag}>{allResources.featuredVideoLabel}</span>
-        <h2 className={styles.videoTitle}>{post.title}</h2>
-        {post.excerpt && <p className={styles.videoText}>{post.excerpt}</p>}
+        <h2 className={styles.videoTitle}>
+          <KeepHyphenated text={post.title} />
+        </h2>
+        {post.excerpt && (
+          <p className={styles.videoText}>
+            <KeepHyphenated text={post.excerpt} />
+          </p>
+        )}
         <Link to={getPostPath(post)} className={styles.videoLink}>
           {allResources.feedTypes.video.action}<span className="visually-hidden">: {post.title}</span>
           <Icon name="arrowRight" size={18} />
@@ -157,7 +172,9 @@ function FeedCard({ post }) {
             <time dateTime={post.publishDate}>{formatCardDate(post.publishDate)}</time>
           </li>
         </ul>
-        <h2 className={styles.cardTitle}>{post.listingTitle ?? post.title}</h2>
+        <h2 className={styles.cardTitle}>
+          <KeepHyphenated text={post.listingTitle ?? post.title} />
+        </h2>
         <PostAction post={post} className={styles.link}>
           {labels.action}
           <span className="visually-hidden">: {post.title}</span>
