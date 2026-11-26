@@ -815,7 +815,7 @@ test('reworded verdicts, fit and benefit endings go, limits are judged after the
   assert.equal(out.answer, `Go-live is typically 6 to 10 weeks for a small practice on a standard configuration. Larger or multi-program organizations have their timeline scoped with the Elixir team. ${CALL}`);
   // SOC 2 names who Mirketa is; Medicaid EVV carries the connector limit; offline work carries the download condition.
   out = await run({ answer: 'Mirketa also maintains a SOC 2 Type II report for the EHR under NDA.' });
-  assert.match(out.answer, /which develops and operates Elixir/);
+  assert.equal(out.answer, 'Mirketa, which develops and operates Elixir, also maintains a SOC 2 Type II report for the EHR under NDA.');
   out = await run({ answer: 'Elixir submits Medicaid EVV visits from the EHR.' });
   assert.equal(out.answer, 'Elixir submits Medicaid EVV visits from the EHR. Connector availability is confirmed for your specific payer and state.');
   out = await run({ answer: 'Caregivers can check in and capture signatures offline in the EHR app.' });
@@ -836,4 +836,66 @@ test('reworded verdicts, fit and benefit endings go, limits are judged after the
   assert.equal(out.answer, 'Elixir routes CYBHI claims from the EHR note.');
   out = await run({ answer: 'Yes. Elixir keeps claims and denial work in the same EHR record.' }, ask('Can Elixir help with our EHR billing denials this quarter?'));
   assert.equal(out.answer, 'Elixir keeps claims and denial work in the same EHR record.');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED (round 13: expectations written from the judges' findings).
+test('repeats spread over an earlier reply go, usage claims and help offers go, a start question keeps its only answer, and limits are not doubled', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  const earlier = 'Elixir’s admissions workflow keeps calls and web inquiries in one pipeline, adds missed-callback alerts, and pushes pre-admission screening into the clinician queue. It also checks eligibility in real time and shows bed availability across locations before a bed is promised.';
+  // A sentence whose words come from two sentences of one earlier reply is a repeat.
+  let out = await run({ answer: 'Elixir can help with admissions by keeping calls and web inquiries in one queue, screening eligibility in real time, and showing bed availability across both locations. Elixir also tracks EHR census by program.' }, { messages: [{ role: 'user', content: 'Tell me about your EHR admissions.' }, { role: 'assistant', content: earlier }, { role: 'user', content: 'We would like to move within six months with the EHR.' }] });
+  assert.equal(out.answer, 'Elixir also tracks EHR census by program.');
+  // Usage claims and offers to help map things go.
+  out = await run({ answer: 'Elixir connects EVV to the EHR care record. The caregiver app and supervisor review are the pieces most agencies use first.' });
+  assert.equal(out.answer, 'Elixir connects EVV to the EHR care record.');
+  out = await run({ answer: 'Elixir keeps EHR intake and billing on one record. I can help map that to your current process.' });
+  assert.equal(out.answer, 'Elixir keeps EHR intake and billing on one record.');
+  // Asked where to start, a reply that is only a first step keeps it rather than leaving nothing.
+  out = await run({ answer: 'Start with the claim routing rules that tie each EHR note to its CYBHI payer.' }, { messages: [{ role: 'user', content: 'We have not submitted any CYBHI claims from our EHR yet. Where do we start?' }] });
+  assert.equal(out.answer, 'Start with the claim routing rules that tie each EHR note to its CYBHI payer.');
+  // A SOC 2 answer that already says Mirketa and non-disclosure gets no second SOC 2 sentence.
+  out = await run({ answer: 'Mirketa’s SOC 2 Type II report for the EHR is shared under a nondisclosure agreement.' });
+  assert.equal((out.answer.match(/SOC 2/g) ?? []).length, 1);
+  // "Offline" outside caregiver visits does not get the caregiver download note.
+  out = await run({ answer: 'Clinicians can finish EHR notes offline and sync later.' });
+  assert.doesNotMatch(out.answer, /downloaded to the device/);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED (round 14: expectations written from the judges' findings).
+test('fit claims go even before an "It" sentence, and limits are not added to refusals, repeated from an earlier reply or attached without their fact', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  let out = await run({ answer: 'Thanks, that sounds like a good fit for Elixir’s ambulatory EHR. It supports outpatient mental health groups with one chart.' });
+  assert.equal(out.answer, 'Elixir supports outpatient mental health groups with one chart.');
+  out = await run({ answer: 'Thanks, that’s a strong fit for Elixir’s residential EHR admissions. It tracks inquiries through admission.' });
+  assert.equal(out.answer, 'Elixir tracks inquiries through admission.');
+  out = await run({ answer: 'Elixir’s admissions workflow and real-time census fit a residential program moving from Kipu. Elixir also tracks EHR census by program.' });
+  assert.equal(out.answer, 'Elixir also tracks EHR census by program.');
+  // A limit already given in an earlier reply is not given again.
+  out = await run({ answer: 'Caregivers can check in offline in the EHR app.' }, { messages: [{ role: 'user', content: 'Tell me about the EHR caregiver app.' }, { role: 'assistant', content: 'Caregivers record visits in the EHR app. Assigned visits and tasks are downloaded to the device while connected.' }, { role: 'user', content: 'What about check-in with no signal in the EHR?' }] });
+  assert.equal(out.answer, 'Caregivers can check in offline in the EHR app.');
+  // A refusal gets no limit; EVV without a submission fact gets no connector limit.
+  out = await run({ answer: 'I can’t give dosing advice for substance use treatment, and consent questions go to your clinician.' });
+  assert.doesNotMatch(out.answer, /privacy reviewer/);
+  out = await run({ answer: 'Elixir supports Medicaid EVV in the EHR.' });
+  assert.equal(out.answer, 'Elixir supports Medicaid EVV in the EHR.');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED (round 14, judge A).
+test('outcome endings tied to the visitor go, the AppExchange review keeps its limit, and a possessive Mirketa still says who Mirketa is', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  let out = await run({ answer: 'Elixir routes CYBHI claims from the EHR note, so your team can work claims this school year.' });
+  assert.equal(out.answer, 'Elixir routes CYBHI claims from the EHR note.');
+  out = await run({ answer: 'Elixir shares EHR care plans across programs, so handoffs stay clear across programs.' });
+  assert.equal(out.answer, 'Elixir shares EHR care plans across programs.');
+  out = await run({ answer: 'Elixir has passed the AppExchange Security Review for the EHR.' });
+  assert.equal(out.answer, 'Elixir has passed the AppExchange Security Review for the EHR. The AppExchange Security Review is a point-in-time assessment of the application, not a HIPAA assessment.');
+  out = await run({ answer: 'Mirketa’s SOC 2 Type II report for the EHR is shared under NDA.' });
+  assert.equal(out.answer, 'The SOC 2 Type II report of Mirketa, which develops and operates Elixir, for the EHR is shared under NDA.');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED (round 15: a closing question after a single line break was shown twice).
+test('a closing question after a single line break moves to its own paragraph and is shown once', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  const out = await run({ answer: 'Elixir RCM keeps denials in one EHR worklist.\nRoughly how many providers or locations would use Elixir?', nextField: 'size' }, { qualification: { organizationType: 'home health agency' } });
+  assert.equal(out.answer, 'Elixir RCM keeps denials in one EHR worklist.\n\nRoughly how many providers or locations would use Elixir?');
 });
