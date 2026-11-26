@@ -892,3 +892,10 @@ test('outcome endings tied to the visitor go, the AppExchange review keeps its l
   out = await run({ answer: 'Mirketa’s SOC 2 Type II report for the EHR is shared under NDA.' });
   assert.equal(out.answer, 'The SOC 2 Type II report of Mirketa, which develops and operates Elixir, for the EHR is shared under NDA.');
 });
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED (round 15: a closing question after a single line break was shown twice).
+test('a closing question after a single line break moves to its own paragraph and is shown once', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  const out = await run({ answer: 'Elixir RCM keeps denials in one EHR worklist.\nRoughly how many providers or locations would use Elixir?', nextField: 'size' }, { qualification: { organizationType: 'home health agency' } });
+  assert.equal(out.answer, 'Elixir RCM keeps denials in one EHR worklist.\n\nRoughly how many providers or locations would use Elixir?');
+});

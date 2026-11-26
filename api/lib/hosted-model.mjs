@@ -354,12 +354,14 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   if (!english) { /* the model's own closing question stays, in the visitor's language */ }
   else if (nextField) closing = QUALIFICATION_FIELDS[nextField];
   else if (Object.values(QUALIFICATION_FIELDS).includes(closing) || (!mayAsk && /\b(?:organization|providers|locations|EHR|Salesforce|main problem|make a change)\b/i.test(closing))) closing = '';
+  // The closing question is never also left in the body.
+  if (closing && body.includes(closing)) body = body.replace(closing, '').replace(/\n{3,}/g, '\n\n').trim();
   return { ...reply, answer: [body, closing].filter(Boolean).join('\n\n'), nextField };
 }
 
 /** Moves a closing question that shares a line with the answer onto its own line, after a blank line. */
 export function questionOnOwnLine(answer) {
-  const match = answer.match(/^([\s\S]*[.!])[ \t]+([^.!?\n]*\?)$/);
+  const match = answer.match(/^([\s\S]*[.!])\s+([^.!?\n]*\?)$/);
   return match ? `${match[1]}\n\n${match[2]}` : answer;
 }
 
