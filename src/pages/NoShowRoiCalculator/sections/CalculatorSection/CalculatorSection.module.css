@@ -329,6 +329,12 @@
     flex-direction: column;
   }
 
+  /* In the stacked column, `flex: 1` (basis 0) would squash the button to its text height. */
+  .recalculate {
+    flex: none;
+  }
+
+  .recalculate,
   .reset {
     min-height: 50px;
   }

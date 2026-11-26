@@ -89,8 +89,15 @@
   }
 }
 
-/* The card text no longer fits on the scaled photo; it drops below the image instead. */
+/* The card text no longer fits on the scaled photo; it drops below the image instead, and the photo is
+   cropped above its baked-in frosted card (y 268 of 438) so no empty card is left on the image. */
 @media (max-width: 767px) {
+  .image {
+    aspect-ratio: 560 / 262;
+    object-fit: cover;
+    object-position: top;
+  }
+
   .highlight {
     position: static;
     padding: 20px;
