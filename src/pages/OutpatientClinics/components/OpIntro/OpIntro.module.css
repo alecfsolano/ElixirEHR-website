@@ -16,6 +16,10 @@
   color: var(--color-tertiary);
 }
 
+.onLight > p:first-child {
+  color: var(--color-secondary-on-light);
+}
+
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 767px) {
   .intro {
