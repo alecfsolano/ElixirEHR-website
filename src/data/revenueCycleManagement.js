@@ -19,13 +19,16 @@ import medicalGroupsIcon from '../assets/revenue-cycle-management/icon-medical-g
 import communityHealthIcon from '../assets/revenue-cycle-management/icon-community-health.png';
 import billingOrganizationsIcon from '../assets/revenue-cycle-management/icon-billing-organizations.png';
 
+// Cards that keep the frame's hard line breaks in `lines` also carry the same copy as one `text`
+// string, so a section can render either form.
+const withText = (items) => items.map((item) => ({ ...item, text: item.lines.join(' ') }));
+
 export const rcmHero = {
   currentPage: 'Revenue Cycle Management',
   titleLines: ['Healthcare Revenue', 'Cycle Management and', 'Payer Workflows'],
   titleAccent: ['Healthcare Revenue', 'Cycle'],
   description:
     'Unified, native clinical-financial synchronization delivering end-to-end adjudication transparency and automated payer reconciliation.',
-  primaryCta: { label: 'Get a Personalized Demo', to: '/request-demo/' },
   media: {
     src: heroMedia,
     alt: 'Physician and two colleagues reviewing revenue dashboards on a monitor',
@@ -39,6 +42,7 @@ export const unifiedPlatform = {
   lead:
     'Revenue cycle problems are rarely billing problems. They start upstream, with an unverified plan, a missing authorization, or a code the payer will not accept, and surface weeks later as a denial.',
   // Emphasised phrases follow the frame; each links to the section that covers it on this page.
+  // The frame has a wide (three-space) gap before "medical claims management".
   body: [
     'Elixir brings ',
     { text: 'eligibility verification', href: '#eligibility-verification' },
@@ -150,20 +154,25 @@ export const claimForms = {
   title: 'Professional and Institutional Claim Forms',
   description:
     'Elixir produces both claim types from the same patient and encounter data, so professional and institutional billing run on one record set.',
-  forms: [
+  // `lines` keeps the frame's hard line breaks inside each card description.
+  forms: withText([
     {
       title: 'CMS-1500 Professional Claims',
-      text:
-        'Generate and review professional claims on the NUCC-approved CMS-1500 layout, populated from patient, subscriber, provider and procedure data in Elixir. Corresponds to the 837P transaction.',
+      lines: [
+        'Generate and review professional claims on the NUCC-approved CMS-1500 layout,',
+        'populated from patient, subscriber, provider and procedure data in Elixir. Corresponds to the 837P transaction.',
+      ],
       image: { src: cms1500Form, alt: 'CMS-1500 health insurance claim form screen in Elixir' },
     },
     {
       title: 'UB-04 Institutional Claims',
-      text:
-        'Support institutional billing on the UB-04 layout, including type of bill, statement covers period, condition codes, and occurrence codes and dates. Corresponds to the 837I transaction.',
+      lines: [
+        'Support institutional billing on the UB-04 layout, including type of bill, statement covers period, condition codes, and occurrence codes and dates. Corresponds to the',
+        '837I transaction.',
+      ],
       image: { src: ub04Form, alt: 'UB-04 institutional claim form screen in Elixir' },
     },
-  ],
+  ]),
 };
 
 export const medicalClaims = {
@@ -306,23 +315,30 @@ export const appeals = {
   title: 'Healthcare Appeals and Payer Follow-Up',
   description:
     "Some denials are corrections. Others are disagreements, and they need an appeal. Elixir keeps the evidence in one place: the claim as submitted, the payer's adjudication, the clinical documentation from the encounter, the authorization on file and the eligibility response captured at intake.",
-  steps: [
+  // `lines` keeps the frame's hard line breaks inside each card description.
+  steps: withText([
     {
       title: 'Identify claims to appeal',
-      text:
-        'Work denied claims from the denial worklist and separate the ones that need data correction from the ones that need to be argued.',
+      lines: [
+        'Work denied claims from the denial worklist and separate the ones that need data correction from the',
+        'ones that need to be argued.',
+      ],
     },
     {
       title: 'Assemble supporting information',
-      text:
-        'Pull the documentation, coding and coverage detail already connected to the claim instead of rebuilding the case from separate systems, and draft the appeal letter from that context.',
+      lines: [
+        'Pull the documentation, coding and coverage detail already connected to the claim instead of rebuilding',
+        'the case from separate systems, and draft the appeal',
+        'letter from that context.',
+      ],
     },
     {
       title: 'Track and retain',
-      text:
+      lines: [
         'Record appeal activity, dates and outcomes against the claim and payer so follow-up and timely filing deadlines stay visible.',
+      ],
     },
-  ],
+  ]),
   footnote:
     'Appeal submission methods vary by payer and by plan. Electronic appeal submission is available only where the payer supports it and where the connection has been implemented for your organization.',
 };
@@ -405,6 +421,7 @@ export const rcmWorkflows = {
   titleLines: ['RCM Workflows for Healthcare', 'Organizations'],
   description:
     'The revenue cycle is the same shape everywhere, but the pressure points differ. These are the patterns Elixir is configured around.',
+  // Copy as in the frame, with the frame's missing spaces ("fromencounters", "claims,payments") restored.
   organizations: [
     {
       title: 'Behavioral health organizations',
@@ -437,6 +454,7 @@ export const rcmWorkflows = {
   ],
 };
 
+// "\n" marks the frame's hard line breaks.
 export const multiPayer = {
   image: { src: multiPayerImage, alt: 'Revenue cycle staff reviewing a multi-payer dashboard together' },
   titleLines: ['Multi-Payer and Multi-NPI', 'Revenue Cycle Management'],
@@ -446,28 +464,28 @@ export const multiPayer = {
       bold: true,
       content: [
         { text: 'Multiple payers and plans', strong: true },
-        ' with their own identifiers and requirements, and primary, secondary and subsequent coverage on the same patient',
+        ' with their own identifiers and requirements, and primary, secondary and\nsubsequent coverage on the same patient',
       ],
     },
     {
       bold: true,
       content: [
         { text: 'Multiple providers and NPIs', strong: true },
-        ' across rendering, billing and pay-to relationships, and multiple tax identification numbers',
+        ' across rendering, billing and pay-to relationships, and multiple tax\nidentification numbers',
       ],
     },
     {
       bold: true,
       content: [
         { text: 'Multiple service locations', strong: true },
-        ', with encounters and claims associated to the correct location and place of service',
+        ', with encounters and claims associated to the correct location and place of\nservice',
       ],
     },
     {
       bold: true,
       content: [
         { text: 'Payer-specific requirements', strong: true },
-        ' configured so the rules follow the claim instead of relying on institutional memory',
+        ' configured so the rules follow the claim instead of relying on institutional\nmemory',
       ],
     },
   ],
@@ -484,7 +502,7 @@ export const revenueCycleTeams = {
     {
       title: 'RCM managers',
       description:
-        'Visibility into where claims are stalling, and the ability to configure the rules that stop them stalling again.',
+        'Visibility into where claims are stalling, and the ability to configure\nthe rules that stop them stalling again.',
     },
     {
       title: 'Eligibility specialists',
@@ -492,7 +510,7 @@ export const revenueCycleTeams = {
     },
     {
       title: 'Billing specialists',
-      description: 'Claims built from existing data, with errors surfaced at the field rather than after rejection.',
+      description: 'Claims built from existing data, with errors surfaced at the field\nrather than after rejection.',
     },
     {
       title: 'Claims specialists',
@@ -501,25 +519,25 @@ export const revenueCycleTeams = {
     },
     {
       title: 'Payment posting teams',
-      description: 'Matched remittance, provider-level adjustments accounted for, and posting actions per line.',
+      description: 'Matched remittance, provider-level adjustments accounted for,\nand posting actions per line.',
     },
     {
       title: 'Denial management teams',
-      description: 'Denial reason, claim line, payer and financial impact together in one worklist.',
+      description: 'Denial reason, claim line, payer and financial impact together in\none worklist.',
     },
     {
       title: 'Providers and clinical staff',
       description:
-        'Documentation and coding in the same place, with coverage and authorization context visible.',
+        'Documentation and coding in the same place, with coverage and\nauthorization context visible.',
     },
     {
       title: 'Practice administrators',
-      description: 'Patient balance, insurance status and claim history answerable from the patient record.',
+      description: 'Patient balance, insurance status and claim history answerable\nfrom the patient record.',
     },
   ],
 };
 
-// `accent` is the title and tag colour.
+// "\n" marks the frame's hard line breaks; `accent` is the title and tag colour.
 export const rcmAiCapabilities = {
   badge: 'Predictive Intelligence',
   title: 'Elixir RCM AI Capabilities',
@@ -531,42 +549,44 @@ export const rcmAiCapabilities = {
       tag: '0-100 Band',
       accent: 'lime',
       description:
-        'An account-level financial risk score from 0 to 100 with a High, Medium or Low band, shown in the patient header before any claim is opened. It weighs unpaid claim count and value, balance trend, denial rate against peer benchmarks and days in A/R, and is accompanied by a collections propensity.',
+        'An account-level financial risk score from 0 to 100 with a High, Medium or Low band, shown in the patient\nheader before any claim is opened. It weighs unpaid\nclaim count and value, balance trend, denial rate against peer benchmarks and days in A/R, and is accompanied by a collections propensity.',
     },
     {
       title: 'Denial Risk Score',
       tag: 'Triage Pill',
       accent: 'lime',
       description:
-        'A denial likelihood from 0 to 100 on every claim, shown as a colour-banded pill in the claims table and on the claims list. It indicates which claims are likely to be denied rather than simply which are unpaid, so a submission batch can be triaged at a glance.',
+        'A denial likelihood from 0 to 100 on every claim, shown as a colour-banded pill in the claims table and\non the claims list. It indicates which claims are likely\nto be denied rather than simply which are unpaid, so a\nsubmission batch can be triaged at a glance.',
     },
     {
       title: 'Predicted Days to Pay',
       tag: 'Cash Forecast',
       accent: 'lime',
       description:
-        'The expected payment window for a claim, expressed as a day range rather than a single date. The midpoint is the expected payment day and the width of the range reflects confidence, so a low-risk claim with a narrow window can be relied on for cash-flow planning and a high-risk claim with a wide one is worked instead of forecast.',
+        'The expected payment window for a claim, expressed\nas a day range rather than a single date. The midpoint\nis the expected payment day and the width of the range reflects confidence, so a low-risk claim with a\nnarrow window can be relied on for cash-flow planning\nand a high-risk claim with a wide one is worked instead of forecast.',
     },
     {
-      title: 'Denial root cause classification',
-      tag: 'ANSI CARC',
+      // Title and tag wrap in the frame, and the tag runs into the card's right inset.
+      title: 'Denial root cause\nclassification',
+      tag: 'ANSI\nCARC',
       accent: 'yellow',
+      tagOverflow: true,
       description:
-        'Classifies a denied claim as missing authorization, coding error, eligibility, medical necessity, timely filing or duplicate claim, with the reasoning for that call, the likely ANSI claim adjustment reason codes and a confidence level. Three prioritised next steps follow, each marked by how soon to act.',
+        'Classifies a denied claim as missing authorization, coding error, eligibility, medical necessity, timely filing\nor duplicate claim, with the reasoning for that call, the\nlikely ANSI claim adjustment reason codes and a confidence level. Three prioritised next steps follow,\neach marked by how soon to act.',
     },
     {
       title: 'Appeal viability',
       tag: 'Decision Engine',
       accent: 'yellow',
       description:
-        'Scores the likelihood an appeal succeeds and returns a recommendation: appeal, resubmit, write off or contact the payer. The driving factors are shown alongside it, including payer behaviour, denial type, provider match and the days left in the filing window. A low score is the evidence for a write-off decision.',
+        'Scores the likelihood an appeal succeeds and returns\na recommendation: appeal, resubmit, write off or contact the payer. The driving factors are shown alongside it, including payer behaviour, denial type, provider match and the days left in the filing window. A\nlow score is the evidence for a write-off decision.',
     },
     {
       title: 'Appeal letter drafting',
       tag: 'Auto-Gen PDF',
-      accent: 'yellow',
+      accent: 'lime',
       description:
-        'Generates an editable appeal letter for a denied claim from the claim, the denial and the supporting record, with copy, PDF export and tracking of what has been sent.',
+        'Generates an editable appeal letter for a denied claim\nfrom the claim, the denial and the supporting record,\nwith copy, PDF export and tracking of what has been\nsent.',
     },
   ],
 };

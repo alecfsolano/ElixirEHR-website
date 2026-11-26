@@ -1,7 +1,6 @@
 // Elixir Spring’23 release note, recovered from the previous website
 // (https://elixirehr.com/elixir-spring-23-version-1-344-1-release-is-available/, archived July 2026,
-// by elixirAdmin, May 10, 2023). Copy is verbatim; the two old list items that held two points
-// split by a line break are listed as two items each, so every point has its own bullet.
+// by elixirAdmin, May 10, 2023). Copy is verbatim; two list items that held a line break keep it.
 // The old page had no featured image, so the card uses an existing site photo until one is supplied;
 // like Summer’26, the detail page has no banner image.
 import cardImage from '../../assets/contact-us/demo-laptop-team.webp';
@@ -40,8 +39,11 @@ export default {
     {
       type: 'list',
       items: [
-        'Messaging Module is being released to enable seamless communication between care team members and patients',
-        'Using the Message Center capabilities, care team members are able to communicate with the patient via their channel of choice.',
+        [
+          'Messaging Module is being released to enable seamless communication between care team members and patients',
+          { br: true },
+          'Using the Message Center capabilities, care team members are able to communicate with the patient via their channel of choice.',
+        ],
       ],
     },
 
@@ -70,8 +72,7 @@ export default {
     {
       type: 'list',
       items: [
-        'Improvements and bug fixes for medical coding module',
-        'UI enhancements for EHR forms and notes',
+        ['Improvements and bug fixes for medical coding module', { br: true }, 'UI enhancements for EHR forms and notes'],
         'Multiple bug fixes for the Note Builder module',
         'Fixed issues in the Price Book flows',
         'Various security issues are addressed, including FLS/CRUD mappings, inline CSS and Dynamic SOQL',

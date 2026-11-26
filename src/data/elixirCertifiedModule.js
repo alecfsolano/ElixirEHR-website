@@ -4,7 +4,7 @@
 // - Print the base certificate ID (no "_4" listing suffix).
 // - Do not claim (g)(10), (b)(11), "Cures Act certified", "HIPAA certified" or "SOC 2 certified", and do not
 //   show an ONC or HHS logo; the attribution statement replaces it and must stay word for word.
-// - The RWT PDFs and the CHPL listing link are still to be supplied (the cards say "PDF coming soon" until
+// - The RWT PDFs and the CHPL listing link are still to be supplied (download buttons stay inert until
 //   `href` is set).
 // The page's other published artifacts are linked where they exist on this site; the source's bracketed
 // developer notes ("link ... once it is published here") are replaced by those links.
@@ -249,7 +249,7 @@ export const ecmRwt = {
   description:
     'Real world testing is an annual Condition and Maintenance of Certification requirement for Health IT Modules certified to certain interoperability criteria. The developer submits a plan before the testing year and a results report after it, and both are public. Ours are below.',
   // The PDFs were not supplied. Set `href` to the file's URL and the button becomes a real download link;
-  // until then the card shows a "PDF coming soon" status rather than a fake or faded link.
+  // until then it renders as an inert (aria-disabled) button rather than a fake link.
   downloads: [
     {
       tone: 'rose',

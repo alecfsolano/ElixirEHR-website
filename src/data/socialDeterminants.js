@@ -191,8 +191,8 @@ export const sdPolicy = {
   title: 'The Federal SDOH Reporting Mandates Went Away. The Obligation Did Not.',
   description:
     'Across 2025 and 2026 federal SDOH and health equity reporting was withdrawn almost completely. Most vendor material in this category has not caught up, and is still selling you a mandate that no longer exists. Here is the honest version.',
-  // The frame's list markers are missing-glyph boxes (red, lime) and an arrow; they are drawn as a
-  // red cross, a lime tick and an arrow here (see DESIGN-SYSTEM.md).
+  // The frame's list markers are missing-glyph boxes (red, lime) and an arrow; they are drawn as small
+  // coloured markers here (see DESIGN-SYSTEM.md).
   cards: [
     {
       marker: 'removed',
