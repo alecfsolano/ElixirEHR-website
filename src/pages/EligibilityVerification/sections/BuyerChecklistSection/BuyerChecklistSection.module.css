@@ -37,12 +37,11 @@
   text-align: left;
 }
 
-/* Descriptions keep the frame's line breaks and may run into the card's right inset. */
 .card {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding: 23px 0 23.5px 24px;
+  padding: 23px 24px 23.5px;
   border-radius: var(--radius-lg);
   background: var(--color-white);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.07);
@@ -64,7 +63,6 @@
   margin-top: 4px;
   font-size: 14px;
   line-height: 23px;
-  white-space: pre;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
@@ -78,13 +76,5 @@
   .title {
     font-size: 28px;
     line-height: 36px;
-  }
-
-  .card {
-    padding-right: 24px;
-  }
-
-  .cardText {
-    white-space: normal;
   }
 }

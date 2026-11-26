@@ -10,3 +10,10 @@
   --page-hero-primary-size: 16px;
   --page-hero-content-offset: 0px;
 }
+
+/* Phones: inset the whole photo-and-badge group so the badge keeps the page gutter. */
+@media (max-width: 767px) {
+  .heroMedia {
+    margin-left: 24px;
+  }
+}

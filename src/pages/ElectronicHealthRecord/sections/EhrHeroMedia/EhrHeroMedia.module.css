@@ -12,11 +12,25 @@
   max-width: none;
 }
 
+/* The image also carries the card's text; the live text sits on a patch of the card's colour so
+   the two never show doubled (the phone label is held at its 11px minimum, larger than the image's). */
 .insight {
   position: absolute;
   top: 395px;
   left: 73px;
-  width: 180px;
+  width: fit-content;
+  max-width: 180px;
+  isolation: isolate;
+}
+
+/* Soft-edged patch in the card's colour (#f3f1f5). */
+.insight::before {
+  content: '';
+  position: absolute;
+  inset: -3px -4px;
+  z-index: -1;
+  background: #f3f1f5;
+  filter: blur(3px);
 }
 
 .label {
@@ -60,7 +74,7 @@
   .insight {
     top: 78.37cqw;
     left: 14.48cqw;
-    width: 35.71cqw;
+    max-width: 35.71cqw;
   }
 
   /* Never below 11px, the readable minimum for this caps label (2.38cqw is 8px on a phone). */

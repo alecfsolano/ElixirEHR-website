@@ -25,6 +25,7 @@ export const rcmHero = {
   titleAccent: ['Healthcare Revenue', 'Cycle'],
   description:
     'Unified, native clinical-financial synchronization delivering end-to-end adjudication transparency and automated payer reconciliation.',
+  primaryCta: { label: 'Get a Personalized Demo', to: '/request-demo/' },
   media: {
     src: heroMedia,
     alt: 'Physician and two colleagues reviewing revenue dashboards on a monitor',
@@ -38,7 +39,6 @@ export const unifiedPlatform = {
   lead:
     'Revenue cycle problems are rarely billing problems. They start upstream, with an unverified plan, a missing authorization, or a code the payer will not accept, and surface weeks later as a denial.',
   // Emphasised phrases follow the frame; each links to the section that covers it on this page.
-  // The frame has a wide (three-space) gap before "medical claims management".
   body: [
     'Elixir brings ',
     { text: 'eligibility verification', href: '#eligibility-verification' },
@@ -405,12 +405,11 @@ export const rcmWorkflows = {
   titleLines: ['RCM Workflows for Healthcare', 'Organizations'],
   description:
     'The revenue cycle is the same shape everywhere, but the pressure points differ. These are the patterns Elixir is configured around.',
-  // Copy is reproduced exactly as in the frame (including "fromencounters" and "claims,payments").
   organizations: [
     {
       title: 'Behavioral health organizations',
       description:
-        'Intake and coverage capture, authorization tracking against approved units, recurring service documentation, claim generation fromencounters, and denial follow-up where authorization and medical necessity are the common causes.',
+        'Intake and coverage capture, authorization tracking against approved units, recurring service documentation, claim generation from encounters, and denial follow-up where authorization and medical necessity are the common causes.',
       icon: behavioralHealthIcon,
       iconSize: [16, 17],
     },
@@ -424,7 +423,7 @@ export const rcmWorkflows = {
     {
       title: 'Community and public health',
       description:
-        'Multiple programs and funding sources against one patient record, insurance where it exists, and claims,payments and patient financial workflows kept distinct per program.',
+        'Multiple programs and funding sources against one patient record, insurance where it exists, and claims, payments and patient financial workflows kept distinct per program.',
       icon: communityHealthIcon,
       iconSize: [20, 11],
     },
@@ -549,11 +548,9 @@ export const rcmAiCapabilities = {
         'The expected payment window for a claim, expressed as a day range rather than a single date. The midpoint is the expected payment day and the width of the range reflects confidence, so a low-risk claim with a narrow window can be relied on for cash-flow planning and a high-risk claim with a wide one is worked instead of forecast.',
     },
     {
-      // Title and tag wrap in the frame, and the tag runs into the card's right inset.
       title: 'Denial root cause classification',
       tag: 'ANSI CARC',
       accent: 'yellow',
-      tagOverflow: true,
       description:
         'Classifies a denied claim as missing authorization, coding error, eligibility, medical necessity, timely filing or duplicate claim, with the reasoning for that call, the likely ANSI claim adjustment reason codes and a confidence level. Three prioritised next steps follow, each marked by how soon to act.',
     },
@@ -567,7 +564,7 @@ export const rcmAiCapabilities = {
     {
       title: 'Appeal letter drafting',
       tag: 'Auto-Gen PDF',
-      accent: 'lime',
+      accent: 'yellow',
       description:
         'Generates an editable appeal letter for a denied claim from the claim, the denial and the supporting record, with copy, PDF export and tracking of what has been sent.',
     },

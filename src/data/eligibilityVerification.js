@@ -199,7 +199,7 @@ export const benefitsAudit = {
 
 // Copy reproduced exactly as in the frame (both descriptions start lower-case).
 export const bulkVerification = {
-  titleLines: ['Bulk EDI 270/271 and Batch Eligibility Verification for High-', 'Volume Practices'],
+  titleLines: ['Bulk EDI 270/271 and Batch Eligibility Verification', 'for High-Volume Practices'],
   description:
     'Checking patients one at a time does not scale for busy clinics, billing companies or multi-location groups. Elixir gives you two ways to verify many patients at once.',
   options: [
@@ -208,7 +208,7 @@ export const bulkVerification = {
       tag: 'Out of the box',
       tone: 'standard',
       description:
-        'run Generate Bulk EDI 270 from the insurance list view. Statuses update in place, and any issues appear in the EDI 270 Error Dump column. Available out of the box.',
+        'Run Generate Bulk EDI 270 from the insurance list view. Statuses update in place, and any issues appear in the EDI 270 Error Dump column. Available out of the box.',
       example: 'Action: List View > Select All (142) > [Generate Bulk EDI 270]',
       icon: bulkSelectIcon,
       iconSize: [18, 19],
@@ -218,7 +218,7 @@ export const bulkVerification = {
       tag: 'Custom configured',
       tone: 'custom',
       description:
-        "scheduled checks for tomorrow's appointments, new admissions or your full active list, so staff only handle the exceptions. Configured to fit your organization's workflow.",
+        "Scheduled checks for tomorrow's appointments, new admissions or your full active list, so staff only handle the exceptions. Configured to fit your organization's workflow.",
       example: 'Schedule: Nightly at 02:00 AM • Next Day Appt Queue (Auto-Sync)',
       icon: batchScheduleIcon,
       iconSize: [22, 23],

@@ -1,6 +1,6 @@
 /* Frame-specific overrides for shared sections on the Revenue Cycle Management page. */
 
-/* Hero paragraph is Roboto 18/28 in this frame; the hero has no buttons. */
+/* Hero paragraph is Roboto 18/28 in this frame. */
 .hero {
   --page-hero-description-size: 18px;
   --page-hero-description-leading: 28px;

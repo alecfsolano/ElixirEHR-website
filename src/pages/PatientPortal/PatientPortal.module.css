@@ -19,6 +19,13 @@
   --badge-left-scaled: -3.43%;
 }
 
+/* Phones: inset the whole photo-and-badge group so the badge keeps the page gutter. */
+@media (max-width: 767px) {
+  .heroMedia {
+    margin-left: 12px;
+  }
+}
+
 .hero p + div > a:first-child {
   letter-spacing: 0.04em;
 }
