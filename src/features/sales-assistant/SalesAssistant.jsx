@@ -101,13 +101,17 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
     dispatch({ type: 'restart' }); setDraft(''); setAnswer(''); input.current?.focus();
   }
 
-  // The booking card replaces the bar for these tones; the bar stays away while a reply loads too, so it never flashes.
-  const cardTone = ['recommended', 'limit', 'fallback'].includes(cta.tone) && !(cta.tone === 'fallback' && state.error);
+  // The slim bar at the top is the one booking offer and stays in view. When a call is recommended it carries the
+  // recommendation itself; a card below the conversation is kept for the message limit and for model failures,
+  // where the bar steps aside so the call is still offered once.
+  const recommended = cta.tone === 'recommended';
+  const cardTone = ['limit', 'fallback'].includes(cta.tone) && !(cta.tone === 'fallback' && state.error);
   const showCard = !state.pending && cardTone;
   const lastReply = state.messages.map((message) => message.role).lastIndexOf('assistant');
-  // Next to the booking card, the latest reply leaves out the standard call sentence, so the call is offered once.
+  // While the bar or card offers the call, the latest reply leaves out the standard call sentence (also while the
+  // next reply loads), so the call is offered once.
   const shown = (message, index) => {
-    if (!showCard || index !== lastReply || !message.content.includes(CALL_SENTENCE)) return message.content;
+    if (!(recommended || cardTone) || index !== lastReply || !message.content.includes(CALL_SENTENCE)) return message.content;
     const rest = message.content.replace(CALL_SENTENCE, '').replace(/[ \t]{2,}/g, ' ').trim();
     return rest || message.content;
   };
@@ -117,8 +121,9 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
         <div><span className={styles.eyebrow}>LET’S FIND YOUR FIT</span><h2>Ask Fitz</h2><p>Answers for your organization</p></div>
         <button type="button" className={styles.close} aria-label="Close assistant" onClick={onClose}>×</button>
       </header>
-      {/* The booking bar steps aside while the booking card is shown, so the call is offered once per view. */}
-      {!state.showReview && !cardTone && <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>}
+      {!state.showReview && !cardTone && (recommended
+        ? <section className={styles.discoveryBar} aria-labelledby="elixir-discovery-heading"><h3 id="elixir-discovery-heading">{cta.heading}</h3><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></section>
+        : <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>)}
       {mode === 'sample' && <p className={styles.preview}>Preview · sample replies · no requests sent</p>}
       {mode === 'hosted' && PRIVATE_PREVIEW && <p className={styles.preview}>Preview · live replies using draft knowledge · demo requests disabled</p>}
       <div ref={body} className={styles.body}>

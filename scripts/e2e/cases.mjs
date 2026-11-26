@@ -453,15 +453,19 @@ export function makeCases({ root, distDir }) {
     t.assert.equal(await t.dialog().getByRole('button', { name: 'Request a demo' }).count(), 0, 'no in-chat lead form in production');
     t.assert.equal(await t.dialog().getByLabel('First name').count(), 0);
   } });
-  // AGENT-GENERATED — ORACLE REVIEW NEEDED. Next to the booking card the reply does not repeat the call sentence,
-  // and the booking bar is not shown either: the call is offered once.
+  // AGENT-GENERATED — ORACLE REVIEW NEEDED. When a call is recommended the top bar carries the recommendation and stays
+  // in view, and the reply does not repeat the call sentence: the call is offered once.
   add({ id: 'conv/call-offered-once', group: 'conversation', script: () => o.good({ intent: 'demo', answer: 'Elixir supports group notes and billing in one EHR record.' }), async run(t) {
     await t.goto(BH); await t.open();
     const shown = await t.send('What would the EHR cost for our group?');
     t.assert.match(shown.card, /See how this would work for you/);
     t.assert.doesNotMatch(shown.last.text, /button in this chat/, 'the reply repeats the call sentence next to the card');
     t.assert.match(shown.last.text, /group notes and billing/);
-    t.assert.equal(await t.dialog().getByText('Ready to talk it through?').count(), 0, 'the booking bar shows next to the card');
+    t.assert.equal(await t.dialog().getByText('Ready to talk it through?').count(), 0, 'the plain bar shows instead of the recommendation');
+    const offers = await t.dialog().getByRole('link', { name: /Book a discovery call/ }).count();
+    t.assert.equal(offers, 1, `the call is offered ${offers} times`);
+    const inView = await t.dialog().locator('section[aria-labelledby="elixir-discovery-heading"]').evaluate((node) => { const box = node.getBoundingClientRect(); const panel = node.closest('dialog').getBoundingClientRect(); return box.top >= panel.top && box.bottom <= panel.bottom; });
+    t.assert.ok(inView, 'the recommendation bar is in view');
   } });
   add({ id: 'conv/decline-wording', group: 'conversation', script: (c) => (c.req === 1 ? o.good({ intent: 'decline', answer: 'Of course. We can keep going without any contact details.' }) : null), async run(t) {
     await t.goto(BH); await t.open();
