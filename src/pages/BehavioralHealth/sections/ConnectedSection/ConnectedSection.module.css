@@ -50,7 +50,7 @@
   margin-bottom: 32px;
   font-size: 16px;
   line-height: 26px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .label {
@@ -75,7 +75,7 @@
   background: #361f53;
   font-size: 16px;
   line-height: 24px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .note img {

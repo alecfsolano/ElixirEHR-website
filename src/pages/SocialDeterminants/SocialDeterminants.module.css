@@ -92,7 +92,7 @@
 }
 
 .introDark .description {
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .bodyText {
@@ -145,7 +145,7 @@
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 23px;
-  color: #d8c4ee;
+  color: var(--color-text-on-purple);
 }
 
 /* The product: nine outlined cards with a lime top edge. */
@@ -449,7 +449,7 @@
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 23px;
-  color: #d8c4ee;
+  color: var(--color-text-on-purple);
 }
 
 .policyList li::before {
@@ -622,7 +622,7 @@
 }
 
 .barOutcome .barValue {
-  color: var(--color-secondary);
+  color: var(--color-secondary-on-light);
 }
 
 .withdrawn .barOutcome .barValue {

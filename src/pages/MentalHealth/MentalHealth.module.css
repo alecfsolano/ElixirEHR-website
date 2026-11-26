@@ -84,7 +84,7 @@
   margin-top: 25px;
   font-size: 18px;
   line-height: 29px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .ctaBand .ctaButton,
@@ -125,7 +125,7 @@
   gap: 5px;
   font-size: 14px;
   line-height: 20px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

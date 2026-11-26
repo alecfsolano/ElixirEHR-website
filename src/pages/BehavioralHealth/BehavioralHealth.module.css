@@ -127,7 +127,7 @@
 }
 
 .ctaLabel {
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .ctaDot {

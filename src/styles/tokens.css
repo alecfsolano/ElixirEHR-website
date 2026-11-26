@@ -24,6 +24,8 @@
   --color-secondary-tint: #eaf3d2; /* "EHR and more with AI" pill */
   /* Lime as text on white or Rose White: #95c11f is 2.1:1 there, this is 5.3:1 (WCAG AA). */
   --color-secondary-on-light: #557510;
+  /* Body and description text on Deep Purple / dark purple sections (#b89cd8 read dim at 13-14px). */
+  --color-text-on-purple: #d8c4ee;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
   --color-white-90: rgb(255 255 255 / 0.9); /* header nav text */

@@ -53,7 +53,7 @@
   margin-top: 8px;
   font-size: 16px;
   line-height: 24px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

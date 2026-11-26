@@ -91,7 +91,7 @@
 }
 
 .introDark .description {
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .noteIcon {
@@ -423,7 +423,7 @@ section.transitions {
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 22px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .check {
@@ -580,7 +580,7 @@ section.transitions {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 26px;
-  color: #b89cd8;
+  color: var(--color-text-on-purple);
 }
 
 .complianceTag {
