@@ -66,6 +66,10 @@
   flex: none;
 }
 
+.nowrap {
+  white-space: nowrap;
+}
+
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 767px) {
   .hero {

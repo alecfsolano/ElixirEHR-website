@@ -1,4 +1,5 @@
-import { postTypes } from '../../../posts';
+import { getLatestPosts, postTypes } from '../../../posts';
+import { cn } from '../../../utils/cn';
 import Container from '../../layout/Container/Container';
 import PostSeo from '../PostSeo/PostSeo';
 import PostHero from '../PostHero/PostHero';
@@ -15,13 +16,17 @@ import styles from './PostDetailTemplate.module.css';
 function PostDetailTemplate({ post }) {
   const type = postTypes[post.type];
   const blocks = post.content?.length ? post.content : [{ type: 'lead', text: post.excerpt }];
+  // The sidebar's sections (see PostSidebar); a post with none of them (an only e-book, say) gets
+  // a single centred column instead of an empty right third.
+  const hasSidebar = Boolean(post.mediaContact || post.tags?.length || getLatestPosts(post).length);
+  const { width, height } = post.heroImage ?? {};
 
   return (
     <>
       <PostSeo post={post} type={type} />
       <article>
         <PostHero post={post} type={type} />
-        <Container className={styles.layout}>
+        <Container className={cn(styles.layout, !hasSidebar && styles.single)}>
           <div className={styles.main}>
             {post.heroImage && (
               <img
@@ -32,8 +37,9 @@ function PostDetailTemplate({ post }) {
                 fetchPriority="high"
                 className={styles.heroImage}
                 // The banner keeps the post's declared proportions (e.g. 757×324) whatever the image
-                // file's own ratio; CSS crops it with object-fit: cover.
-                style={post.heroImage.width && post.heroImage.height ? { aspectRatio: `${post.heroImage.width} / ${post.heroImage.height}` } : undefined}
+                // file's own ratio; CSS crops it with object-fit: cover. It is never drawn wider than
+                // its declared width, so small legacy images (360×240) are not upscaled and blurred.
+                style={width && height ? { aspectRatio: `${width} / ${height}`, maxWidth: width } : undefined}
               />
             )}
             <PostContent blocks={blocks} />
@@ -45,7 +51,7 @@ function PostDetailTemplate({ post }) {
             )}
             <PostShare label={type.shareLabel} title={post.title} />
           </div>
-          <PostSidebar post={post} type={type} />
+          {hasSidebar && <PostSidebar post={post} type={type} />}
         </Container>
       </article>
     </>

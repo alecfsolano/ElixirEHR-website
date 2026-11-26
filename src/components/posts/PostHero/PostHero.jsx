@@ -14,6 +14,19 @@ function Separator() {
   );
 }
 
+/** Keeps hyphenated words ("No-Shows") whole in the drawn title, so it never wraps as "No- / Shows". */
+function keepHyphenated(text) {
+  return text.split(/([\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)+)/u).map((part, index) =>
+    index % 2 ? (
+      <span key={index} className={styles.nowrap}>
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
 function TypeLink({ type }) {
   return type.listingPath ? <Link to={type.listingPath}>{type.label}</Link> : type.label;
 }
@@ -50,7 +63,7 @@ function PostHero({ post, type }) {
             </li>
           </ol>
         </nav>
-        <h1 className={styles.title}>{post.title}</h1>
+        <h1 className={styles.title}>{keepHyphenated(post.title)}</h1>
         <ul className={styles.pills}>
           {pills.map((pill) => (
             <li key={pill.key} className={styles.pill}>
