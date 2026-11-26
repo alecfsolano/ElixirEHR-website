@@ -7,8 +7,8 @@ import styles from './TiersSection.module.css';
 
 /**
  * "What the Platform Provides, What You Configure, and What You Add": the three Salesforce security
- * tiers as a table (the tier your organization acts on is marked), then the explanation beside two
- * callouts.
+ * tiers as a table (the tier your organization acts on is marked; on phones one block per tier, each
+ * value under its column name), then the explanation beside two callouts.
  */
 function TiersSection() {
   const { id, eyebrow, title, description, table, paragraphs, callouts } = sslTiers;
@@ -32,10 +32,16 @@ function TiersSection() {
           <tbody>
             {table.rows.map((row) => (
               <tr key={row.tier}>
-                <th scope="row">{row.tier}</th>
-                <td>{row.covers}</td>
-                <td className={cn(styles.nowrap, row.yours && styles.yours)}>{row.who}</td>
-                <td className={styles.nowrap}>{row.cost}</td>
+                <th scope="row" data-label={table.columns[0]}>
+                  {row.tier}
+                </th>
+                <td data-label={table.columns[1]}>{row.covers}</td>
+                <td data-label={table.columns[2]} className={cn(styles.nowrap, row.yours && styles.yours)}>
+                  {row.who}
+                </td>
+                <td data-label={table.columns[3]} className={styles.nowrap}>
+                  {row.cost}
+                </td>
               </tr>
             ))}
           </tbody>
