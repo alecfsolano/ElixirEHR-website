@@ -56,7 +56,7 @@
 }
 
 .connected .cardTitle {
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .costs {
@@ -99,7 +99,7 @@
 }
 
 .conclusionLink {
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

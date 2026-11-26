@@ -50,6 +50,10 @@
   line-height: 23px;
 }
 
+.line {
+  display: block;
+}
+
 /* Screenshots are 552px wide and start 8px in from the left edge of their column. */
 .image {
   width: calc(100% - 8px);

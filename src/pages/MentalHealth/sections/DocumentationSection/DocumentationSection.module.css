@@ -4,9 +4,6 @@
 
 .intro {
   --bh-title-width: 780px;
-  --bh-title-size: 36px;
-  --bh-title-leading: 44px;
-  --bh-title-tracking: -0.01em;
   --bh-title-gap: 4px;
   --bh-description-width: 770px;
   --bh-description-gap: 5px;
@@ -44,7 +41,7 @@
   margin-top: 5px;
   font-size: 14px;
   line-height: 22px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

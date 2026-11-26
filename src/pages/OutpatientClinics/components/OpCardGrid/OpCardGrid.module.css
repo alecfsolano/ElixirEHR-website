@@ -65,7 +65,7 @@
 }
 
 .text {
-  max-width: var(--op-text-width, none);
+  max-width: var(--op-text-width, 255px);
   margin-top: var(--op-text-gap, 6px);
   font-size: var(--op-text-size, 16px);
   line-height: var(--op-text-leading, 24px);
@@ -73,7 +73,7 @@
 }
 
 .dark .text {
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

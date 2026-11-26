@@ -53,10 +53,7 @@ function ClearinghouseSection() {
                   {code}
                 </th>
                 <td className={styles.purpose}>{purpose}</td>
-                {/* The label heads the cell on phones, where the rows stack. */}
-                <td data-label={table.columns[2]} className={styles.location}>
-                  {location}
-                </td>
+                <td>{location}</td>
               </tr>
             ))}
           </tbody>

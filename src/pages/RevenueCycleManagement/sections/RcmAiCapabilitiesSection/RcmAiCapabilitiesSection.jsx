@@ -20,7 +20,9 @@ function RcmAiCapabilitiesSection() {
           <li key={capability.title} className={cn(styles.card, styles[capability.accent])}>
             <div className={styles.cardHeader}>
               <h3 className={styles.cardTitle}>{capability.title}</h3>
-              <span className={styles.tag}>{capability.tag}</span>
+              <span className={cn(styles.tag, capability.tagOverflow && styles.tagOverflow)}>
+                {capability.tag}
+              </span>
             </div>
             <p className={styles.cardText}>{capability.description}</p>
           </li>

@@ -83,6 +83,5 @@
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
-  /* Lime on white is 2.1:1; the on-light green reads at AA. */
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
