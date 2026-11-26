@@ -131,6 +131,12 @@
     padding: 64px 0;
   }
 
+  /* No backdrop overflow on phone: the photo and its glow stay inside the 20px gutter. */
+  .media {
+    width: 100%;
+    margin-left: 0;
+  }
+
   .title {
     font-size: 32px;
     line-height: 40px;
