@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { formatLongDate } from '../../../utils/formatDate';
 import Container from '../../layout/Container/Container';
 import Icon from '../../ui/Icon/Icon';
+import KeepHyphenated from '../../ui/KeepHyphenated/KeepHyphenated';
 import locationIcon from '../../../assets/icons/post-location.png';
 import calendarIcon from '../../../assets/icons/post-calendar.png';
 import styles from './PostHero.module.css';
@@ -11,19 +12,6 @@ function Separator() {
     <li aria-hidden="true" className={styles.separator}>
       <Icon name="chevronRight" size={20} />
     </li>
-  );
-}
-
-/** Keeps hyphenated words ("No-Shows") whole in the drawn title, so it never wraps as "No- / Shows". */
-function keepHyphenated(text) {
-  return text.split(/([\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)+)/u).map((part, index) =>
-    index % 2 ? (
-      <span key={index} className={styles.nowrap}>
-        {part}
-      </span>
-    ) : (
-      part
-    ),
   );
 }
 
@@ -63,7 +51,7 @@ function PostHero({ post, type }) {
             </li>
           </ol>
         </nav>
-        <h1 className={styles.title}>{keepHyphenated(post.title)}</h1>
+        <h1 className={styles.title}><KeepHyphenated text={post.title} /></h1>
         <ul className={styles.pills}>
           {pills.map((pill) => (
             <li key={pill.key} className={styles.pill}>
