@@ -1,0 +1,35 @@
+/*
+ * Sideways-scroll cue (set by components/ui/ScrollCues): the edge that has more content fades
+ * out, so a table or tab row cut off on a phone shows that it continues.
+ */
+[data-scroll-cue] {
+  --scroll-cue-size: 48px;
+  overscroll-behavior-x: contain;
+}
+
+[data-scroll-cue='end'] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--scroll-cue-size)), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--scroll-cue-size)), transparent);
+}
+
+[data-scroll-cue='start'] {
+  -webkit-mask-image: linear-gradient(to left, #000 calc(100% - var(--scroll-cue-size)), transparent);
+  mask-image: linear-gradient(to left, #000 calc(100% - var(--scroll-cue-size)), transparent);
+}
+
+[data-scroll-cue='both'] {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--scroll-cue-size),
+    #000 calc(100% - var(--scroll-cue-size)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--scroll-cue-size),
+    #000 calc(100% - var(--scroll-cue-size)),
+    transparent
+  );
+}

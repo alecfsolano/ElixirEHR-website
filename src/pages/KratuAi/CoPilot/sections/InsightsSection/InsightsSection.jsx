@@ -15,7 +15,7 @@ function InsightsSection() {
 
       {/* Illustration of the pane with example data; the tabs and actions are not controls. */}
       <figure className={styles.pane} aria-label={pane.label}>
-        <ul className={styles.tabs}>
+        <ul className={styles.tabs} data-scroll-cue="">
           {pane.tabs.map((tab, index) => (
             <li key={tab.label} className={index === 0 ? styles.activeTab : undefined}>
               <img loading="lazy" decoding="async" src={tab.icon.src} alt="" width={tab.icon.size[0]} height={tab.icon.size[1]} />

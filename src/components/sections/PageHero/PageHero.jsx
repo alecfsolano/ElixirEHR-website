@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '../../../utils/cn';
 import Container from '../../layout/Container/Container';
@@ -76,9 +77,11 @@ function PageHero({
           {pill && <p className={styles.pill}>{pill}</p>}
           <TitleTag className={styles.title} data-page-hero-title>
             {titleLines.map((line, index) => (
-              <span key={line} className={styles.titleLine}>
-                {renderTitleLine(line, index, titleAccent)}
-              </span>
+              <Fragment key={line}>
+                {/* The space joins the lines when they flow inline on phones; between blocks it is ignored. */}
+                {index > 0 && ' '}
+                <span className={styles.titleLine}>{renderTitleLine(line, index, titleAccent)}</span>
+              </Fragment>
             ))}
           </TitleTag>
           {[].concat(description ?? []).map((paragraph) => (

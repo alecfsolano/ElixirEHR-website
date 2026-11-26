@@ -31,13 +31,12 @@
   letter-spacing: 1.2px;
 }
 
-/* CTA band: the EHR band's styling (tight H2 tracking, one 66px button). */
+/* CTA band: the EHR band's styling (one 66px button). */
 .ctaBand {
   padding: 81px 0 81px;
 }
 
 .ctaBand h2 {
-  letter-spacing: -3px;
 }
 
 .ctaBand h2 + p:last-child {

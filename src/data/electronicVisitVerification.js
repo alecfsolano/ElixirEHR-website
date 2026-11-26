@@ -148,7 +148,7 @@ export const evvModels = {
       title: 'State Mandated External Vendor',
       text: 'One contracted vendor is required for every provider in the state.',
       // Line breaks as set in the frame ("own" sits on a line of its own there).
-      ask: 'how does your\nown\nsystem feed it?',
+      ask: 'how does your own system feed it?',
     },
     {
       title: 'State Mandated In-House',

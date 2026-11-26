@@ -119,7 +119,11 @@ export function Recaptcha({ className, onUnavailable, onExpired }) {
           'expired-callback': () => expiredRef.current?.(),
         });
       })
-      .catch(() => !cancelled && unavailableRef.current?.());
+      .catch(() => {
+        if (cancelled) return;
+        ref.current?.setAttribute('data-recaptcha', 'unavailable');
+        unavailableRef.current?.();
+      });
     return () => {
       cancelled = true;
     };
@@ -135,5 +139,7 @@ export function Recaptcha({ className, onUnavailable, onExpired }) {
     return () => window.removeEventListener('pageshow', onPageShow);
   }, []);
 
-  return <div ref={ref} className={className} />;
+  // data-recaptcha: until Google draws the widget, base.css shows a placeholder of the same size in
+  // the reserved space, so the form never shows an unexplained empty gap above its button.
+  return <div ref={ref} className={className} data-recaptcha="" />;
 }

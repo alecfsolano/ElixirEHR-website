@@ -45,8 +45,7 @@ export const noShowProblem = {
       { text: '18.8%', emphasis: true },
       ', ranging from 12.6% in the best-performing clinic to 25.7% in the worst — a two-fold spread between specialties in the same organization. Behavioral health and addiction treatment programs commonly report rates at or above the upper end of that range, driven by the same access pressures that brought the patient into care.',
     ],
-    // \n reproduces the frame's hard line breaks.
-    'The number that matters, though, is yours. Rates vary enormously by program, level\nof care, lead time, and payer mix, and any vendor quoting you a single industry figure\nis quoting an average of things that are not like each other. Measure your own baseline by program before you set a target.',
+    'The number that matters, though, is yours. Rates vary enormously by program, level of care, lead time, and payer mix, and any vendor quoting you a single industry figure is quoting an average of things that are not like each other. Measure your own baseline by program before you set a target.',
   ],
   source: [
     'Source: Kheirkhah P, Feng Q, Travis LM, Tavakoli-Tabasi S, Sharafkhaneh A. “Prevalence, predictors and economic consequences of no-shows.” ',
@@ -273,19 +272,18 @@ export const noShowSpecialty = {
   title: 'No-Show Prediction for Behavioral Health and Addiction Treatment',
   description:
     'Attendance in behavioral health is not the same operational object as attendance in a surgical clinic. Elixir models the distinctions that change what a missed visit means.',
-  // \n reproduces the frame's hard line breaks.
   items: [
     {
       title: 'Group and IOP attendance',
-      text: 'Scored per attendee against the group’s minimum census, so a facilitator knows the evening before whether a session is at risk of being too thin to run\n— not ten minutes after it was due to start.',
+      text: 'Scored per attendee against the group’s minimum census, so a facilitator knows the evening before whether a session is at risk of being too thin to run — not ten minutes after it was due to start.',
     },
     {
       title: 'Medication management and dosing',
-      text: 'A missed dosing or medication management appointment is a clinical escalation in your protocol,\nnot a billing event. These route to the care team with\nthe clinical context attached.',
+      text: 'A missed dosing or medication management appointment is a clinical escalation in your protocol, not a billing event. These route to the care team with the clinical context attached.',
     },
     {
       title: 'Level-of-care requirements',
-      text: 'PHP and IOP programs carry attendance thresholds\ntied to authorization and to the level of care itself. The score surfaces patients drifting toward a threshold while there is still time to intervene.',
+      text: 'PHP and IOP programs carry attendance thresholds tied to authorization and to the level of care itself. The score surfaces patients drifting toward a threshold while there is still time to intervene.',
     },
     {
       title: 'Mandated and supervised attendance',
@@ -297,7 +295,7 @@ export const noShowSpecialty = {
     },
     {
       title: 'Telehealth conversion',
-      text: 'For many patients the barrier is the journey, not the\nvisit. Where your program and state rules permit it,\nconverting a high-risk in-person visit to telehealth is\nthe intervention with the highest yield per minute of\nstaff time.',
+      text: 'For many patients the barrier is the journey, not the visit. Where your program and state rules permit it, converting a high-risk in-person visit to telehealth is the intervention with the highest yield per minute of staff time.',
     },
   ],
 };

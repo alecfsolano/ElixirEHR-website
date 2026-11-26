@@ -20,6 +20,10 @@
   line-height: 20px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: var(--color-secondary-on-light);
+}
+
+.dark .eyebrow {
   color: var(--color-secondary);
 }
 

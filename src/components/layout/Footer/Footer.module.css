@@ -129,7 +129,8 @@ a.social:hover {
 .meta {
   font-size: 12px;
   line-height: 20px;
-  color: var(--color-white-40);
+  /* 60% white is 5.1:1 on Deep Purple (WCAG AA); the frame's 40% was 3.1:1. */
+  color: var(--color-white-60);
 }
 
 .legal {
@@ -152,7 +153,7 @@ a.social:hover {
 
 .legal a:hover,
 .legalButton:hover {
-  color: var(--color-white-60);
+  color: var(--color-white);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import Header from '../../components/layout/Header/Header';
 import Footer from '../../components/layout/Footer/Footer';
 import MotionController from '../../components/motion/MotionController';
+import ScrollCues from '../../components/ui/ScrollCues/ScrollCues';
 import CookieConsent from '../../components/consent/CookieConsent';
 import AssistantLauncher from '../../features/sales-assistant/AssistantLauncher';
 
@@ -36,6 +37,7 @@ function MainLayout() {
       </main>
       <Footer />
       <MotionController />
+      <ScrollCues />
       <AssistantLauncher />
     </CookieConsent>
   );

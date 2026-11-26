@@ -42,6 +42,15 @@ h5,
 h6 {
   font-family: var(--font-display);
   color: var(--color-heading);
+  /* Even line lengths, so a heading never ends on a single orphan word. */
+  text-wrap: balance;
+}
+
+p,
+li,
+dd,
+blockquote {
+  text-wrap: pretty;
 }
 
 ul,
@@ -86,4 +95,30 @@ svg {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* The reCAPTCHA slot (components/forms/WebToLead) before Google has drawn the widget: a
+   placeholder the size of the 304 × 78 widget, so the reserved space never reads as a gap. */
+[data-recaptcha]:empty {
+  display: flex;
+  align-items: center;
+  width: 304px;
+  max-width: 100%;
+  height: 78px;
+  padding-inline: 16px;
+  border: 1px solid #d3d3d3;
+  border-radius: 3px;
+  background: #f9f9f9;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  color: #555555;
+}
+
+[data-recaptcha]:empty::before {
+  content: 'Loading security check…';
+}
+
+[data-recaptcha='unavailable']:empty::before {
+  content: 'Security check could not load';
 }
