@@ -522,10 +522,10 @@ test('a content-filtered request gets a polite fixed reply, not an error, and is
 test('the qualifying question is always asked once, on its own line, and never after a contact refusal', async () => {
   const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', ...reply }) } }] })) })({ ...body, ...extra })).body;
   // The model set nextField but forgot to ask: the field's question is added on its own line.
-  let out = await run({ answer: 'Elixir supports group notes for each participant.', nextField: 'size' });
+  let out = await run({ answer: 'Elixir supports group notes for each participant.', nextField: 'size' }, { qualification: { organizationType: 'outpatient clinic' } });
   assert.equal(out.answer, 'Elixir supports group notes for each participant.\n\nRoughly how many providers or locations would use Elixir?');
   // A question at the end of the paragraph moves to its own line.
-  out = await run({ answer: 'Elixir supports group notes. You can book a discovery call with the button. Which EHR do you use today?', nextField: 'currentSystem' });
+  out = await run({ answer: 'Elixir supports group notes. You can book a discovery call with the button. Which EHR do you use today?', nextField: 'currentSystem' }, { qualification: { organizationType: 'outpatient clinic', size: '20 providers' } });
   assert.equal(out.answer, 'Elixir supports group notes. You can book a discovery call with the button.\n\nWhich EHR or practice-management system do you use today?');
   // A field already answered or skipped is passed over for the next unknown one.
   out = await run({ answer: 'Elixir supports group notes.', nextField: 'size' }, { qualification: { size: '20 providers' } });
@@ -574,7 +574,7 @@ test('a question already asked earlier in the chat is not asked again; the next 
 test('buying intent and provider-funnel questions always carry one discovery-call sentence before the question', async () => {
   const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, nextField: 'size', ...reply }) } }] })) })({ ...body, ...extra })).body;
   const CALL = 'You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat.';
-  let out = await run({ answer: 'Elixir is priced per credentialed provider per month.', intent: 'demo' });
+  let out = await run({ answer: 'Elixir is priced per credentialed provider per month.', intent: 'demo' }, { qualification: { organizationType: 'outpatient clinic' } });
   assert.equal(out.answer, `Elixir is priced per credentialed provider per month. ${CALL}\n\nRoughly how many providers or locations would use Elixir?`);
   out = await run({ answer: 'Elixir routes CYBHI claims from the note.', intent: 'explore' }, { providerType: 'cybhi' });
   assert.match(out.answer, /Book a discovery call/);
@@ -618,7 +618,7 @@ test('finishing rules never cut text, ask the canonical question, add knowledge 
   let out = await run({ answer: 'Elixir uses OAuth 2.0 client credentials. Next quarter is a realistic timeline. The record ID is 15.04.04.3164.Elix.01.00.1.230721.' });
   assert.equal(out.answer, 'Elixir uses OAuth 2.0 client credentials. The record ID is 15.04.04.3164.Elix.01.00.1.230721. The Elixir team confirms timing during scoping.');
   // A reworded closing question becomes the canonical question for the next field.
-  out = await run({ answer: 'Elixir supports aesthetic charting in the EHR.\n\nWhat care setting do you run in?', nextField: 'size' });
+  out = await run({ answer: 'Elixir supports aesthetic charting in the EHR.\n\nWhat care setting do you run in?', nextField: 'size' }, { qualification: { organizationType: 'outpatient clinic' } });
   assert.equal(out.answer, 'Elixir supports aesthetic charting in the EHR.\n\nRoughly how many providers or locations would use Elixir?');
   // A field asked earlier (in its canonical wording) is not asked again, however the model words it.
   const earlier = [{ role: 'user', content: 'We run a home care agency on an EHR.' }, { role: 'assistant', content: 'Elixir supports home care.\n\nWhich EHR or practice-management system do you use today?' }];
@@ -693,4 +693,29 @@ test('replies in another language stay in it, limits are matched by meaning, uns
   assert.deepEqual(out.qualification, {});
   out = await run({ answer: 'Elixir supports residential EHR programs.', qualification: { organizationType: 'residential treatment center' } }, { messages: [{ role: 'user', content: 'We are a residential treatment center. Which EHR features fit us?' }] });
   assert.deepEqual(out.qualification, { organizationType: 'residential treatment center' });
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+// Round-7 live review (2026-11-26) guardrails.
+test('questions follow the order and are added to knowledge answers, fit claims and same-reply repeats go, and "not named here" talk is removed', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  // The model picked a later field: the earliest open one is asked.
+  let out = await run({ answer: 'Elixir supports group EHR notes.', nextField: 'currentSystem' }, { qualification: { organizationType: 'outpatient clinic' } });
+  assert.match(out.answer, /\n\nRoughly how many providers or locations would use Elixir\?$/);
+  // A knowledge answer left without a question gets the next one; a reply with no sources does not.
+  out = await run({ answer: 'Elixir is not affiliated with that EHR association.', citationIds: ['ehr'] });
+  assert.match(out.answer, /\n\nWhat kind of healthcare organization are you with\?$/);
+  out = await run({ answer: 'I can help with Elixir EHR questions.' });
+  assert.equal(out.answer, 'I can help with Elixir EHR questions.');
+  // A fit claim the knowledge never makes goes; the substance stays.
+  out = await run({ answer: 'Elixir is a good fit for your clinic. Elixir keeps EHR intake, notes and claims on one record.' });
+  assert.equal(out.answer, 'Elixir keeps EHR intake, notes and claims on one record.');
+  // The same point twice in one reply is said once.
+  out = await run({ answer: 'Elixir keeps EHR intake, notes and claims on one record. Elixir keeps intake, notes and claims for the EHR on one record.' });
+  assert.equal(out.answer, 'Elixir keeps EHR intake, notes and claims on one record.');
+  // Talk about what is not named "here" is removed, as a clause or as a sentence.
+  out = await run({ answer: 'Elixir publishes EHR customer stories, but the treatment centers are not named specifically here. Granite Recovery has a published story.' });
+  assert.equal(out.answer, 'Elixir publishes EHR customer stories. Granite Recovery has a published story.');
+  out = await run({ answer: 'Elixir publishes EHR customer stories. Specific customer types are not listed here.' });
+  assert.equal(out.answer, 'Elixir publishes EHR customer stories.');
 });

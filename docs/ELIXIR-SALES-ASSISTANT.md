@@ -121,9 +121,9 @@ Store the Groq credential in the **latest environment's encrypted backend applic
 Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-model.mjs`) before a visitor sees it. The closing question is split off first, so body rules never touch it. In the body:
 
 - Sentences judging whether the visitor's timeline is realistic are dropped, and one sentence says the team confirms timing during scoping.
-- Sentences making fit, value or usage claims the knowledge never makes are dropped, as long as real content remains. Examples: "sounds like a fit", "strongest", "usually helps", "often use".
-- Sentences that mostly restate an earlier reply (75% or more of the content words) are dropped. When nothing new is left, Fitz invites the next question instead. Booking sentences are never dropped this way, and neither is a sentence the next one leans on ("They…", "This…").
-- Talk about what its information includes ("that list is not included here") is removed.
+- Sentences making fit, value or usage claims the knowledge never makes are dropped, as long as real content remains. Examples: "sounds like a fit", "is a good fit", "good match", "strongest", "usually helps", "often use".
+- Sentences that mostly restate an earlier reply, or an earlier sentence of the same reply (75% or more of the content words), are dropped. When nothing new is left, Fitz invites the next question instead. Booking sentences are never dropped this way, and neither is a sentence the next one leans on ("They…", "This…").
+- Talk about what its information includes is removed: "that list is not included here", or a clause or sentence saying something is "not named here".
 - Limits the knowledge attaches to a stated fact are added when missing, before any closing booking sentence:
   - Part 2 is confirmed with the privacy reviewer.
   - Elixir is not certified to the ONC standardized API criterion.
@@ -137,7 +137,7 @@ Splitting into sentences only happens at punctuation followed by a space, so "OA
 
 The discovery-call sentence is added on demo intent, on the first message of the provider funnel, or when the visitor's message shows buying intent (pricing, licensing, demo, implementation, migration, switching, go-live or comparing vendors). It is never added in two replies in a row, after a refusal, for support or for a referral partner.
 
-The closing question is always the canonical wording from `api/shared/contract.mjs`. It asks about the next field in order that the visitor has not answered (including in the same message), skipped or already been asked, so a reworded repeat cannot slip through. Facts are recorded only from the visitor's own words. A question about other organizations ("Which treatment centers use Elixir?") is not a fact about the visitor. Partner-program replies, declined contact, support and off-topic replies get no qualifying question.
+The closing question is always the canonical wording from `api/shared/contract.mjs`. It asks about the earliest field in order that the visitor has not answered (including in the same message), skipped or already been asked, whichever field the model picked, so a reworded repeat cannot slip through. A knowledge-based answer the model left without a question gets one. A reply with no sources (small talk, off-topic) does not. Facts are recorded only from the visitor's own words. A question about other organizations ("Which treatment centers use Elixir?") is not a fact about the visitor. Partner-program replies, declined contact, support and off-topic replies get no qualifying question.
 
 A reply in another language (more Spanish, French or German function words than English ones) keeps the model's own closing question and gets none of the English insertions.
 

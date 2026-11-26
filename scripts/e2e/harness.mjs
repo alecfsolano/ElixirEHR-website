@@ -169,7 +169,7 @@ function makeApi({ def, page, context, base, server, evidence, trace, apiLog, mo
     },
     async shown(target = current) {
       const dialog = dialogOf(target);
-      const messages = await dialog.locator('[role="log"] article').evaluateAll((nodes) => nodes.map((node) => ({ speaker: node.querySelector('span')?.textContent, text: node.querySelector('p')?.textContent ?? '', links: [...node.querySelectorAll('a')].map((a) => ({ text: a.textContent, href: a.href, target: a.target })) })));
+      const messages = await dialog.locator('[role="log"] article').evaluateAll((nodes) => nodes.map((node) => ({ speaker: node.querySelector('span')?.textContent, text: [...node.querySelectorAll('p')].map((paragraph) => paragraph.textContent).join('\n\n'), links: [...node.querySelectorAll('a')].map((a) => ({ text: a.textContent, href: a.href, target: a.target })) })));
       const alert = dialog.getByRole('alert');
       const error = (await alert.count()) ? await alert.innerText() : '';
       const card = dialog.locator('section[aria-labelledby="elixir-discovery-heading"]');

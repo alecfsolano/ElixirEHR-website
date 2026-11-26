@@ -79,7 +79,7 @@ const CAVEATS = [
   { when: /\bBAA\b|Business Associate/i, has: /platform provider/i, text: 'The BAA covering the platform services is between your organization and the platform provider.' },
 ];
 // Claims about fit, value or who uses Elixir that the knowledge never makes; such a sentence is dropped.
-const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b/i;
+const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bis a (?:good |great |strong |natural )?fit\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b/i;
 // Function words: a reply where Spanish, French or German ones outnumber the English ones is in another
 // language and gets no English insertions. With neither (a very short reply) it counts as English.
 const ENGLISH_WORD = /\b(?:the|and|for|with|your|you|is|are|to|of|in|it|can|on|that|this)\b/gi;
@@ -107,6 +107,9 @@ const LEANS_BACK = /^(?:they|it|this|that|these|those|there|so|also|then)\b/i;
 const BOOKING = /discovery call|\bbook/i;
 // The answer talking about what its information does or does not include.
 const SOURCE_TALK = /,?\s*(?:but\s+|and\s+)?(?:that|this|the|those)\s+(?:list|details?|information|data)\s+(?:is|are)\s+not\s+(?:included|covered|listed|shown|available)\s+here/gi;
+// A clause after a comma, or failing that the whole sentence, that says what is not named or listed "here".
+const NOT_HERE = /\bnot (?:named|listed|included|covered|shown|specified|available)(?: specifically)? here\b/i;
+const NOT_HERE_CLAUSE = /,\s*(?:but|and|though|although)\s+[^,.!?]*?\bnot (?:named|listed|included|covered|shown|specified|available)(?: specifically)? here\b/gi;
 
 const sentencesOf = (text) => text.split('\n\n').flatMap((paragraph) => paragraph.split(SENTENCE_BREAK).filter((_, i) => i % 2 === 0));
 // Content words, with plural and verb endings removed so "tracks" and "track" match.
@@ -130,19 +133,20 @@ function withoutTimelineVerdicts(body) {
   return /\bscop/i.test(kept) ? kept : [kept, TIMELINE_NOTE].filter(Boolean).join(' ');
 }
 
-/** Drops sentences that mostly restate an earlier reply; says so plainly when nothing new is left. */
+/** Drops sentences that mostly restate an earlier reply or an earlier sentence of this one; says so plainly when nothing new is left. */
 function withoutRepeats(body, earlierReplies) {
-  const earlier = sentencesOf(earlierReplies).map(wordsOf).filter((words) => words.size >= MIN_POINT_WORDS);
-  if (!earlier.length) return body;
+  const seen = sentencesOf(earlierReplies).map(wordsOf).filter((words) => words.size >= MIN_POINT_WORDS);
   const repeated = (sentence, next = '') => {
     const words = wordsOf(sentence);
+    if (words.size < MIN_POINT_WORDS) return false;
+    const again = seen.some((before) => [...words].filter((word) => before.has(word)).length / words.size >= REPEAT_OVERLAP);
+    seen.push(words);
     // Booking sentences follow their own rule (never in two replies in a row), not this one.
-    if (words.size < MIN_POINT_WORDS || BOOKING.test(sentence) || LEANS_BACK.test(next)) return false;
-    return earlier.some((before) => [...words].filter((word) => before.has(word)).length / words.size >= REPEAT_OVERLAP);
+    return again && !BOOKING.test(sentence) && !LEANS_BACK.test(next);
   };
-  if (!sentencesOf(body).some(repeated)) return body;
   const kept = dropSentences(body, repeated);
-  const hasPoint = sentencesOf(kept).some((sentence) => wordsOf(sentence).size >= MIN_POINT_WORDS && sentence !== CALL_SENTENCE);
+  if (kept === body) return body;
+  const hasPoint = sentencesOf(kept).some((sentence) => wordsOf(sentence).size >= MIN_POINT_WORDS && !BOOKING.test(sentence));
   return hasPoint ? kept : [kept, NOTHING_NEW].filter(Boolean).join(' ');
 }
 
@@ -185,15 +189,18 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   if (isCreativeOffTopic(body)) return { ...REFUSAL_REPLY, citations: [], qualification: reply.qualification };
   // English-only insertions (limits, the call sentence, canonical questions) never go into a reply in another language.
   const english = isEnglish(body || closing);
-  body = withoutRepeats(withoutUnsupportedJudgments(withoutTimelineVerdicts(body.replace(SOURCE_TALK, ''))), earlierReplies);
+  body = dropSentences(body.replace(SOURCE_TALK, '').replace(NOT_HERE_CLAUSE, ''), (sentence) => NOT_HERE.test(sentence));
+  body = withoutRepeats(withoutUnsupportedJudgments(withoutTimelineVerdicts(body)), earlierReplies);
   if (english) body = withCaveats(body);
   // A canonical question about an answered or already-asked field never stays in the body.
   for (const field of QUESTION_ORDER) {
     if ((askedBefore(field) || answered(field) || !mayAsk) && body.includes(QUALIFICATION_FIELDS[field])) body = body.replace(QUALIFICATION_FIELDS[field], '').trim();
   }
   let nextField = reply.nextField;
+  // Fields are asked in order: the earliest open one, whichever the model picked. A knowledge answer
+  // the model left without a question gets one; off-topic and small-talk replies (no citations) do not.
   if (!mayAsk) nextField = null;
-  else if (nextField && !open(nextField)) nextField = QUESTION_ORDER.find(open) ?? null;
+  else if (nextField || (reply.citations.length > 0 && !closing)) nextField = QUESTION_ORDER.find(open) ?? null;
   const buying = reply.intent === 'demo' || firstFunnelTurn || BUYING_INTENT.test(latest);
   const wantsCall = english && buying && !declined && reply.intent !== 'support' && !partnerOnly && !recentCall && !/discovery call/i.test(body);
   if (wantsCall) body = `${body} ${CALL_SENTENCE}`.trim();

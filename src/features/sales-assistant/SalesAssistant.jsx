@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { QUALIFICATION_FIELDS, MAX_USER_LENGTH } from '../../../api/shared/contract.mjs';
+import { QUALIFICATION_FIELDS, MAX_USER_LENGTH, DISCOVERY_URL } from '../../../api/shared/contract.mjs';
 import { PRIVATE_PREVIEW } from '../../config/preview';
 import { chatRequest, conversationReducer, initialConversation } from './conversation.mjs';
 import { requestReply } from './transport.mjs';
@@ -15,6 +15,16 @@ function DiscoveryLink({ cta, className }) {
   return <a className={className} href={cta.href}>{cta.label}<span aria-hidden="true"> →</span></a>;
 }
 
+// How much shorter than the visible area a reply must be to be shown whole with the conversation's end.
+const TALL_REPLY_MARGIN = 40;
+
+/** A reply's sources, one per line; the discovery page is left out because the booking bar already links to it. */
+function Sources({ citations = [] }) {
+  const shown = citations.filter((source) => !String(source.url).startsWith(DISCOVERY_URL));
+  if (!shown.length) return null;
+  return <ul className={styles.sources} aria-label="Sources">{shown.map((source) => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a></li>)}</ul>;
+}
+
 export default function SalesAssistant({ open, onClose, mode, openRequest = null }) {
   const [state, dispatch] = useReducer(conversationReducer, null, () => initialConversation(window.location.pathname, { providerType: openRequest?.providerType, leadForm: mode === 'sample' || LEAD_FORM_ENABLED }));
   const [draft, setDraft] = useState('');
@@ -23,6 +33,7 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
   const [capReached, setCapReached] = useState(() => budget.exhausted());
   const dialog = useRef(null);
   const transcript = useRef(null);
+  const body = useRef(null);
   const input = useRef(null);
   const sequence = useRef(0);
   const controller = useRef(null);
@@ -46,7 +57,15 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
     });
     return () => cancelAnimationFrame(frame);
   }, [openRequest]);
-  useEffect(() => { transcript.current?.lastElementChild?.scrollIntoView({ block: 'nearest' }); }, [state.messages.length, state.pending, cta.tone]);
+  useEffect(() => {
+    const view = body.current;
+    const last = transcript.current?.lastElementChild;
+    if (!view || !last) return;
+    // A reply taller than the view opens at its first line; otherwise the view shows the end of the
+    // conversation, so a discovery card or tailoring form under the reply comes into view too.
+    if (last.tagName === 'ARTICLE' && last.offsetHeight > view.clientHeight - TALL_REPLY_MARGIN) last.scrollIntoView?.({ block: 'start' });
+    else view.scrollTop = view.scrollHeight;
+  }, [state.messages.length, state.pending, cta.tone]);
   useEffect(() => () => controller.current?.abort(), []);
 
   async function send(text, { retry = false, qualification, skipped } = {}) {
@@ -86,13 +105,13 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
       {!state.showReview && <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>}
       {mode === 'sample' && <p className={styles.preview}>Preview · sample replies · no requests sent</p>}
       {mode === 'hosted' && PRIVATE_PREVIEW && <p className={styles.preview}>Preview · live replies using draft knowledge · demo requests disabled</p>}
-      <div className={styles.body}>
+      <div ref={body} className={styles.body}>
         {state.showReview ? <LeadReview state={state} mode={mode} onDraftChange={(field, value) => dispatch({ type: 'draft', field, value })} onBack={() => dispatch({ type: 'review', open: false })} /> : <>
           <div ref={transcript} className={styles.transcript} role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions">
             {state.messages.map((message, index) => <article key={index} className={message.role === 'user' ? styles.userMessage : styles.assistantMessage}>
               <span className={styles.speaker}>{message.role === 'user' ? 'You' : 'Fitz'}</span>
-              <p>{message.content}</p>
-              {message.citations?.length > 0 && <ul className={styles.sources}>{message.citations.map((source) => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a></li>)}</ul>}
+              <div className={styles.text}>{message.content.split(/\n{2,}/).map((paragraph, part) => <p key={part}>{paragraph}</p>)}</div>
+              <Sources citations={message.citations} />
             </article>)}
             {state.pending && <p className={styles.pending} role="status">Finding a helpful reply…</p>}
           </div>
