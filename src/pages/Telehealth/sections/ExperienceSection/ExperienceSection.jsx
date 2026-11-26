@@ -14,7 +14,7 @@ function ExperienceSection() {
       <ul className={styles.grid}>
         {items.map((item, index) => (
           <li key={item.title} className={styles.card}>
-            <p className={styles.label}>MOD-EXP // {String(index + 1).padStart(2, '0')}</p>
+            <p className={styles.label}>{String(index + 1).padStart(2, '0')}</p>
             <img loading="lazy" decoding="async" src={item.icon.src} alt="" width={item.icon.size[0]} height={item.icon.size[1]} className={styles.icon} />
             <h3 className={styles.title}>{item.title}</h3>
             <p className={styles.text}>

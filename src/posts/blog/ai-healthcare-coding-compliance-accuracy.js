@@ -1,4 +1,5 @@
-// AI coding accuracy blog post (by sattyamchoudhary, May 5, 2026, "EHR" and "Healthcare Industry").
+// AI coding accuracy blog post (by Sattyam Choudhary, May 5, 2026, "EHR" and "Healthcare Industry").
+// The author is shown by display name, not the CMS username "sattyamchoudhary".
 // Body copy is exactly as supplied.
 import featuredImage from '../../assets/posts/blog/ai-in-healthcare-a-smarter-path-to-coding-accuracy-and-compliance.webp';
 
@@ -7,7 +8,7 @@ export default {
   excerpt:
     'In most healthcare systems, medical coding is expected to be both fast and flawless a combination that’s difficult to achieve when humans are interpreting dense clinical notes under time pressure.',
   publishDate: '2026-05-05',
-  author: 'sattyamchoudhary',
+  author: 'Sattyam Choudhary',
   category: ['EHR', 'Healthcare Industry'],
   cardImage: { src: featuredImage, alt: 'AI in Healthcare: A Smarter Path to Coding Accuracy and Compliance' },
   heroImage: {

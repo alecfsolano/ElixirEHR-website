@@ -4,6 +4,10 @@
   gap: 50px 28px;
 }
 
+.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .pagination {
   margin-top: 50px;
 }

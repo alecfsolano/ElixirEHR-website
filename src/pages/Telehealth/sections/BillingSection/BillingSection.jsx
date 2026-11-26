@@ -23,7 +23,6 @@ function BillingSection() {
           <article key={detail.title} className={styles.detail}>
             <div className={styles.detailHead}>
               <span className={styles.chip}>{detail.chip}</span>
-              <span className={styles.param}>{detail.param}</span>
             </div>
             <h3 className={styles.detailTitle}>{detail.title}</h3>
             <p className={styles.detailText}>{detail.text}</p>

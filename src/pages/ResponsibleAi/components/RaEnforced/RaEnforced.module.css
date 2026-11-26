@@ -24,6 +24,7 @@
 
 .head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -52,8 +53,8 @@
 .chip {
   display: flex;
   align-items: center;
-  height: 20px;
-  padding: 0 10px;
+  min-height: 20px;
+  padding: 2px 10px;
   border-radius: var(--radius-pill);
   background: var(--color-surface-light);
   font-family: var(--font-label);
@@ -81,9 +82,9 @@
 .applies {
   display: inline-flex;
   align-items: center;
-  height: 26px;
+  min-height: 26px;
   margin-top: 13px;
-  padding: 0 12px;
+  padding: 4px 12px;
   border: 1px solid #dcd3e1;
   border-radius: 4px;
   background: #f2e8f3;
@@ -95,9 +96,9 @@
 }
 
 .teal .applies {
-  height: 20px;
+  min-height: 20px;
   margin-top: 17px;
-  padding: 0 10px;
+  padding: 2px 10px;
   border-color: #c9d9df;
   background: var(--color-white);
   font-size: 11px;

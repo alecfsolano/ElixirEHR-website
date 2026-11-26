@@ -205,25 +205,25 @@ export const thOperations = {
   },
   items: [
     {
-      label: 'OPS-FLOW // DISTRIBUTED',
+      label: 'Distributed teams',
       icon: icon(ops1Icon, 23, 16),
       title: 'Staff work remotely too.',
       text: 'Scheduling, intake, eligibility, documentation review and billing all run from wherever your team is, which is what makes a distributed or part-time workforce practical.',
     },
     {
-      label: 'OPS-FLOW // MID-CALL ACCESS',
+      label: 'Mid-call access',
       icon: icon(ops2Icon, 20, 20),
       title: 'Custom in-visit features.',
       text: 'The things a clinician needs mid-call — templates, orders, the previous note, the outcome measure just completed — available in the visit rather than after it.',
     },
     {
-      label: 'OPS-FLOW // AUTOMATION',
+      label: 'Automation',
       icon: icon(ops3Icon, 17, 21),
       title: 'Custom workflows for in-house processes.',
       text: 'The administrative sequences around a virtual visit configured once and then run automatically, rather than depending on someone remembering the order.',
     },
     {
-      label: 'OPS-FLOW // INTEGRATION',
+      label: 'Integration',
       icon: icon(ops4Icon, 19, 16),
       title: 'Additional integrations on Salesforce.',
       text: 'Because the platform is Salesforce-native, the other tools your practice runs connect without custom development.',
@@ -239,7 +239,6 @@ export const thBilling = {
   details: [
     {
       chip: 'Detail one',
-      param: 'PARAM: POS_RATE_DIFFERENTIAL',
       title: 'Place of service changes what you are paid',
       text: 'POS 10 means the patient was at home, and Medicare pays the higher non-facility rate. POS 02 means the patient was somewhere other than home, which pays the facility rate because that site may bill its own originating-site fee. Coding the wrong one is not a compliance footnote — it is a pay cut. Source 1.',
       rates: [
@@ -249,7 +248,6 @@ export const thBilling = {
     },
     {
       chip: 'Detail two',
-      param: 'PARAM: ORIGINATING_FEE',
       title: 'The originating-site fee has a 2026 figure',
       text: 'Where an originating site can bill the facility fee, HCPCS Q3014 is set at $31.85 for CY2026. Small, but it is per visit and it goes uncollected constantly. Source 2.',
       fee: { label: 'HCPCS CODE Q3014 (CY2026 RATE)', value: '$31.85 / visit' },
@@ -344,7 +342,6 @@ export const thMedicare = {
   sources: {
     icon: icon(checkIcon, 15, 15),
     text: 'Sources 2 and 4. Verified September 2026 — confirm before planning against these dates.',
-    ref: 'REF: CMS-RULE-CY26/27',
   },
 };
 
