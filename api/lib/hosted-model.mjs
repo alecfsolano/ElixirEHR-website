@@ -1,4 +1,4 @@
-import { normalizeChatReply, PROVIDER_TYPES, QUALIFICATION_FIELDS } from '../shared/contract.mjs';
+import { CALL_SENTENCE, normalizeChatReply, PROVIDER_TYPES, QUALIFICATION_FIELDS } from '../shared/contract.mjs';
 
 const replySchema = {
   type: 'object', additionalProperties: false,
@@ -58,7 +58,6 @@ async function providerCode(response) {
 
 // The order Fitz asks about the visitor, one field per reply.
 const QUESTION_ORDER = ['organizationType', 'size', 'currentSystem', 'salesforceUsage', 'primaryNeed', 'timeline'];
-const CALL_SENTENCE = 'You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat.';
 
 // A sentence that judges the visitor's timeline: a time word together with a verdict word. Fitz must
 // not say whether a plan is realistic; the team scopes that.

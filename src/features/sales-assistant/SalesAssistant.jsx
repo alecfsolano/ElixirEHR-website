@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { QUALIFICATION_FIELDS, MAX_USER_LENGTH, DISCOVERY_URL } from '../../../api/shared/contract.mjs';
+import { QUALIFICATION_FIELDS, MAX_USER_LENGTH, DISCOVERY_URL, CALL_SENTENCE } from '../../../api/shared/contract.mjs';
 import { PRIVATE_PREVIEW } from '../../config/preview';
 import { chatRequest, conversationReducer, initialConversation } from './conversation.mjs';
 import { requestReply } from './transport.mjs';
@@ -18,7 +18,7 @@ function DiscoveryLink({ cta, className }) {
 // Room kept at the bottom of the view when deciding whether a reply and what follows it fit.
 const TALL_REPLY_MARGIN = 40;
 // Gap kept above a tall reply's first line when the view opens at it.
-const REPLY_TOP_GAP = 12;
+const REPLY_TOP_GAP = 24;
 
 /** A reply's sources, one per line; the discovery page is left out because the booking bar already links to it. */
 function Sources({ citations = [] }) {
@@ -101,7 +101,16 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
     dispatch({ type: 'restart' }); setDraft(''); setAnswer(''); input.current?.focus();
   }
 
-  const showCard = !state.pending && ['recommended', 'limit', 'fallback'].includes(cta.tone) && !(cta.tone === 'fallback' && state.error);
+  // The booking card replaces the bar for these tones; the bar stays away while a reply loads too, so it never flashes.
+  const cardTone = ['recommended', 'limit', 'fallback'].includes(cta.tone) && !(cta.tone === 'fallback' && state.error);
+  const showCard = !state.pending && cardTone;
+  const lastReply = state.messages.map((message) => message.role).lastIndexOf('assistant');
+  // Next to the booking card, the latest reply leaves out the standard call sentence, so the call is offered once.
+  const shown = (message, index) => {
+    if (!showCard || index !== lastReply || !message.content.includes(CALL_SENTENCE)) return message.content;
+    const rest = message.content.replace(CALL_SENTENCE, '').replace(/[ \t]{2,}/g, ' ').trim();
+    return rest || message.content;
+  };
   return (
     <dialog ref={dialog} className={styles.dialog} aria-label="Ask Fitz" onClose={onClose} onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <header className={styles.header}>
@@ -109,7 +118,7 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
         <button type="button" className={styles.close} aria-label="Close assistant" onClick={onClose}>×</button>
       </header>
       {/* The booking bar steps aside while the booking card is shown, so the call is offered once per view. */}
-      {!state.showReview && !showCard && <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>}
+      {!state.showReview && !cardTone && <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>}
       {mode === 'sample' && <p className={styles.preview}>Preview · sample replies · no requests sent</p>}
       {mode === 'hosted' && PRIVATE_PREVIEW && <p className={styles.preview}>Preview · live replies using draft knowledge · demo requests disabled</p>}
       <div ref={body} className={styles.body}>
@@ -117,7 +126,7 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
           <div ref={transcript} className={styles.transcript} role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions">
             {state.messages.map((message, index) => <article key={index} className={message.role === 'user' ? styles.userMessage : styles.assistantMessage}>
               <span className={styles.speaker}>{message.role === 'user' ? 'You' : 'Fitz'}</span>
-              <div className={styles.text}>{message.content.split(/\n+/).filter((paragraph) => paragraph.trim()).map((paragraph, part) => <p key={part}>{paragraph}</p>)}</div>
+              <div className={styles.text}>{shown(message, index).split(/\n+/).filter((paragraph) => paragraph.trim()).map((paragraph, part) => <p key={part}>{paragraph}</p>)}</div>
               <Sources citations={message.citations} />
             </article>)}
             {state.pending && <p className={styles.pending} role="status">Finding a helpful reply…</p>}
@@ -130,11 +139,6 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
               <DiscoveryLink cta={cta} className={styles.errorLink} />
             </div>
           </div>}
-          {showCard && <section className={styles.discoveryCard} aria-labelledby="elixir-discovery-heading">
-            <h3 id="elixir-discovery-heading">{cta.heading}</h3>
-            <p>{cta.text}</p>
-            <DiscoveryLink cta={cta} className={styles.primaryLink} />
-          </section>}
           {nextField && !capReached && !state.pending && state.messages.length > 1 && <form className={styles.qualify} onSubmit={(event) => {
             event.preventDefault(); if (!answer.trim()) return;
             dispatch({ type: 'qualification', field: nextField, value: answer });
@@ -147,6 +151,12 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
             <input id="elixir-qualification" placeholder="Type your answer" value={answer} onChange={(event) => setAnswer(event.target.value)} maxLength={160} autoComplete="off" />
             <div className={styles.row}><button type="submit" className={styles.secondary} disabled={!answer.trim()}>Continue</button><button type="button" onClick={() => { dispatch({ type: 'skip', field: nextField }); setAnswer(''); void send('I would prefer to skip that question.', { skipped: [...state.skipped, nextField] }); }}>Skip this question</button></div>
           </form>}
+          {/* The booking card follows the form, so Fitz's question and the field that answers it stay together. */}
+          {showCard && <section className={styles.discoveryCard} aria-labelledby="elixir-discovery-heading">
+            <h3 id="elixir-discovery-heading">{cta.heading}</h3>
+            <p>{cta.text}</p>
+            <DiscoveryLink cta={cta} className={styles.primaryLink} />
+          </section>}
           {state.leadForm && (!state.contactDeclined ? <div className={styles.invitation}><span>Want to see how it could fit?</span><button type="button" className={styles.secondary} onClick={() => dispatch({ type: 'review', open: true })}>Request a demo</button><button type="button" className={styles.quiet} onClick={() => dispatch({ type: 'decline' })}>Keep exploring</button></div> : <div className={styles.invitation}><button type="button" className={styles.quiet} onClick={() => dispatch({ type: 'review', open: true })}>Request a demo</button></div>)}
         </>}
       </div>
