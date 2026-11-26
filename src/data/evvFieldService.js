@@ -265,6 +265,8 @@ export const fsTalk = {
   trustedLine: 'Trusted by Enterprise HCBS & Home Health Providers on Salesforce',
   form: {
     fieldNames: ['firstName', 'lastName', 'email', 'phone', 'message'],
+    // The shared placeholder asks about Kratu AI; this is an EVV demo form.
+    fieldOverrides: { message: { placeholder: 'Tell us about your EVV and Salesforce Field Service needs.' } },
     submitLabel: 'Request EVV Demo',
   },
 };

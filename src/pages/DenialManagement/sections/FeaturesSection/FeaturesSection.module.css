@@ -126,4 +126,13 @@
     font-size: 26px;
     line-height: 34px;
   }
+
+  /* The 1152×518 panel shrank to an unreadable strip: show its top-left detail (summary and
+     first actions) at a larger scale instead. */
+  .wideScreen {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    object-position: left top;
+  }
 }

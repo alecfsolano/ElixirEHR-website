@@ -11,9 +11,9 @@ import styles from './WideListing.module.css';
 /**
  * Full-width two-up listing (E-Book, Benchmark Surveys): 562px cards with a 360px photo, four per
  * page; a single result spans the row as a horizontal card. `meta(post)` and `action(post)` give
- * each card's meta row and link/button.
+ * each card's meta row and link/button; `tag` is the cards' type badge.
  */
-function WideListing({ type, page, noun, meta, action }) {
+function WideListing({ type, page, noun, meta, action, tag = 'Article' }) {
   const posts = useMemo(() => getPosts(type), [type]);
   const listing = useResourceListing(posts, { pageSize: 4 });
   // A lone result would leave half the two-up grid empty, so it spans the row as a featured card.
@@ -35,7 +35,7 @@ function WideListing({ type, page, noun, meta, action }) {
                 post={post}
                 layout={single ? 'horizontal' : 'stacked'}
                 size="wide"
-                tag="Article"
+                tag={tag}
                 meta={meta(post)}
                 excerpt
                 action={action(post)}

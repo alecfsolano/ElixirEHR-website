@@ -152,12 +152,22 @@ function OpenPositionDetail() {
               Responsibilities
             </BlockHeading>
             <ul className={styles.checklist}>
-              {detail.responsibilities.map((item) => (
-                <li key={item}>
-                  <img loading="lazy" decoding="async" src={checkIcon} alt="" width="22" height="22" />
-                  {item}
-                </li>
-              ))}
+              {detail.responsibilities.map((item) => {
+                // "Label: text": only the lead-in label is bold, so the list scans.
+                const split = item.indexOf(': ');
+                return (
+                  <li key={item}>
+                    <img loading="lazy" decoding="async" src={checkIcon} alt="" width="22" height="22" />
+                    {split > 0 ? (
+                      <span>
+                        <strong>{item.slice(0, split + 1)}</strong> {item.slice(split + 2)}
+                      </span>
+                    ) : (
+                      <span>{item}</span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </section>
 

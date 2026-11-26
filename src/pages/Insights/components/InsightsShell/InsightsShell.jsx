@@ -9,6 +9,20 @@ import { cn } from '../../../../utils/cn';
 import InsightsNav from '../InsightsNav/InsightsNav';
 import styles from './InsightsShell.module.css';
 
+/** Keeps hyphenated words ("E-Books") whole, so the heading never wraps as "E- / Books". */
+function keepHyphenated(text) {
+  if (typeof text !== 'string') return text;
+  return text.split(/(\S+-\S+)/).map((part, index) =>
+    index % 2 ? (
+      <span key={index} className={styles.nowrap}>
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
 /**
  * Shared frame of every Insights page: the "Knowledge for the Modern Clinician" hero (its search
  * field filters the page's resources through `query` / `onQueryChange`), the category bar, then
@@ -71,7 +85,7 @@ function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero
       <Section tone="surface" spacing="none" className={styles.section} aria-labelledby={`${searchId}-title`}>
         {/* The page's own H1 (the hero title above is shared by every Insights listing). */}
         <h1 id={`${searchId}-title`} className={styles.title}>
-          {title}
+          {keepHyphenated(title)}
         </h1>
         <div className={cn(styles.layout, aside && styles.withAside)}>
           <div className={styles.main}>{children}</div>

@@ -2,13 +2,13 @@
   padding: 83px 0 81px;
 }
 
-/* White card (40px top band) holding the 604px parameters pane and the dark results panel, which
-   runs flush to the card's right and bottom edges. */
+/* White card holding the 604px parameters pane and the dark results panel, which runs flush to
+   the card's top, right and bottom edges (the frame's 40px white top band left a notch above the
+   panel at the card's rounded corner; that 40px now sits inside each pane instead). */
 .card {
   display: grid;
   grid-template-columns: 604px minmax(0, 1fr);
   margin-top: 16px;
-  padding-top: 40px;
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 32px;
@@ -18,7 +18,7 @@
 
 /* Parameters */
 .form {
-  padding: 44px 44px 48px;
+  padding: 84px 44px 48px;
 }
 
 .formTitle {
@@ -133,8 +133,7 @@
 
 /* Results */
 .summary {
-  padding: 47px 44px 59px;
-  border-radius: 0 0 31px;
+  padding: 87px 44px 59px;
   background: var(--color-surface-dark);
   color: var(--color-white);
 }
@@ -298,11 +297,14 @@
 @media (max-width: 1199px) {
   .card {
     grid-template-columns: minmax(0, 1fr);
-    padding-top: 0;
+  }
+
+  .form {
+    padding-top: 44px;
   }
 
   .summary {
-    border-radius: 0;
+    padding-top: 47px;
   }
 }
 

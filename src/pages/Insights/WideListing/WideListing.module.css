@@ -18,4 +18,8 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
   }
+
+  .grid > li:only-child {
+    width: 100%;
+  }
 }

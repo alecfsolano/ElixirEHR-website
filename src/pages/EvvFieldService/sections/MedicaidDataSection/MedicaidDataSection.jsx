@@ -11,7 +11,7 @@ function MedicaidDataSection() {
       <EyebrowHeading id="fs-medicaid" eyebrow={eyebrow} title={title} className={styles.heading} />
       <p className={styles.description}>{description}</p>
 
-      {/* Scrolls sideways on narrow screens rather than squeezing the two columns. */}
+      {/* On phones each row stacks as a label/value card (see the CSS) instead of scrolling sideways. */}
       <div className={styles.frame} role="region" aria-label="Medicaid EVV data captured by Elixir" tabIndex={0}>
         <table className={styles.table}>
           <thead>
@@ -27,7 +27,7 @@ function MedicaidDataSection() {
             {rows.map(([information, capture]) => (
               <tr key={information}>
                 <th scope="row">{information}</th>
-                <td>{capture}</td>
+                <td data-label={columns[1]}>{capture}</td>
               </tr>
             ))}
           </tbody>

@@ -8,3 +8,11 @@
   --page-hero-content-offset: 0;
   --page-hero-primary-size: 16px;
 }
+
+/* The hero photo sits 36px into its exported backdrop (TiltedHeroMedia assumes 22px): below
+   desktop, shift it so the photo lines up with the column instead of bleeding past the right gutter. */
+@media (max-width: 1199px) {
+  .heroMedia img {
+    left: -7.71%;
+  }
+}
