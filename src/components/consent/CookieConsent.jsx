@@ -182,11 +182,30 @@ function CookieConsent({ children }) {
   const [consent, setConsent] = useState(null);
   const [ready, setReady] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const banner = useRef(null);
 
   useEffect(() => {
     setConsent(readConsent());
     setReady(true);
   }, []);
+
+  const showBanner = ready && !consent;
+  // Other fixed controls (the Ask Fitz launcher) sit above the banner while it is shown, through
+  // the --consent-banner-height custom property, so the banner never covers them.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!showBanner || !banner.current) return undefined;
+    const update = () => root.style.setProperty('--consent-banner-height', `${banner.current?.offsetHeight ?? 0}px`);
+    update();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(banner.current);
+    window.addEventListener('resize', update);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', update);
+      root.style.removeProperty('--consent-banner-height');
+    };
+  }, [showBanner]);
 
   const save = useCallback((choices) => {
     setConsent(saveConsent(choices));
@@ -208,8 +227,8 @@ function CookieConsent({ children }) {
     <ConsentContext.Provider value={value}>
       {children}
 
-      {ready && !consent && (
-        <section className={styles.banner} aria-labelledby="cookie-banner-title" aria-describedby="cookie-banner-text">
+      {showBanner && (
+        <section ref={banner} className={styles.banner} aria-labelledby="cookie-banner-title" aria-describedby="cookie-banner-text">
           <Container className={styles.bannerInner}>
             <div className={styles.bannerCopy}>
               <h2 id="cookie-banner-title" className={styles.bannerTitle}>

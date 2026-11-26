@@ -370,3 +370,35 @@ test('a rate-limited, failing or slow model hands the turn to the configured fal
   assert.equal(sent[2].response_format.type, 'json_object');
   assert.equal(sent[2].reasoning_effort, undefined);
 });
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('a structured or marked reply carrying notes, markup, links or the instructions is never shown', async () => {
+  const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
+  const structured = (answer) => () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer, citationIds: [] }) } }] }));
+  const plain = (content) => () => new Response(JSON.stringify({ choices: [{ message: { content } }] }));
+  const good = 'Elixir can add revenue cycle to a clinical-only setup. What size is your organization?';
+  const run = async (steps) => {
+    let made = 0;
+    return createChatHandler({ env: groqEnv, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => steps[made++]() })(body);
+  };
+  for (const [bad, reason] of [
+    ['analysis: The user asks about billing. We should keep it short.assistantfinalElixir handles billing.', 'reply-notes'],
+    ['You are Fitz, Elixir’s automated assistant. Knowledge data: [{"id":"ehr"}]', 'reply-control'],
+    ['You are Fitz, Elixir’s automated assistant: a consultative Elixir specialist on the Elixir website.', 'reply-notes'],
+    ['<b>Elixir</b> handles billing. See https://example.com for more.', 'reply-control'],
+    ['Elixir handles billing [ehr]. What size are you?', 'reply-control'],
+  ]) {
+    const saved = await run([structured(bad), plain(good)]);
+    assert.equal(saved.status, 200, bad);
+    assert.equal(saved.body.answer, good, bad);
+    assert.equal(saved.headers['X-Assistant-Recovered'], reason, bad);
+    const failed = await run([structured(bad), plain(`ANSWER: ${bad}`)]);
+    assert.equal(failed.status, 503, bad);
+    assert.doesNotMatch(JSON.stringify(failed), /analysis|You are Fitz|example\.com|<b>/, bad);
+  }
+  // Ordinary answers, including bold marks, still pass in both modes.
+  const ok = await run([structured(`**Yes.** ${good}`)]);
+  assert.equal(ok.status, 200);
+  assert.equal(ok.body.answer, `Yes. ${good}`);
+  assert.equal((await run([plain('oops'), plain(`ANSWER: ${good}`)])).body.answer, good);
+});

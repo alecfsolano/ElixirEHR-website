@@ -55,3 +55,11 @@ test('a short busy wait is waited out once; a long wait or a second busy reply i
   controller.abort();
   await assert.rejects(requestReply(body, { mode: 'hosted', signal: controller.signal, fetchImpl: async () => busy(2)() }), { name: 'AbortError' });
 });
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('a reply that is not JSON shows the plain unavailable message, never parser text', async () => {
+  const body = { messages: [{ role: 'user', content: 'Tell me about billing.' }], qualification: {}, sourcePath: '/' };
+  for (const text of ['<!doctype html><html></html>', '', '{"answer":']) {
+    await assert.rejects(requestReply(body, { mode: 'hosted', fetchImpl: async () => new Response(text, { status: 200 }) }), { message: 'The assistant is temporarily unavailable. Please try again or use Contact Us.' }, text);
+  }
+});

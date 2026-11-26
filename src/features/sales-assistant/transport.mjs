@@ -42,8 +42,11 @@ export async function requestReply(body, { mode, signal, fetchImpl = fetch, slee
     }
     throw new Error(message);
   }
-  if (!response.ok) throw new Error('The assistant is temporarily unavailable. Please try again or use Contact Us.');
-  const value = await response.json();
+  const unavailable = 'The assistant is temporarily unavailable. Please try again or use Contact Us.';
+  if (!response.ok) throw new Error(unavailable);
+  // A page or a cut-off body in place of JSON (for example a misrouted request) is "unavailable",
+  // never the parser's own message.
+  const value = await response.json().catch(() => { throw new Error(unavailable); });
   const citations = Array.isArray(value.citations) ? value.citations.filter((source) => source && typeof source.id === 'string' && typeof source.url === 'string') : [];
   return normalizeChatReply({ ...value, citationIds: citations.map((source) => source.id) }, citations);
 }

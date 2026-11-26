@@ -64,20 +64,30 @@ const MODEL_NOTES = [
   // A marker later in the text means notes came before it.
   /\bANSWER\b/,
   // Planning, at the start of any sentence.
-  /(?:^|[.!?:;,\n]\s*)(?:(?:okay|ok|so|hmm|well|alright|now|then|also|first)\b[,.]?\s+)*(?:(?:we|i)(?:\s+also)?\s+(?:need to|needs? not|should|must|have to|ought to|want to (?:answer|ask|reply|respond))\b|need to\b|must\b|should (?:not|ask|mention|answer|say|be|keep|recommend|end|avoid|respond|reply)\b|keep (?:it|to|answer|reply)\b|(?:provide|give|write) (?:a )?(?:short|brief|concise)\b|let me (?:think|answer|respond|reply|write|draft)\b|thinking(?:[:.]|\s+about (?:what|how) to\b)|(?:the )?(?:user|visitor) (?:asks?|asked|is|says?|said|wants?|wrote)\b|they (?:ask|asked|are asking|want to know)\b)/i,
+  /(?:^|[.!?:;,\n]\s*)(?:(?:okay|ok|so|hmm|well|alright|now|then|also|first)\b[,.]?\s+)*(?:(?:we|i)(?:\s+also)?\s+(?:need to|needs? to|should|must|have to|ought to|want to) (?:answer|ask|reply|respond|mention|say|keep|recommend|provide|output|write|avoid|not|be (?:brief|careful|concise|short))\b|need to (?:answer|ask|reply|respond|mention|say|keep|recommend|provide|check|output|write)\b|must (?:not|ask|answer|mention|say|keep|recommend|avoid|provide|be)\b|should (?:not|ask|mention|answer|say|be|keep|recommend|end|avoid|respond|reply)\b|keep (?:it|to|answer|reply)\b|(?:provide|give|write) (?:a )?(?:short|brief|concise)\b|let me (?:think|answer|respond|reply|write|draft)\b|thinking(?:[:.]|\s+about (?:what|how) to\b)|(?:the )?(?:user|visitor) (?:asks?|asked|is|says?|said|wants?|wrote)\b|they (?:ask|asked|are asking|want to know)\b)/i,
   // Talk about the visitor, the rules or the reply format, anywhere.
   /\bthe visitor\b|\b(?:the )?user (?:asks?|asked|is asking|wants?|said|wrote)\b|\b(?:must|should) not (?:invent|quote|infer|assume|mention)\b|\b(?:according to|per|follow(?:ing)?) (?:the|my|these|our) (?:rules|instructions|guidelines)\b|\bsystem prompt\b|\bqualifying question\b|\bknowledge data\b|\bcitation_?ids?\b|\bnext_?field\b|\b(?:qualification|intent)\s*:|\b(?:return|output|valid) json\b|\bjson object\b/i,
+  // The instructions themselves, echoed back.
+  /\byou are fitz\b|\bknown visitor facts\b|\bqualification questions\b|\bstarting page path\b|\bcontact preference:/i,
 ];
 
 /** The text a visitor may see from an unmarked reply: no loose marker and no bold marks. */
 const unmarkedText = (content) => content.replace(LOOSE_MARKER, '').replaceAll('**', '').trim();
+
+const hasNotes = (text) => MODEL_NOTES.some((notes) => notes.test(text));
 
 /** Why unmarked plain text must not be shown, as a safe reason code; null when it can be. */
 function unmarkedProblem(text, truncated) {
   if (truncated) return 'truncated';
   if (CONTROL_TEXT.test(text)) return 'unmarked-control';
   if (text.length < MIN_UNMARKED_LENGTH || !SENTENCE_END.test(text)) return 'unmarked';
-  return MODEL_NOTES.some((notes) => notes.test(text)) ? 'unmarked-notes' : null;
+  return hasNotes(text) ? 'unmarked-notes' : null;
+}
+
+/** Why a structured or marked answer must not be shown, as a safe reason code; null when it can be. */
+function answerProblem(text) {
+  if (CONTROL_TEXT.test(text)) return 'reply-control';
+  return hasNotes(text) ? 'reply-notes' : null;
 }
 
 const JSON_REPLY_RULE = 'Return a JSON object with answer (plain text, max 4000 chars), citationIds (only IDs of sources actually used), qualification (only visitor-stated exact phrases, max 160 chars per field, null for unknown values), nextField (the field your one qualifying question asks about, if it is unanswered and unskipped, otherwise null), and intent (explore, demo, support or decline; use demo when the visitor asks for a demo, a call, pricing for their organization or to talk to sales). No HTML, Markdown or URLs. Put source IDs only in citationIds, never in the answer. Extract known facts before choosing the next question; do not ask for information the visitor already supplied.';
@@ -156,10 +166,16 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
         catch {
           if (!plain) throw new ModelAttemptError(truncated ? 'truncated' : 'invalid-json', { format: true });
           const marked = PLAIN_MARKER.test(content);
-          const answer = marked ? content.replace(PLAIN_MARKER, '') : unmarkedText(content);
+          const answer = marked ? content.replace(PLAIN_MARKER, '').replaceAll('**', '').trim() : unmarkedText(content);
           const problem = marked ? null : unmarkedProblem(answer, truncated);
           if (problem) throw new ModelAttemptError(problem, { format: true });
           value = { answer, citationIds: [], qualification: {}, nextField: null, intent: 'explore' };
+        }
+        // Every answer, structured or plain, is screened the same way before a visitor sees it.
+        if (value && typeof value.answer === 'string') {
+          value = { ...value, answer: value.answer.replaceAll('**', '').trim() };
+          const problem = answerProblem(value.answer);
+          if (problem) throw new ModelAttemptError(problem, { format: true });
         }
         try { return normalizeChatReply(value, sources); }
         catch { throw new ModelAttemptError('invalid-reply', { format: true }); }
