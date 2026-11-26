@@ -72,10 +72,11 @@
   flex: none;
 }
 
+/* Near-black on lime (8:1); the frame's dark olive on lime was 2.8:1 and hard to read. */
 .insightLabel,
 .insightText {
   display: block;
-  color: #526d00;
+  color: var(--color-heading);
 }
 
 .insightLabel {
