@@ -116,6 +116,33 @@ Store the Groq credential in the **latest environment's encrypted backend applic
 
 `api/local.settings.example.json` gives the Azure Functions settings shape. Actual local settings and environment files are ignored by Git. For the standalone loopback runner, supply settings securely through the environment (or an ignored Node environment file) and use `npm run assistant:api`. The Vite dev server proxies `/api/chat` to `127.0.0.1:7071`. `ASSISTANT_API_PORT` may override the standalone listener; update the local proxy to match if needed.
 
+### Reply finishing rules
+
+Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-model.mjs`) before a visitor sees it. The closing question is split off first, so body rules never touch it. In the body:
+
+- Sentences judging whether the visitor's timeline is realistic are dropped, and one sentence says the team confirms timing during scoping.
+- Sentences making fit, value or usage claims the knowledge never makes are dropped, as long as real content remains. Examples: "sounds like a fit", "strongest", "usually helps", "often use".
+- Sentences that mostly restate an earlier reply (75% or more of the content words) are dropped. When nothing new is left, Fitz invites the next question instead. Booking sentences are never dropped this way, and neither is a sentence the next one leans on ("They…", "This…").
+- Talk about what its information includes ("that list is not included here") is removed.
+- Limits the knowledge attaches to a stated fact are added when missing, before any closing booking sentence:
+  - Part 2 is confirmed with the privacy reviewer.
+  - Elixir is not certified to the ONC standardized API criterion.
+  - EVV connector availability is confirmed per payer and state.
+  - The 6 to 10 week go-live assumes a small practice on a standard configuration.
+  - The SOC 2 Type II report is Mirketa's, under NDA.
+  - The platform BAA is with the platform provider.
+- A poem or other unrelated creative text is replaced by the redirect.
+
+Splitting into sentences only happens at punctuation followed by a space, so "OAuth 2.0" and certificate numbers are never cut. Joining the pieces always gives back the original text.
+
+The discovery-call sentence is added on demo intent, on the first message of the provider funnel, or when the visitor's message shows buying intent (pricing, licensing, demo, implementation, migration, switching, go-live or comparing vendors). It is never added in two replies in a row, after a refusal, for support or for a referral partner.
+
+The closing question is always the canonical wording from `api/shared/contract.mjs`. It asks about the next field in order that the visitor has not answered (including in the same message), skipped or already been asked, so a reworded repeat cannot slip through. Facts are recorded only from the visitor's own words. A question about other organizations ("Which treatment centers use Elixir?") is not a fact about the visitor. Partner-program replies, declined contact, support and off-topic replies get no qualifying question.
+
+A reply in another language (more Spanish, French or German function words than English ones) keeps the model's own closing question and gets none of the English insertions.
+
+Known limit: a repeat reworded so that it shares fewer than 75% of its content words with the earlier reply is not caught. The prompt asks the model not to repeat itself.
+
 ### When the model's reply fails
 
 A failed model call is tried once more. After a server error or dropped connection the same request is repeated. After a reply the structured mode could not produce (provider HTTP 400/422, empty, truncated or invalid JSON, or an invalid answer) the second call asks for plain text instead, under the same instructions and knowledge; text that starts with the exact `ANSWER:` marker is shown, and so is other text (a looser marker is removed) that reads as a finished answer: at least 20 characters, ending a sentence, not cut off, with no JSON, markup, control tokens, links or bracketed source IDs, and not the model's notes to itself. When unsure, the rules reject it. Either way there are no citations and no extracted facts. A rate limit, a rejected key and a timeout are not retried on the same model. With more than one model configured (Azure followed by the Groq models, or `GROQ_FALLBACK_MODELS`), a model that is rate-limited, fails both attempts or times out hands the turn to the next model. A rejected key skips the rest of that provider's models and moves to the next provider; when every provider's key is rejected the visitor gets the 503; each turn ends within 40 seconds, inside the function host's 45-second limit. The response header `X-Assistant-Model` says which model answered: `primary`, `fallback-1` and so on. When every model is rate-limited the visitor gets the 429 with the shortest wait any model asked for.

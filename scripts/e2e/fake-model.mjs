@@ -28,7 +28,24 @@ export const outcome = {
   delay: (ms, then = null) => ({ kind: 'delay', ms, then }),
 };
 
-export const defaultAnswer = (turn) => `Elixir brings intake, documentation and billing into one Salesforce-native platform, reply ${turn}.`;
+// One distinct point per turn, so the reply rules that drop repeated points never remove a default reply.
+const DEFAULT_POINTS = [
+  'Elixir brings intake, documentation and billing into one Salesforce-native platform',
+  'Scheduling, reminders and patient forms share a single chart',
+  'Group sessions record attendance alongside individual progress notes',
+  'Eligibility checks happen before each appointment',
+  'Care plans track goals, measures and outcomes over time',
+  'Secure messaging connects staff with patients between visits',
+  'Denied claims return to a worklist with suggested corrections',
+  'Telehealth visits open from the same calendar entry',
+  'Referral tracking follows consent through every handoff',
+  'Supervisors approve notes before claims leave the building',
+  'Dashboards show census, caseloads and revenue together',
+  'Mobile caregivers capture signatures at the bedside',
+  'Authorizations warn staff before approved units run out',
+  'Screening questionnaires score automatically for clinicians',
+];
+export const defaultAnswer = (turn) => `${DEFAULT_POINTS[(turn - 1) % DEFAULT_POINTS.length]}, reply ${turn}.`;
 
 function parseSources(system) {
   const line = system.split('\n').find((text) => text.startsWith('Knowledge data: '));
