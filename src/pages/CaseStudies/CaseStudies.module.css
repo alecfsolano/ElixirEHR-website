@@ -71,10 +71,11 @@
   background: linear-gradient(180deg, transparent 45%, rgb(31 24 35 / 0.35));
 }
 
+/* Bottom-right corner: centred, it covered the title on each thumbnail's case-study slide. */
 .play {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  right: 18px;
+  bottom: 18px;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -88,7 +89,6 @@
     0 0 0 8px rgb(149 193 31 / 0.3),
     0 10px 24px rgb(0 0 0 / 0.3);
   color: var(--color-white);
-  transform: translate3d(-50%, -50%, 0);
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
@@ -102,7 +102,7 @@
 }
 
 .thumb:hover .play {
-  transform: translate3d(-50%, -50%, 0) scale(1.08);
+  transform: scale(1.08);
 }
 
 .thumb:focus-visible,

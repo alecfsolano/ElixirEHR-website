@@ -9,13 +9,15 @@
   background: var(--color-surface-dark);
 }
 
-/* Darkens the lower part of the image so the title stays legible over any thumbnail. */
+/* Darkens the lower part of the image so the title stays legible over any thumbnail. The video
+   thumbnails carry their own title text at mid-height, so the shade is near-opaque from there down
+   (otherwise that text shows through behind the tag and title). */
 .featured::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(180deg, transparent 30%, rgb(31 24 35 / 0.7) 55%, rgb(31 24 35 / 0.95));
+  background: linear-gradient(180deg, rgb(31 24 35 / 0.1), rgb(31 24 35 / 0.9) 36%, rgb(31 24 35) 46%);
 }
 
 .featuredImage {
@@ -132,9 +134,15 @@
   object-fit: cover;
 }
 
+/* Bottom-left of the thumbnail (the duration is bottom-right): centred, it hid the title text
+   baked into every video thumbnail. */
 .play {
+  top: auto;
+  bottom: 10px;
+  left: 14px;
   width: 48px;
   height: 48px;
+  transform: none;
 }
 
 .duration {
@@ -161,11 +169,6 @@
   padding: 0 12px;
   font-size: 13px;
   line-height: 32px;
-}
-
-.title,
-.text {
-  max-width: 230px;
 }
 
 .title {
