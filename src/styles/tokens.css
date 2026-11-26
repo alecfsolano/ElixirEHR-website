@@ -30,7 +30,7 @@
   --color-on-error-container: #93000a;
   --color-white-90: rgb(255 255 255 / 0.9); /* header nav text */
   --color-white-60: rgb(255 255 255 / 0.6); /* footer links & tagline */
-  --color-white-40: rgb(255 255 255 / 0.4); /* decorative only: 3.1:1 on Deep Purple, too low for text */
+  --color-white-40: rgb(255 255 255 / 0.4); /* footer bottom bar text */
   --color-white-10: rgb(255 255 255 / 0.1);
   --color-white-07: rgb(255 255 255 / 0.07); /* footer divider */
   --color-white-05: rgb(255 255 255 / 0.05); /* footer social circles */

@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '../../../utils/cn';
 import Container from '../../layout/Container/Container';
@@ -13,8 +12,8 @@ import styles from './PageHero.module.css';
  * (About Us, What Is Elixir); pass `media` to supply a page-specific right column instead.
  * `secondaryCta` is optional; `className` lets a page scope frame-specific tweaks.
  * By default the second title line is yellow; pass `titleAccent` (a phrase, or one phrase per
- * line) to highlight only that. `primaryCta` is optional (the Insights listings show a search
- * field there instead) and takes `to` or `href` (e.g. an in-page anchor).
+ * line) to highlight only that. `primaryCta` is optional (the RCM hero has no buttons)
+ * and takes `to` or `href` (e.g. an in-page anchor).
  * A `secondaryCta` with neither `to` nor `href` (destination not built yet) renders as drawn but
  * is marked `aria-disabled`.
  * `primaryCta.icon` ({ src, width, height }) puts an icon before the label in place of the arrow.
@@ -77,11 +76,9 @@ function PageHero({
           {pill && <p className={styles.pill}>{pill}</p>}
           <TitleTag className={styles.title} data-page-hero-title>
             {titleLines.map((line, index) => (
-              <Fragment key={line}>
-                {/* The space joins the lines when they flow inline on phones; between blocks it is ignored. */}
-                {index > 0 && ' '}
-                <span className={styles.titleLine}>{renderTitleLine(line, index, titleAccent)}</span>
-              </Fragment>
+              <span key={line} className={styles.titleLine}>
+                {renderTitleLine(line, index, titleAccent)}
+              </span>
             ))}
           </TitleTag>
           {[].concat(description ?? []).map((paragraph) => (
