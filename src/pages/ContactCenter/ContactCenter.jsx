@@ -16,7 +16,7 @@ function ContactCenter() {
   return (
     <>
       <PageSeo path="/healthcare-contact-center" />
-      <PageHero {...hero} className={styles.hero} media={<BadgeHeroMedia media={media} badge={badge} />} />
+      <PageHero {...hero} className={styles.hero} media={<BadgeHeroMedia media={media} badge={badge} className={styles.heroMedia} />} />
       <IntakeSection />
       <VerificationSection />
       <AssessmentsSection />

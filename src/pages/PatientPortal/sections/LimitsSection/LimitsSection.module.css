@@ -61,7 +61,7 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
-  color: var(--color-secondary);
+  color: var(--color-secondary-on-light);
 }
 
 /* 2×2 cards on fixed 156px rows, as in the frame: the taller right-hand cards (hard line breaks
