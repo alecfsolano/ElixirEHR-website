@@ -7,6 +7,8 @@ export const QUALIFICATION_FIELDS = {
   primaryNeed: 'What is the main problem you would like to improve?',
   timeline: 'When are you hoping to make a change?',
 };
+// The standard discovery-call sentence the server adds; the panel leaves it out of a reply shown next to the booking card.
+export const CALL_SENTENCE = 'You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat.';
 const fields = Object.keys(QUALIFICATION_FIELDS);
 // Page context another part of the site can pass when it opens the assistant (elixir:open-assistant).
 // A hint about where the visitor came from, never a visitor-stated fact.

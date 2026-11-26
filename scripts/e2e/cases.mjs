@@ -453,6 +453,16 @@ export function makeCases({ root, distDir }) {
     t.assert.equal(await t.dialog().getByRole('button', { name: 'Request a demo' }).count(), 0, 'no in-chat lead form in production');
     t.assert.equal(await t.dialog().getByLabel('First name').count(), 0);
   } });
+  // AGENT-GENERATED — ORACLE REVIEW NEEDED. Next to the booking card the reply does not repeat the call sentence,
+  // and the booking bar is not shown either: the call is offered once.
+  add({ id: 'conv/call-offered-once', group: 'conversation', script: () => o.good({ intent: 'demo', answer: 'Elixir supports group notes and billing in one EHR record.' }), async run(t) {
+    await t.goto(BH); await t.open();
+    const shown = await t.send('What would the EHR cost for our group?');
+    t.assert.match(shown.card, /See how this would work for you/);
+    t.assert.doesNotMatch(shown.last.text, /button in this chat/, 'the reply repeats the call sentence next to the card');
+    t.assert.match(shown.last.text, /group notes and billing/);
+    t.assert.equal(await t.dialog().getByText('Ready to talk it through?').count(), 0, 'the booking bar shows next to the card');
+  } });
   add({ id: 'conv/decline-wording', group: 'conversation', script: (c) => (c.req === 1 ? o.good({ intent: 'decline', answer: 'Of course. We can keep going without any contact details.' }) : null), async run(t) {
     await t.goto(BH); await t.open();
     await t.send('No thanks, please do not contact me. I only have questions.');

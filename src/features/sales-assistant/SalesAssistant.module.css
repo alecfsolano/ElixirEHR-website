@@ -31,7 +31,7 @@
 .close { border-radius: 50%; width: 34px; height: 34px; font-size: 27px; line-height: 1; color: white; }
 .close:hover { background: #ffffff20; }
 .preview { flex-shrink: 0; font: 500 11px/1.5 var(--font-label); padding: 8px 24px; background: var(--color-secondary-tint); color: #344119; }
-.body { position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px; scroll-padding: 12px 0 20px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+.body { position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px; scroll-padding: 12px 0 20px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 14px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 14px), transparent 100%); }
 .transcript { display: flex; flex-direction: column; gap: 16px; }
 .assistantMessage, .userMessage { border-radius: 14px; padding: 13px 15px; font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
 /* Paragraphs, not blank lines: a short gap between them reads as one answer. */
