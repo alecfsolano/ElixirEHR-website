@@ -31,15 +31,23 @@
   touch-action: pan-y;
 }
 
-@media (min-width: 1441px) {
-  .stage {
-    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-  }
-}
-
+/* The cards cut off by the row's ends fade to a faint ghost instead of ending mid-word; the active
+   card and its neighbours (`--solid` either side of the centre) stay solid. The fade is on the
+   track, not the stage, so the arrows stay solid too. */
 .track {
+  --solid: calc(var(--w) * 1.5 + var(--gap));
+
   position: absolute;
   inset: 0;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    rgb(0 0 0 / 0.2) calc(50% - var(--solid) - 6px),
+    #000 calc(50% - var(--solid)),
+    #000 calc(50% + var(--solid)),
+    rgb(0 0 0 / 0.2) calc(50% + var(--solid) + 6px),
+    transparent
+  );
 }
 
 .card {
@@ -392,6 +400,11 @@
     --active-h: 484px;
 
     margin-top: 24px;
+  }
+
+  /* Only slivers of the neighbours reach the screen: they fade, and only the active card is solid. */
+  .track {
+    --solid: calc(var(--w) * 0.5);
   }
 
   .figure {
