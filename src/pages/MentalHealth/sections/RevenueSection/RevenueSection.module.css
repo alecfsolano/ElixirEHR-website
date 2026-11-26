@@ -4,7 +4,9 @@
 
 .intro {
   --bh-title-width: 740px;
-  --bh-title-tracking: -0.025em;
+  --bh-title-size: 36px;
+  --bh-title-leading: 44px;
+  --bh-title-tracking: -0.01em;
   --bh-title-gap: 4px;
   --bh-description-width: 770px;
   --bh-description-gap: 5px;
