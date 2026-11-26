@@ -102,6 +102,20 @@
 }
 
 @media (max-width: 767px) {
+  /* At the phone title size the three desktop lines run together as one heading with normal
+     leading, instead of re-wrapping into four loosely spaced lines. */
+  .title {
+    line-height: 40px;
+  }
+
+  .title span {
+    display: inline;
+  }
+
+  .title span:not(:last-child)::after {
+    content: ' ';
+  }
+
   .pillars {
     flex-direction: column;
   }
