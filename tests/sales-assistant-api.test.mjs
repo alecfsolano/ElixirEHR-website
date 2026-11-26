@@ -424,6 +424,53 @@ test('Azure is primary and the Groq models back it up across providers', async (
   // An incomplete Groq setting is ignored: Azure still serves alone.
   ({ result, sent } = await run([good], { ...crossEnv, GROQ_MODEL: '' }));
   assert.equal(result.status, 200);
+  // A mix of rate limits and rejected keys is a wait, not an outage: the shortest wait is returned.
+  ({ result, sent } = await run([() => new Response('no', { status: 401 }), limited(9), limited(4)]));
+  assert.equal(result.status, 429);
+  assert.equal(result.headers['Retry-After'], '4');
+  ({ result, sent } = await run([limited(30), () => new Response('no', { status: 401 })]));
+  assert.equal(result.status, 429);
+  assert.equal(result.headers['Retry-After'], '30');
+  assert.equal(sent.length, 2);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('a slow Azure deployment leaves the Groq fallback time to answer', async () => {
+  const crossEnv = { ...env, ASSISTANT_PROVIDER: 'azure', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
+  const timeouts = [];
+  let calls = 0;
+  const fetchImpl = async (url, options) => {
+    calls++;
+    const started = Date.now();
+    if (url.includes('azure')) {
+      // Azure answers with a server error just before its first timeout, then hangs until aborted.
+      if (calls === 1) { await new Promise((resolve) => setTimeout(resolve, 19500)); return new Response('down', { status: 500 }); }
+      await new Promise((resolve, reject) => options.signal.addEventListener('abort', () => { timeouts.push(Date.now() - started); reject(Object.assign(new Error('slow'), { name: 'TimeoutError' })); }));
+    }
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: 'Hello from the backup model.', citationIds: [] }) } }] }));
+  };
+  const result = await createChatHandler({ env: crossEnv, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl })(body);
+  assert.equal(result.status, 200);
+  assert.equal(result.headers['X-Assistant-Model'], 'fallback-1');
+  assert.ok(timeouts[0] <= 11000, `the second Azure attempt kept no time for the fallback (${timeouts[0]} ms)`);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('turns that fall through to Groq stay inside the Groq per-minute budget', async () => {
+  const crossEnv = { ...env, ASSISTANT_PROVIDER: 'azure', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
+  const groqCalls = [];
+  const fetchImpl = async (url) => {
+    if (url.includes('azure')) return new Response('limited', { status: 429, headers: { 'retry-after': '20' } });
+    groqCalls.push(url);
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: 'Hello from the backup model.', citationIds: [] }) } }] }));
+  };
+  const handler = createChatHandler({ env: crossEnv, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl });
+  const statuses = [];
+  for (let n = 0; n < 12; n++) statuses.push((await handler(body)).status);
+  // Groq's per-worker allowance is 10 turns a minute; after that Azure's own wait is returned.
+  assert.equal(groqCalls.length, 10);
+  assert.deepEqual(statuses.slice(0, 10), Array(10).fill(200));
+  assert.deepEqual(statuses.slice(10), [429, 429]);
 });
 
 // AGENT-GENERATED — ORACLE REVIEW NEEDED

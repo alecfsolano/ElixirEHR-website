@@ -98,6 +98,8 @@ const MODEL_RETRY_DELAY_MS = 300;
 // The function host stops a request at 45 seconds; every model attempt must end before that.
 const TURN_DEADLINE_MS = 40000;
 const MIN_ATTEMPT_MS = 5000;
+// Time kept back for a later model, so a slow first provider cannot use up the whole turn.
+const FALLBACK_RESERVE_MS = 10000;
 const MODEL_NAME = /^[\w.:/-]{1,80}$/;
 const STRICT_MODELS = new Set(['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b']);
 
@@ -158,7 +160,9 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
   const responseFormat = (target) => (target.strict ? { type: 'json_schema', json_schema: { name: 'elixir_sales_reply', strict: true, schema: replySchema } } : { type: 'json_object' });
   return {
     // `onAttemptFailed` receives the safe reason code of each failed attempt.
-    async complete(request, sources, { onAttemptFailed = () => {}, onModel = () => {} } = {}) {
+    // `allowProvider` lets the caller withhold a provider whose own budget is spent; `onProviderUsed`
+    // is told once per turn for each provider actually called.
+    async complete(request, sources, { onAttemptFailed = () => {}, onModel = () => {}, allowProvider = () => true, onProviderUsed = () => {} } = {}) {
       const deadline = Date.now() + TURN_DEADLINE_MS;
       const visitorTurns = request.messages.filter((message) => message.role === 'user').length;
       const pageContext = request.providerType ? PROVIDER_TYPES[request.providerType] : 'not provided';
@@ -199,9 +203,9 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
         try { return normalizeChatReply(value, sources); }
         catch { throw new ModelAttemptError('invalid-reply', { format: true }); }
       };
-      const attempt = async (target, plain) => {
-        const remaining = deadline - Date.now();
-        if (remaining < MIN_ATTEMPT_MS) throw new ModelAttemptError('deadline');
+      const attempt = async (target, plain, reserve) => {
+        const remaining = deadline - Date.now() - reserve;
+        if (remaining < MIN_ATTEMPT_MS) throw new ModelAttemptError('deadline', { slow: true });
         let response, payload;
         try {
           response = await fetchImpl(target.url, {
@@ -225,14 +229,14 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
       // connection, plain text after a reply the structured mode could not produce (repeating that
       // request tends to fail again). Never for a rate limit or a rejected key, and never after a
       // timeout: a second full wait on the same model would outlast the function's time limit.
-      const tryModel = async (target) => {
-        try { return await attempt(target, false); }
+      const tryModel = async (target, reserve) => {
+        try { return await attempt(target, false, reserve); }
         catch (error) {
           if (!(error instanceof ModelAttemptError)) throw error;
           onAttemptFailed(error.reason);
           if (error.slow) throw error;
           await new Promise((resolve) => setTimeout(resolve, MODEL_RETRY_DELAY_MS));
-          try { return await attempt(target, error.format); }
+          try { return await attempt(target, error.format, reserve); }
           catch (second) {
             if (second instanceof ModelAttemptError) onAttemptFailed(second.reason);
             throw second;
@@ -242,22 +246,29 @@ export function createHostedModel({ env, fetchImpl = fetch }) {
       let reply;
       const limits = [];
       let lastError;
+      let otherFailure = false;
       const rejected = new Set();
+      const used = new Set();
+      // A rejected key is the same for every model of that provider.
+      const usable = (target) => !rejected.has(target.provider) && allowProvider(target.provider);
       for (const [index, target] of targets.entries()) {
-        // A rejected key is the same for every model of that provider.
-        if (rejected.has(target.provider)) continue;
+        if (!usable(target)) continue;
+        if (!used.has(target.provider)) { used.add(target.provider); onProviderUsed(target.provider); }
+        const reserve = targets.slice(index + 1).some(usable) ? FALLBACK_RESERVE_MS : 0;
         try {
-          reply = await tryModel(target);
+          reply = await tryModel(target, reserve);
           onModel(index ? `fallback-${index}` : 'primary');
           break;
         } catch (error) {
           if (error instanceof ModelRateLimitError) { limits.push(error); onAttemptFailed('rate-limited'); }
           else if (error instanceof ModelConfigError) { rejected.add(target.provider); onAttemptFailed('config'); }
-          else if (!(error instanceof ModelAttemptError)) throw error; // anything unexpected is not retried
+          else if (error instanceof ModelAttemptError) otherFailure = true;
+          else throw error; // anything unexpected is not retried
           lastError = error;
         }
       }
-      if (!reply) throw limits.length === targets.length ? shortestLimit(limits) : lastError;
+      // Only rate limits and rejected keys: that is a wait, so the shortest one asked for is returned.
+      if (!reply) throw limits.length && !otherFailure ? shortestLimit(limits) : lastError ?? new ModelAttemptError('unavailable');
       // The model may only extract literal visitor text, not infer or invent qualification facts.
       const latest = request.messages.at(-1).content.toLowerCase();
       reply.qualification = Object.fromEntries(Object.entries(reply.qualification).filter(([, value]) => latest.includes(value.toLowerCase())));

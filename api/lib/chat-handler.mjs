@@ -37,6 +37,19 @@ export function createChatHandler({ env = process.env, fetchImpl = fetch, knowle
   let admissions = 0;
   let dailyAdmissions = 0;
   let inFlight = 0;
+  // When Groq only backs up another provider, its turns still count against Groq's own budget.
+  const groqBackup = env.ASSISTANT_PROVIDER !== 'groq';
+  let groqWindowStart = Date.now();
+  let groqDayStart = Date.now();
+  let groqMinute = 0;
+  let groqDay = 0;
+  const allowProvider = (name) => {
+    if (name !== 'groq' || !groqBackup) return true;
+    if (Date.now() - groqWindowStart >= 60000) { groqWindowStart = Date.now(); groqMinute = 0; }
+    if (Date.now() - groqDayStart >= 86400000) { groqDayStart = Date.now(); groqDay = 0; }
+    return groqMinute < GROQ_PER_MINUTE && groqDay < GROQ_DAILY_CAP;
+  };
+  const onProviderUsed = (name) => { if (name === 'groq' && groqBackup) { groqMinute++; groqDay++; } };
   // `context.headers` carries the incoming request headers; visitor text is never logged.
   return async (body, context = {}) => {
     if (env.ASSISTANT_ENABLED !== 'true') return failure(503, 'ASSISTANT_UNAVAILABLE', 'The assistant is not available yet. You can still use Contact Us.');
@@ -74,7 +87,7 @@ export function createChatHandler({ env = process.env, fetchImpl = fetch, knowle
     const diagnostic = (name) => (failedAttempts.length ? { ...headers, [name]: failedAttempts.join(',') } : headers);
     let answeredBy = 'primary';
     try {
-      const reply = await model.complete(request, sources, { onAttemptFailed: (reason) => failedAttempts.push(reason), onModel: (label) => { answeredBy = label; } });
+      const reply = await model.complete(request, sources, { onAttemptFailed: (reason) => failedAttempts.push(reason), onModel: (label) => { answeredBy = label; }, allowProvider, onProviderUsed });
       return { status: 200, headers: { ...diagnostic('X-Assistant-Recovered'), 'X-Assistant-Model': answeredBy }, body: reply };
     }
     catch (error) {
