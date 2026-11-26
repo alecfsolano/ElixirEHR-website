@@ -27,24 +27,26 @@ const Img = ({ icon, alt = '', className }) => (
   <img loading="lazy" decoding="async" src={icon.src} alt={alt} width={icon.size[0]} height={icon.size[1]} className={className} />
 );
 
-/**
- * A download card's button: a real link once the PDF's URL is supplied. Until then a plain
- * "PDF coming soon" status, not a faded button (which read as broken rather than not yet published).
- */
+/** A download card's button: a real link once the PDF's URL is supplied, otherwise visibly inert. */
 function DownloadButton({ href, label }) {
+  const content = (
+    <>
+      <Icon name="download" size={16} />
+      {label}
+    </>
+  );
   if (href) {
     return (
       <Button href={href} download className={styles.download}>
-        <Icon name="download" size={16} />
-        {label}
+        {content}
       </Button>
     );
   }
   return (
-    <p className={styles.pending}>
-      <Icon name="clock" size={16} />
-      PDF coming soon
-    </p>
+    <Button aria-disabled="true" title="This PDF is not available yet" className={styles.download}>
+      {content}
+      <span className={styles.srOnly}> (not available yet)</span>
+    </Button>
   );
 }
 

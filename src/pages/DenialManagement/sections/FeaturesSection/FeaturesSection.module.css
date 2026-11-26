@@ -99,13 +99,8 @@
   margin-top: 9px;
 }
 
-.wideLink {
-  display: block;
+.wideScreen {
   margin-top: 32px;
-}
-
-.zoomHint {
-  display: none;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
@@ -130,16 +125,5 @@
   .title {
     font-size: 26px;
     line-height: 34px;
-  }
-
-  /* The whole 1152×518 panel stays inside the screen; the link under it opens it full size. */
-  .zoomHint {
-    display: block;
-    margin-top: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 20px;
-    text-decoration: underline;
-    color: var(--color-primary);
   }
 }

@@ -62,11 +62,7 @@ function FeaturesSection() {
         ))}
         <div className={styles.wide}>
           <FeatureText feature={wide} className={styles.wideText} />
-          {/* The wide panel is small on a phone, so it links to the full-size image for zooming. */}
-          <a href={wide.image.src} target="_blank" rel="noopener" className={styles.wideLink}>
-            <FeatureImage image={wide.image} className={styles.wideScreen} />
-            <span className={styles.zoomHint}>View full size</span>
-          </a>
+          <FeatureImage image={wide.image} className={styles.wideScreen} />
         </div>
       </div>
     </Section>

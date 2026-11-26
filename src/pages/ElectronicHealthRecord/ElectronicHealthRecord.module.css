@@ -7,12 +7,13 @@
   --page-hero-content-offset: 0;
 }
 
-/* CTA band: H2 wide description, 66px button. */
+/* CTA band: tight H2 tracking (676px first line measured), wide description, 66px button. */
 .ctaBand {
   padding: 80px 0 82px;
 }
 
 .ctaBand h2 {
+  letter-spacing: -3px;
 }
 
 .ctaBand h2 + p:last-child {

@@ -45,7 +45,7 @@
   font-family: var(--font-label);
   font-size: 16px;
   line-height: 24px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .grid {
@@ -69,13 +69,8 @@
   gap: 12px;
 }
 
-/* Short lime bar, as on the eyebrow (the exported 7px "model" tag read as an empty box). */
-.mark {
-  width: 4px;
-  height: 14px;
+.top img {
   margin-left: 3px;
-  border-radius: 1px;
-  background: #c4f351;
 }
 
 .tag {
@@ -104,7 +99,7 @@
   font-family: var(--font-label);
   font-size: 14px;
   line-height: 23px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

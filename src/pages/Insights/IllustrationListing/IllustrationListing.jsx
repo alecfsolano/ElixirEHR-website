@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { illustrationCategories, insightsNav, insightsPages } from '../../../data/insights';
+import { illustrationCategories, insightsPages } from '../../../data/insights';
 import { getPostPath, getPosts } from '../../../posts';
 import Icon from '../../../components/ui/Icon/Icon';
 import Pagination from '../../../components/ui/Pagination/Pagination';
@@ -60,66 +60,22 @@ function IllustrationCard({ post }) {
   );
 }
 
-/**
- * Shown while no illustration has been published: says so plainly and points to the resource types
- * that have content, instead of a "No illustrations found." line and a list of zero counts.
- */
-function EmptyLibrary() {
-  return (
-    <section className={styles.empty} aria-labelledby="illustrations-empty-title">
-      <h2 id="illustrations-empty-title" className={styles.emptyTitle}>
-        No illustrations have been published yet
-      </h2>
-      <p className={styles.emptyText}>In the meantime, browse the rest of the resource library:</p>
-      <ul className={styles.emptyLinks}>
-        {insightsNav.map((item) => (
-          <li key={item.to}>
-            <Link to={item.to} className={styles.emptyLink}>
-              {item.label}
-              <Icon name="arrowRight" size={16} />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 /** /insights/illustrations — two-up illustration cards with SVG / PNG downloads. */
 function IllustrationListing() {
   const posts = useMemo(() => getPosts('illustration'), []);
   const listing = useResourceListing(posts, { pageSize: 6, filterFn: byCategory });
-  const isEmpty = posts.length === 0;
 
   const aside = (
     <>
-      {!isEmpty && (
-        <CategoryFilter
-          title={page.categoriesTitle}
-          items={categoryItems(posts, illustrationCategories)}
-          value={listing.filter}
-          onChange={(value) => listing.setFilter(value === listing.filter ? null : value)}
-        />
-      )}
+      <CategoryFilter
+        title={page.categoriesTitle}
+        items={categoryItems(posts, illustrationCategories)}
+        value={listing.filter}
+        onChange={(value) => listing.setFilter(value === listing.filter ? null : value)}
+      />
       <WeeklyBriefing />
     </>
   );
-
-  if (isEmpty) {
-    // Not linked from the site while empty; noindex keeps the bare page out of search and the sitemap.
-    return (
-      <InsightsShell
-        documentTitle={page.documentTitle}
-        title={page.title}
-        query={listing.query}
-        onQueryChange={listing.setQuery}
-        aside={aside}
-        robots="noindex, follow"
-      >
-        <EmptyLibrary />
-      </InsightsShell>
-    );
-  }
 
   return (
     <InsightsShell

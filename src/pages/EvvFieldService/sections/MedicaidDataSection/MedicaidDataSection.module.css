@@ -90,41 +90,11 @@
     line-height: 24px;
   }
 
-  /* Stacked rows: the requirement, then how Elixir captures it under its column label (a
-     sideways-scrolling table hid the second column at rest). */
-  .table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+  .table {
+    min-width: 640px;
   }
 
-  .table tbody,
-  .table tr,
-  .table tbody th,
-  .table td {
-    display: block;
-  }
-
-  .table tbody th,
-  .table tbody tr:last-child > th {
-    padding: 16px 20px 0;
-  }
-
-  .table td {
-    padding: 4px 20px 16px;
-  }
-
-  .table td::before {
-    content: attr(data-label);
-    display: block;
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 20px;
-    letter-spacing: 0.02em;
-    color: var(--color-primary);
+  .table thead th:first-child {
+    width: 40%;
   }
 }

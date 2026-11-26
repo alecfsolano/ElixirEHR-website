@@ -9,14 +9,14 @@
   background: var(--color-surface-dark);
 }
 
-/* Darkens the lower part of the image so the title stays legible over any thumbnail. The video
-   thumbnails carry their own title text at mid-height, so the shade is near-opaque from there down
-   (otherwise that text shows through behind the tag and title). */
+/* Darkens the lower part of the image so the title stays legible over any thumbnail. */
 .featured::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
+  /* The video thumbnails carry their own title text at mid-height, so the shade is near-opaque from
+     there down (otherwise that text shows through behind the tag and title). */
   background: linear-gradient(180deg, rgb(31 24 35 / 0.1), rgb(31 24 35 / 0.9) 36%, rgb(31 24 35) 46%);
 }
 
@@ -135,7 +135,7 @@
 }
 
 /* Top-right of the thumbnail (the duration is bottom-right): centred, it hid the title text baked
-   into every video thumbnail, and bottom-left it hid the "Product demo" pill baked into the demo
+   into every video thumbnail, and bottom-left the "Product demo" pill baked into the demo
    thumbnails. Their top-right corner is empty. */
 .play {
   top: 12px;
@@ -172,6 +172,11 @@
   line-height: 32px;
 }
 
+.title,
+.text {
+  max-width: 230px;
+}
+
 .title {
   margin-top: 12px;
   font-size: 18px;
@@ -197,8 +202,7 @@
   font-size: 17px;
   font-weight: 600;
   line-height: 20px;
-  /* Lime on white is 2.1:1; the on-light green reads at AA. */
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .pagination {

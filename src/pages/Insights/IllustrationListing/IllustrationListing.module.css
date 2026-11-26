@@ -86,47 +86,6 @@
   margin-top: 50px;
 }
 
-/* Empty library: a white panel with links to the other resource types. */
-.empty {
-  padding: 36px;
-  border-radius: var(--radius-lg);
-  background: var(--color-white);
-}
-
-.emptyTitle {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 32px;
-  color: var(--color-heading);
-}
-
-.emptyText {
-  margin-top: 12px;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.emptyLinks {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 24px;
-  margin-top: 24px;
-}
-
-.emptyLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 24px;
-  color: var(--color-primary);
-}
-
-.emptyLink:hover {
-  text-decoration: underline;
-}
-
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 767px) {
   .grid {
@@ -135,14 +94,6 @@
 
   .media {
     padding-inline: 20px;
-  }
-
-  .empty {
-    padding: 24px 20px;
-  }
-
-  .emptyLinks {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .image {

@@ -157,7 +157,7 @@
 
 .success .value {
   margin-top: 4px;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .statText {

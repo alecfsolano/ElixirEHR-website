@@ -6,13 +6,7 @@
 
 .hero [data-page-hero-title] {
   margin-top: 25px;
-}
-
-/* Desktop only: on phones the shared 32/38 title applies (71px leading on 32px text read as gaps). */
-@media (min-width: 768px) {
-  .hero [data-page-hero-title] {
-    line-height: 71px;
-  }
+  line-height: 71px;
 }
 
 .hero nav li:last-child {
@@ -100,17 +94,6 @@
   gap: 50px;
 }
 
-/* Two columns: the sidebar is read top to bottom first, then rides along with its bottom 24px
-   above the screen's (sticky to the bottom of its grid row), so a long listing has no empty right
-   column below it. Works for sidebars taller than the screen too. */
-@media (min-width: 1200px) {
-  .withAside .aside {
-    position: sticky;
-    bottom: 24px;
-    align-self: end;
-  }
-}
-
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 1199px) {
   .heroMedia {
@@ -139,7 +122,8 @@
     line-height: 40px;
   }
 
-  /* The full placeholder fits a phone-width field (typed text stays 16px, so iOS does not zoom). */
+  /* The full placeholder fits a phone-width field instead of being cut off ("…or keyword"); typed
+     text stays 16px, so iOS does not zoom. */
   .searchInput {
     padding-right: 16px;
   }
@@ -147,8 +131,4 @@
   .searchInput::placeholder {
     font-size: 14px;
   }
-}
-
-.nowrap {
-  white-space: nowrap;
 }

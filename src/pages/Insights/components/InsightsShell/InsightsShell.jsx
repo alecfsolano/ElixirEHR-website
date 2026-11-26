@@ -9,29 +9,14 @@ import { cn } from '../../../../utils/cn';
 import InsightsNav from '../InsightsNav/InsightsNav';
 import styles from './InsightsShell.module.css';
 
-/** Keeps hyphenated words ("E-Books") whole, so the heading never wraps as "E- / Books". */
-function keepHyphenated(text) {
-  if (typeof text !== 'string') return text;
-  return text.split(/(\S+-\S+)/).map((part, index) =>
-    index % 2 ? (
-      <span key={index} className={styles.nowrap}>
-        {part}
-      </span>
-    ) : (
-      part
-    ),
-  );
-}
-
 /**
  * Shared frame of every Insights page: the "Knowledge for the Modern Clinician" hero (its search
  * field filters the page's resources through `query` / `onQueryChange`), the category bar, then
  * the page heading and content on the surface band. `aside` adds the 372px right sidebar.
  * `hero` replaces the default hero (All Resources uses its own). Pages with approved SEO copy
- * (data/seo.js) use it; the others keep the generic title. `robots` adds a robots meta tag (an
- * empty listing is "noindex, follow", which also keeps it out of the sitemap).
+ * (data/seo.js) use it; the others keep the generic title.
  */
-function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero, robots, children }) {
+function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero, children }) {
   const searchId = useId();
   const { image, searchPlaceholder, ...heroCopy } = insightsHero;
   const { pathname } = useLocation();
@@ -47,7 +32,7 @@ function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero
   return (
     <>
       {/* The approved SEO copy (data/seo.js) when the page has it, otherwise the generic title. */}
-      <PageSeo path={seoPath} title={`${documentTitle} | Elixir`} description={heroCopy.description} robots={robots} />
+      <PageSeo path={seoPath} title={`${documentTitle} | Elixir`} description={heroCopy.description} />
       {hero ?? (
         <PageHero
           {...heroCopy}
@@ -85,7 +70,7 @@ function InsightsShell({ documentTitle, title, query, onQueryChange, aside, hero
       <Section tone="surface" spacing="none" className={styles.section} aria-labelledby={`${searchId}-title`}>
         {/* The page's own H1 (the hero title above is shared by every Insights listing). */}
         <h1 id={`${searchId}-title`} className={styles.title}>
-          {keepHyphenated(title)}
+          {title}
         </h1>
         <div className={cn(styles.layout, aside && styles.withAside)}>
           <div className={styles.main}>{children}</div>
