@@ -165,6 +165,9 @@ function makeApi({ def, page, context, base, server, evidence, trace, apiLog, mo
       catch { throw new Error(`stuck: "${PENDING}" still shown after ${timeout} ms`); }
       const shown = await t.shown(target);
       trace('shown', shown);
+      // Only the message list scrolls; the panel itself never does (its header and booking bar stay put).
+      const panelShift = await dialog.evaluate((node) => node.scrollTop);
+      if (panelShift > 0) throw new Error(`the Fitz panel itself scrolled by ${panelShift}px, hiding its header`);
       return shown;
     },
     async shown(target = current) {

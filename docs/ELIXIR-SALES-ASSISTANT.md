@@ -120,32 +120,34 @@ Store the Groq credential in the **latest environment's encrypted backend applic
 
 Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-model.mjs`) before a visitor sees it. The closing question is split off first, so body rules never touch it. In the body:
 
-- Sentences judging whether the visitor's timeline is realistic are dropped, and one sentence says the team confirms timing during scoping.
+- Sentences judging whether the visitor's timeline is realistic are dropped (including "enough room" and "comfortable"), and one sentence says the team confirms timing during scoping, unless the reply already says timing or the timeline is scoped.
 - Sentences making fit, value or usage claims the knowledge never makes are dropped, as long as real content remains. Examples: "sounds like a fit", "is a good fit", "good match", "strongest", "usually helps", "often use".
 - Sentences that mostly restate an earlier reply, or an earlier sentence of the same reply (75% or more of the content words), are dropped. When nothing new is left, Fitz invites the next question instead. Booking sentences are never dropped this way, and neither is a sentence the next one leans on ("They…", "This…").
-- Talk about what its information includes is removed: "that list is not included here", a clause or sentence saying something is "not named here", and "I do not have … here". "The site …" at the start of a sentence reads "Elixir …", and "the site does not say" reads "Elixir has not published".
-- A trailing benefit clause the knowledge never states (", which helps teams…", ", which fits…") is removed. If that leaves only a fragment, the whole sentence goes.
+- Talk about what its information includes is removed: "that list is not included here", a clause or sentence saying something is "not named here", "I do not have … here" and "I can’t list … here". "The site …" at the start of a sentence reads "Elixir …", and "the site does not say" reads "Elixir does not say" (the verb is kept).
+- A trailing benefit clause the knowledge never states (", which helps teams…", ", which fits…", ", which is useful when…", ", so teams can … rather than…", "so the handoff is tighter") is removed. If that leaves only a fragment, the whole sentence goes. "Fits … well" and "outgrows" count as unsupported judgments.
 - A sentence merging the two Business Associate Agreements is restated as the two facts.
 - "Elixir team" always reads "the Elixir team".
 - A sentence that leans on a dropped one ("That also…") goes with it. A sentence that a following one leans on, even across a paragraph break, is not dropped as a repeat or a judgment.
-- A reply that opens by declining ("I can’t…", "I can only help…", for off-topic, clinical or unsafe requests) gets no qualifying question.
-- Offers ("If you want, I can…") and outcome sentences ("That helps…") the knowledge never states are dropped. "Enough time" counts as a timeline verdict.
+- A reply that opens by declining ("I can’t…", "I can only help…", for off-topic, clinical or unsafe requests) gets no qualifying question. "I can’t book/schedule…" is not a refusal.
+- When the visitor asks where to start, an invented first step ("Start with…", "The first step…") goes. Licensing and pricing sentences go when the visitor did not ask about price and the reply is not a demo or pricing answer. A leading "Yes." goes when the visitor asks whether Elixir can help.
+- Offers ("If you want, I can…") and outcome sentences ("That helps…", "Those pieces help…") the knowledge never states are dropped. "Enough time" counts as a timeline verdict.
 - A pricing answer always carries the fact that there is no standard price and the team gives a written quote after scoping.
 - Size and organization type the visitor states in passing ("for a group of 12 therapists") count as known, so they are not asked again.
 - A patient name the visitor typed after "patient", "client" or "member" reads "that patient". A sentence repeating a date of birth or ID from the visitor's message is dropped.
-- The model's own booking sentence ("book a discovery call … in this chat") is replaced by the standard one, so it never implies booking happens in the chat.
+- The model's own booking sentence ("book a discovery call … in this chat") is replaced by the standard one, so it never implies booking happens in the chat. This happens before the limits below are checked, so a limit is judged on the text the visitor sees.
 - Limits the knowledge attaches to a stated fact are added when missing, before any closing booking sentence:
   - Part 2 is confirmed with the privacy reviewer.
   - Elixir is not certified to the ONC standardized API criterion.
-  - EVV connector availability is confirmed per payer and state.
-  - The 6 to 10 week go-live assumes a small practice on a standard configuration.
-  - The SOC 2 Type II report is Mirketa's, under NDA.
+  - EVV connector availability is confirmed per payer and state (also when a reply ties EVV to Medicaid, the state or Field Service).
+  - The 6 to 10 week go-live assumes a small practice on a standard configuration, and larger or multi-program organizations have their timeline scoped with the team (two plain sentences, each added only when missing).
+  - The SOC 2 Type II report is Mirketa's (the company that develops and operates Elixir), under NDA.
+  - Offline caregiver work assumes assigned visits and tasks were downloaded while connected.
   - The platform BAA is with the platform provider.
 - A poem or other unrelated creative text is replaced by the redirect.
 
 Splitting into sentences only happens at punctuation followed by a space, so "OAuth 2.0" and certificate numbers are never cut. Joining the pieces always gives back the original text.
 
-The discovery-call sentence is added on demo intent, on the first message of the provider funnel, or when the visitor's message shows buying intent (pricing, licensing, demo, implementation, migration, switching, go-live or comparing vendors). It is never added in two replies in a row, after a refusal, for support or for a referral partner.
+The discovery-call sentence is added on demo intent, on the first message of the provider funnel, or when the visitor's message shows buying intent (pricing, licensing, demo, implementation, migration, switching, go-live or comparing vendors). It is never added in two replies in a row (unless the visitor asks how to book a call or demo), after a refusal, for support or for a referral partner.
 
 The closing question is always the canonical wording from `api/shared/contract.mjs`. The model's chosen field stands while it is still open, because the model can tell when the visitor implied an earlier field without stating it. Otherwise Fitz asks the earliest field in order that the visitor has not answered (including in the same message), skipped or already been asked. A question the model worded its own way is mapped to its field. While that field is open it gets the canonical wording. Once the field is answered, skipped or asked, the next open field is asked instead, so a reworded repeat cannot slip through. A reply that is only a question (a clarification) is left as it is. A knowledge-based answer the model left without a question gets one. A reply with no sources (small talk, off-topic) does not. Facts are recorded only from the visitor's own words. A question about other organizations ("Which treatment centers use Elixir?") is not a fact about the visitor. Partner-program replies, declined contact, support and off-topic replies get no qualifying question.
 

@@ -305,6 +305,25 @@ export function makeCases({ root, distDir }) {
     t.assert.equal(request.qualification.organizationType, 'Outpatient clinic');
     t.assert.equal(lastUserOf(request), 'What kind of healthcare organization are you with? Outpatient clinic');
   } });
+  // AGENT-GENERATED — ORACLE REVIEW NEEDED. A reply taller than the view, with the tailoring form under it,
+  // opens at its first line while the panel's header stays in place (settle() also checks the panel never scrolls).
+  for (const viewport of ['desktop', 'mobile']) {
+    add({ id: `conv/tall-reply-with-form/${viewport}`, group: 'conversation', viewport,
+      script: (c) => (c.req === 1 ? o.good({ answer: [1, 2, 3, 4, 5, 6, 7, 8].map(defaultAnswer).join(' '), nextField: 'organizationType' }) : null),
+      async run(t) {
+        await t.goto(BH); await t.open();
+        await t.send('Tell me how Elixir handles our workflows.');
+        await t.dialog().getByLabel('What kind of healthcare organization are you with?', { exact: true }).waitFor();
+        const place = await t.dialog().evaluate((node) => {
+          const reply = [...node.querySelectorAll('[role="log"] article')].at(-1).getBoundingClientRect();
+          const view = node.querySelector('[role="log"]').parentElement.getBoundingClientRect();
+          return { panel: node.scrollTop, header: node.querySelector('h2').getBoundingClientRect().top - node.getBoundingClientRect().top, replyTop: reply.top - view.top };
+        });
+        t.assert.equal(place.panel, 0, 'the panel itself does not scroll');
+        t.assert.ok(place.header >= 0, 'the panel header stays in view');
+        t.assert.ok(place.replyTop >= -1 && place.replyTop < 60, `the reply opens at its first line (top at ${place.replyTop}px)`);
+      } });
+  }
   add({ id: 'conv/qualify-skip', group: 'conversation', script: (c) => (c.req === 1 ? o.good({ nextField: 'organizationType' }) : null), async run(t) {
     await t.goto(BH); await t.open();
     await t.send('We are looking at new software.');

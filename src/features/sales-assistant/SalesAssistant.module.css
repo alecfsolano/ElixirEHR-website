@@ -21,7 +21,7 @@
 .primaryLink:hover { background: var(--color-surface-dark); }
 .errorLink { font-weight: 650; text-decoration: underline; }
 .loading { position: fixed; z-index: 91; right: 24px; bottom: 90px; padding: 12px; background: white; border: 1px solid var(--color-border); border-radius: 12px; }
-.dialog { position: fixed; inset: auto 20px 20px auto; margin: 0; padding: 0; width: 450px; max-width: calc(100vw - 32px); height: 780px; max-height: calc(100dvh - 40px); border: 1px solid var(--color-border); border-radius: 22px; color: var(--color-body); background: #fff; box-shadow: var(--shadow-media); overflow: hidden; }
+.dialog { position: fixed; inset: auto 20px 20px auto; margin: 0; padding: 0; width: 450px; max-width: calc(100vw - 32px); height: 780px; max-height: calc(100dvh - 40px); border: 1px solid var(--color-border); border-radius: 22px; color: var(--color-body); background: #fff; box-shadow: var(--shadow-media); overflow: hidden; overflow: clip; }
 .dialog[open] { display: flex; flex-direction: column; }
 .dialog::backdrop { background: rgb(31 24 35 / .28); }
 .header { display: flex; align-items: flex-start; justify-content: space-between; padding: 22px 24px 20px; background: var(--color-primary); color: #fff; }
@@ -31,7 +31,7 @@
 .close { border-radius: 50%; width: 34px; height: 34px; font-size: 27px; line-height: 1; color: white; }
 .close:hover { background: #ffffff20; }
 .preview { flex-shrink: 0; font: 500 11px/1.5 var(--font-label); padding: 8px 24px; background: var(--color-secondary-tint); color: #344119; }
-.body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px; scroll-padding: 12px 0 20px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px); mask-image: linear-gradient(to bottom, transparent 0, #000 14px); }
+.body { position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px; scroll-padding: 12px 0 20px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
 .transcript { display: flex; flex-direction: column; gap: 16px; }
 .assistantMessage, .userMessage { border-radius: 14px; padding: 13px 15px; font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
 /* Paragraphs, not blank lines: a short gap between them reads as one answer. */

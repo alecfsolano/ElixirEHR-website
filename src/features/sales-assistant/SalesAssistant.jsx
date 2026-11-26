@@ -17,6 +17,8 @@ function DiscoveryLink({ cta, className }) {
 
 // Room kept at the bottom of the view when deciding whether a reply and what follows it fit.
 const TALL_REPLY_MARGIN = 40;
+// Gap kept above a tall reply's first line when the view opens at it.
+const REPLY_TOP_GAP = 12;
 
 /** A reply's sources, one per line; the discovery page is left out because the booking bar already links to it. */
 function Sources({ citations = [] }) {
@@ -64,9 +66,10 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
     // A reply taller than the view opens at its first line; otherwise the view shows the end of the
     // conversation, so a discovery card or tailoring form under the reply comes into view too.
     // From the reply's first line to the end of the conversation (card and form included): when that does
-    // not fit, the reply is shown from its first line; otherwise the view shows the end.
+    // not fit, the reply is shown from its first line; otherwise the view shows the end. Only the message
+    // list scrolls (scrollIntoView would also scroll the panel and hide its header).
     const replyTop = last.getBoundingClientRect().top - view.getBoundingClientRect().top + view.scrollTop;
-    if (last.tagName === 'ARTICLE' && view.scrollHeight - replyTop > view.clientHeight - TALL_REPLY_MARGIN) last.scrollIntoView?.({ block: 'start' });
+    if (last.tagName === 'ARTICLE' && view.scrollHeight - replyTop > view.clientHeight - TALL_REPLY_MARGIN) view.scrollTop = Math.max(0, replyTop - REPLY_TOP_GAP);
     else view.scrollTop = view.scrollHeight;
   }, [state.messages.length, state.pending, cta.tone]);
   useEffect(() => () => controller.current?.abort(), []);
@@ -105,7 +108,8 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
         <div><span className={styles.eyebrow}>LET’S FIND YOUR FIT</span><h2>Ask Fitz</h2><p>Answers for your organization</p></div>
         <button type="button" className={styles.close} aria-label="Close assistant" onClick={onClose}>×</button>
       </header>
-      {!state.showReview && <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>}
+      {/* The booking bar steps aside while the booking card is shown, so the call is offered once per view. */}
+      {!state.showReview && !showCard && <div className={styles.discoveryBar}><span>Ready to talk it through?</span><DiscoveryLink cta={cta} className={styles.discoveryBarLink} /></div>}
       {mode === 'sample' && <p className={styles.preview}>Preview · sample replies · no requests sent</p>}
       {mode === 'hosted' && PRIVATE_PREVIEW && <p className={styles.preview}>Preview · live replies using draft knowledge · demo requests disabled</p>}
       <div ref={body} className={styles.body}>
