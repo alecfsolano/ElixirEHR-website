@@ -18,7 +18,8 @@ function shouldPulse() {
 }
 
 // The launcher is its icon alone so it covers as little of the page as possible; the name shows during
-// the one-time attention pulse and on hover or keyboard focus, and screen readers always hear it.
+// the one-time attention pulse and on hover or keyboard focus (never on phones, see the CSS), and screen
+// readers always hear it.
 export default function AssistantLauncher() {
   const [mounted, setMounted] = useState(false);
   const [openedOnce, setOpenedOnce] = useState(false);

@@ -86,6 +86,12 @@
   .header h2 { font-size: 20px; margin: 0; }
   .body { padding: 16px; }
 }
+/* On phones the launcher is its icon alone at all times, the first-visit pulse included, so it never
+   covers body text; screen readers still hear 'Ask Fitz' and keyboard focus keeps its outline. */
+@media (max-width: 767px) {
+  .launcher { gap: 0; padding: 8px; }
+  .launcherLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); }
+}
 @media (prefers-reduced-motion: reduce) {
   .transcript { scroll-behavior: auto; }
   .attention { animation: none; }
