@@ -49,7 +49,7 @@ Other values for `ASSISTANT_CLIENT_ADDRESS_SOURCE`: `azure-clientip`, `client-ip
 
 ## Discovery-call handoff and fallbacks
 
-- A slim **Book a discovery call** bar sits at the top of the open assistant and stays in view. When a call is recommended (demo or pricing intent, or after three answers) the bar carries the recommendation ("See how this would work for you") instead of a separate card, and the latest reply leaves out the standard call sentence, so the call is offered once.
+- A slim **Book a discovery call** bar sits at the top of the open assistant and stays in view. When a call is recommended (a demo request, a request to be contacted, or after three answers) the bar carries the recommendation ("See how this would work for you") instead of a separate card, and the latest reply leaves out the standard call sentence, so the call is offered once.
 - Only the message list scrolls: a reply taller than the view opens at its first line and the header and bar stay in place. The tailoring form comes right under Fitz's question, before any discovery card.
 - A highlighted discovery card appears under the conversation when the visitor reaches the session message cap and whenever the model is unavailable, disabled, rate limited or errors (the bar steps aside then). Every error message is paired with the same link, so there is no dead end. After a visitor declines contact the link stays available but is not pushed.
 - Previews and local development keep the editable demo-request recap (`Request a demo`, `Keep exploring`) so the existing review flow can still be tested; it never submits there.
