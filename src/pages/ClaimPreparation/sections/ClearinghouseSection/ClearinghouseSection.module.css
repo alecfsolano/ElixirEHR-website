@@ -203,7 +203,7 @@
 }
 
 .lime {
-  color: var(--color-secondary);
+  color: var(--color-secondary-on-light);
 }
 
 .muted {

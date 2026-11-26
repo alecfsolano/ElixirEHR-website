@@ -69,8 +69,13 @@
   gap: 12px;
 }
 
-.top img {
+/* Short lime bar, as on the eyebrow (the exported 7px "model" tag read as an empty box). */
+.mark {
+  width: 4px;
+  height: 14px;
   margin-left: 3px;
+  border-radius: 1px;
+  background: #c4f351;
 }
 
 .tag {

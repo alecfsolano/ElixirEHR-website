@@ -49,7 +49,7 @@
 
 .lime {
   --dot: #c4f351;
-  --label: #c4f351;
+  --label: var(--color-secondary-on-light);
 }
 
 .gold {

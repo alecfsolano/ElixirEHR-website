@@ -58,7 +58,7 @@
 
 .table th:first-child {
   width: 410px;
-  padding-left: 80px;
+  padding-left: 32px;
 }
 
 .table thead th:nth-child(2) {
