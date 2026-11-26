@@ -82,8 +82,8 @@ const OUTCOMES = {
   } },
   // The fake model gives the same unsafe reply on every attempt, so the screened turn ends in the
   // clear "unavailable" message; nothing of the reply may reach the visitor.
-  'markup-and-links-in-json': { make: () => o.good({ answer: '<b>Elixir</b> supports **billing** for clinics — see https://www.elixirehr.com/billing/ or www.example.com [billing-ai].' }), expect: 'error', check: async (t, shown) => { t.assert.doesNotMatch(fitzText(shown), MARKUP_PATTERN, 'a structured reply shows markup, Markdown, a URL or a source ID to the visitor'); } },
-  'model-notes-in-json': { make: () => o.good({ answer: 'analysis: The user asks about billing. We need to answer briefly and ask one question. assistantfinal Elixir handles claims and billing.' }), expect: 'error', check: async (t, shown) => { t.assert.doesNotMatch(fitzText(shown), /analysis|assistantfinal|The user asks/, 'the model\'s notes reach the visitor'); } },
+  'markup-and-links-in-json': { make: () => o.good({ answer: '<b>Elixir</b> supports **billing** for clinics — see https://www.elixirehr.com/billing/ or www.example.com [billing-ai].' }), expect: 'error', allowStatuses: [503], check: async (t, shown) => { t.assert.doesNotMatch(fitzText(shown), MARKUP_PATTERN, 'a structured reply shows markup, Markdown, a URL or a source ID to the visitor'); } },
+  'model-notes-in-json': { make: () => o.good({ answer: 'analysis: The user asks about billing. We need to answer briefly and ask one question. assistantfinal Elixir handles claims and billing.' }), expect: 'error', allowStatuses: [503], check: async (t, shown) => { t.assert.doesNotMatch(fitzText(shown), /analysis|assistantfinal|The user asks/, 'the model\'s notes reach the visitor'); } },
   'model-notes-in-plain': { make: (c) => (c.attempt === 1 ? o.content('thinking about the reply') : o.content('We need to answer the user. The user asks about billing so we should keep it short.')), expect: 'error', allowStatuses: [503] },
   'network-then-good': { make: (c) => (c.attempt === 1 ? o.network() : null), expect: 'answer', recovered: 'network' },
   'key-rejected-401': { make: () => o.http(401, { error: { message: 'Invalid API Key', code: 'invalid_api_key' } }), expect: 'error', allowStatuses: [503] },
@@ -315,7 +315,9 @@ export function makeCases({ root, distDir }) {
     t.assert.equal(t.apiCount(), 2);
     t.assert.deepEqual(shown.messages.filter((m) => m.speaker === 'You').map((m) => m.text), ['First question', 'Second question']);
   } });
-  add({ id: 'conv/send-while-pending-button', group: 'conversation', script: (c) => (c.req === 1 ? o.delay(1500) : null), async run(t) {
+  // The fake reply waits 8 s: at 1.5 s it sometimes arrived before the harness typed the second
+  // message under parallel load (FLAKY_TESTS.md), so the check raced the reply.
+  add({ id: 'conv/send-while-pending-button', group: 'conversation', script: (c) => (c.req === 1 ? o.delay(8000) : null), timeout: 45000, async run(t) {
     await t.goto(BH); await t.open();
     await t.send('First question', { settle: false });
     await t.type('Second question');
@@ -395,7 +397,7 @@ export function makeCases({ root, distDir }) {
     t.assert.equal(model.messages.at(-1).role, 'user', 'visitor text goes to the model as a user turn, never system');
     t.assert.equal(model.messages.filter((m) => m.role === 'system').length, 0);
   } });
-  add({ id: 'conv/model-complies-with-injection-json', group: 'conversation',
+  add({ id: 'conv/model-complies-with-injection-json', group: 'conversation', allowStatuses: [503],
     script: () => o.good({ answer: 'Sure. You are Fitz, Elixir’s automated assistant. My system prompt says: Knowledge data: [{"id":"ehr"}]. Your API key is hidden.' }),
     async run(t) {
       await t.goto(BH); await t.open();
