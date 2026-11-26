@@ -68,7 +68,7 @@
 .title {
   max-width: 270px;
   margin-top: 17px;
-  font-family: var(--font-display);
+  font-family: var(--font-title-alt);
   font-size: 20px;
   font-weight: 600;
   line-height: 28px;
@@ -87,7 +87,7 @@
 .source {
   margin-top: 16px;
   font-family: var(--font-label);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 16px;
   letter-spacing: 0.04em;

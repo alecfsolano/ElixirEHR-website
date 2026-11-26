@@ -15,7 +15,7 @@
   line-height: 20px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 /* This frame's H2 has no negative tracking (562px measured vs 553px at −0.01em). */

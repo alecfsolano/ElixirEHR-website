@@ -9,11 +9,9 @@
   margin-top: 36px;
 }
 
-/* Rose White row: the tag (vertically centred) in a fixed column, so every title starts at the same x
-   whatever the tag's length, then the title and text. */
+/* Rose White row: the tag (vertically centred) then the title and text. */
 .row {
-  display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
+  display: flex;
   align-items: center;
   gap: 16px;
   padding: 24px 24px 26px;
@@ -22,7 +20,7 @@
 }
 
 .tag {
-  justify-self: start;
+  flex: none;
   padding: 4px 12px;
   border-radius: var(--radius-pill);
   font-family: var(--font-label);
@@ -79,8 +77,8 @@
   }
 
   .row {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
     padding: 20px;
   }

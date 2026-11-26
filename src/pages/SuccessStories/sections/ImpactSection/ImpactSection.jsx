@@ -4,7 +4,6 @@ import { successStoriesImpact } from '../../../../data/successStories';
 import Section from '../../../../components/layout/Section/Section';
 import EyebrowHeading from '../../../../components/ui/EyebrowHeading/EyebrowHeading';
 import Icon from '../../../../components/ui/Icon/Icon';
-import KeepHyphenated from '../../../../components/ui/KeepHyphenated/KeepHyphenated';
 import { cn } from '../../../../utils/cn';
 import { useAutoRotate } from '../../../../hooks/useAutoRotate';
 import { useSwipe } from '../../../../hooks/useSwipe';
@@ -137,9 +136,7 @@ function ImpactSection() {
               <span className={cn(styles.badge, item.image.slide && styles.badgeOnEdge)}>{item.category}</span>
             </div>
             <div className={styles.body}>
-              <h3 className={styles.title}>
-                <KeepHyphenated text={item.title} />
-              </h3>
+              <h3 className={styles.title}>{item.title}</h3>
               <p className={styles.text}>{item.text}</p>
               <StoryLink to={item.to} className={styles.readMore}>
                 Read more

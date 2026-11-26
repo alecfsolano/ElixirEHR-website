@@ -79,7 +79,7 @@
 }
 
 .dark .description {
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

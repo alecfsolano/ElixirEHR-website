@@ -17,15 +17,7 @@ function TreatmentCenterSolutions() {
   return (
     <>
       <PageSeo path="/treatment-center-software" />
-      <PageHero
-        {...hero}
-        className={styles.hero}
-        media={
-          <div className={styles.heroMedia}>
-            <TiltedHeroMedia {...media} />
-          </div>
-        }
-      />
+      <PageHero {...hero} className={styles.hero} media={<TiltedHeroMedia {...media} />} />
       <IntakeSection />
       <IntakeFeaturesSection />
       <ClinicalExcellenceSection />

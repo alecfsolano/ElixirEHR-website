@@ -1,6 +1,6 @@
 /* Frame-specific overrides for shared sections on the Student Health page. */
 
-/* Hero: the KratuAI hero set-up (five-line 53.5/62 title, 18/28 description, 56px Roboto-medium CTAs;
+/* Hero: the KratuAI hero set-up (five-line 53.5/53.5 title, 18/28 description, 56px Roboto-medium CTAs;
    no arrow on the primary). */
 .hero {
   --page-hero-padding: 70px;
@@ -17,7 +17,7 @@
 .hero h1 {
   margin-top: 18px;
   font-size: 53.5px;
-  line-height: 62px;
+  line-height: 54px;
   letter-spacing: -0.02em;
 }
 

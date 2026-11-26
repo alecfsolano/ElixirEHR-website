@@ -40,6 +40,14 @@
   color: var(--color-secondary);
 }
 
+.param {
+  font-family: Consolas, 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  color: #b89cd8;
+}
+
 .detailTitle {
   max-width: 460px;
   margin-top: 20px;
@@ -75,7 +83,7 @@
   font-family: Consolas, 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
   font-size: 12px;
   line-height: 20px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .rates li {
@@ -269,7 +277,7 @@
   font-family: Consolas, 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
   font-size: 12px;
   line-height: 16px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .note img {
