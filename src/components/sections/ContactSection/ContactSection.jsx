@@ -7,7 +7,8 @@ import styles from './ContactSection.module.css';
 /**
  * `logos` replaces the default "Trusted by" row; an item's `display` ([width, height]) sets its
  * drawn size, otherwise it is drawn at 72% of its listed size. `logoGap` overrides the row's gap;
- * its column gap narrows (to 12px at least) so the logos stay on one line when the row is tight.
+ * on desktop its column gap narrows (to 12px at least) so the logos stay on one line when the row is
+ * tight; below 1200px the row wraps with that gap, as on the live site.
  */
 const logoWidth = (logo) => logo.display?.[0] ?? logo.width * 0.72;
 
@@ -15,7 +16,7 @@ function logoRowStyle(logos, logoGap) {
   if (logoGap === undefined) return undefined;
   const total = logos.reduce((sum, logo) => sum + logoWidth(logo), 0);
   const gaps = Math.max(logos.length - 1, 1);
-  return { rowGap: logoGap, columnGap: `max(12px, min(${logoGap}px, (100% - ${total}px) / ${gaps}))` };
+  return { '--logo-gap': `${logoGap}px`, '--logo-col-gap': `max(12px, min(${logoGap}px, (100% - ${total}px) / ${gaps}))` };
 }
 
 function ContactSection({ logos = contact.logos, logoGap }) {

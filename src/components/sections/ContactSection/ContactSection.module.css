@@ -87,7 +87,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 45px;
+  gap: var(--logo-gap, 45px);
+  column-gap: var(--logo-col-gap, var(--logo-gap, 45px));
   min-height: 82px;
   margin-top: 24px;
 }
@@ -101,7 +102,8 @@
 
   .logos {
     flex-wrap: wrap;
-    gap: 24px 45px;
+    gap: var(--logo-gap, 24px 45px);
+    min-height: 0;
     height: auto;
   }
 }
