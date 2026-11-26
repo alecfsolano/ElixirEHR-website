@@ -10,6 +10,7 @@
     "test": "node --test tests/*.test.mjs",
     "test:assistant": "node --test tests/sales-assistant-*.test.mjs",
     "test:funnel-browser": "node scripts/check-funnel-browser.mjs",
+    "test:e2e": "node scripts/e2e/run.mjs",
     "eval:provider-questions": "node scripts/eval-provider-questions.mjs",
     "assistant:api": "node scripts/assistant-api.mjs",
     "build:team-preview": "node scripts/build-team-preview.mjs",
