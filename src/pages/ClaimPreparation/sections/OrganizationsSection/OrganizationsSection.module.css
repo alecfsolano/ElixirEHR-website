@@ -27,10 +27,10 @@
 .title {
   max-width: 760px;
   margin-top: 8px;
-  font-size: 36px;
+  font-size: 48px;
   font-weight: 700;
-  line-height: 44px;
-  letter-spacing: -0.01em;
+  line-height: 56px;
+  letter-spacing: -0.025em;
   text-align: center;
   color: var(--color-surface-dark);
 }
@@ -88,12 +88,7 @@
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
-  color: #725c00;
-}
-
-/* The arrow asset is the bright yellow; darken it to match the label. */
-.link img {
-  filter: brightness(0.5);
+  color: var(--color-tertiary);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

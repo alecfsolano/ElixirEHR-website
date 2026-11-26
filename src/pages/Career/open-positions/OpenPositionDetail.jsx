@@ -17,7 +17,6 @@ import shareIcon from '../../../assets/career/icon-share.png';
 import linkIcon from '../../../assets/career/icon-link.png';
 import mailIcon from '../../../assets/career/icon-mail.png';
 import styles from './OpenPositionDetail.module.css';
-import { cn } from '../../../utils/cn';
 
 const postedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
@@ -32,7 +31,7 @@ function BlockHeading({ id, icon, children }) {
   );
 }
 
-/** "Apply Now": the job's application URL when set; until then a muted, non-interactive note. */
+/** "Apply Now": the job's application URL when set; until then shown as drawn but not interactive. */
 function ApplyButton({ job }) {
   if (job.applyUrl) {
     return (
@@ -42,7 +41,7 @@ function ApplyButton({ job }) {
     );
   }
   return (
-    <span className={cn(styles.apply, styles.unavailable)}>
+    <span className={styles.apply}>
       Application link unavailable
     </span>
   );
@@ -152,22 +151,12 @@ function OpenPositionDetail() {
               Responsibilities
             </BlockHeading>
             <ul className={styles.checklist}>
-              {detail.responsibilities.map((item) => {
-                // "Label: text": only the lead-in label is bold, so the list scans.
-                const split = item.indexOf(': ');
-                return (
-                  <li key={item}>
-                    <img loading="lazy" decoding="async" src={checkIcon} alt="" width="22" height="22" />
-                    {split > 0 ? (
-                      <span>
-                        <strong>{item.slice(0, split + 1)}</strong> {item.slice(split + 2)}
-                      </span>
-                    ) : (
-                      <span>{item}</span>
-                    )}
-                  </li>
-                );
-              })}
+              {detail.responsibilities.map((item) => (
+                <li key={item}>
+                  <img loading="lazy" decoding="async" src={checkIcon} alt="" width="22" height="22" />
+                  {item}
+                </li>
+              ))}
             </ul>
           </section>
 

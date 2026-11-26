@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { aePlatform } from '../../../../data/aestheticPractices';
 import Section from '../../../../components/layout/Section/Section';
@@ -19,19 +18,16 @@ function PlatformSection() {
           </p>
         ))}
         <p className={styles.related}>
-          <span className={styles.relatedLabel}>Related:</span>
-          {related.map((part) => (
-            <Fragment key={part.text}>
-              {' '}
-              {part.to ? (
-                <Link to={part.to} className={styles.link}>
-                  {part.text}
-                </Link>
-              ) : (
-                part.text
-              )}
-            </Fragment>
-          ))}
+          <span>Related:</span>
+          {related.map((part) =>
+            part.to ? (
+              <Link key={part.text} to={part.to} className={styles.link}>
+                {part.text}
+              </Link>
+            ) : (
+              <span key={part.text}>{part.text}</span>
+            ),
+          )}
         </p>
       </div>
     </Section>
