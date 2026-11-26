@@ -73,10 +73,10 @@ const BUYING_INTENT = /\b(?:pric\w*|costs?|how much|quotes?|licen[cs]\w*|demo|im
 const CAVEATS = [
   { when: /\bPart 2\b/, has: /privacy reviewer/i, text: 'Applicable Part 2 requirements should be confirmed with your privacy reviewer.' },
   { when: /\bFHIR\b/, has: /standardized API/i, text: 'Elixir is not certified to the ONC standardized API criterion.' },
-  { when: /\b(?:aggregators?|connectors?|Sandata|HHAeXchange|visit data)\b/i, has: /availability[^.?!]*confirmed|confirmed[^.?!]*\b(?:payer|state)\b/i, text: 'Connector availability is confirmed for your specific payer and state.' },
+  { when: /\b(?:aggregators?|connectors?|Sandata|HHAeXchange|visit data)\b/i, has: /availability[^.?!]*confirm|confirm\w*[^.?!]*\b(?:payer|state)\b/i, text: 'Connector availability is confirmed for your specific payer and state.' },
   { when: /\b6 (?:to|–|-) ?10 weeks\b/, has: /standard (?:configuration|setup)/i, text: 'That typical go-live assumes a small practice on a standard configuration.' },
   { when: /\bSOC 2\b/, has: /Mirketa/, text: 'The SOC 2 Type II report belongs to Mirketa, which develops and operates Elixir, and is shared under a non-disclosure agreement.' },
-  { when: /\bBAA\b|Business Associate/i, has: /platform provider/i, text: 'The BAA covering the platform services is between your organization and the platform provider.' },
+  { when: /\bBAAs?\b|Business Associate/i, has: /platform provider/i, text: 'The BAA covering the platform services is between your organization and the platform provider.' },
 ];
 // Claims about fit, value or who uses Elixir that the knowledge never makes; such a sentence is dropped.
 const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bis a (?:good |great |strong |natural )?fit\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b/i;
@@ -84,6 +84,40 @@ const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bi
 // language and gets no English insertions. With neither (a very short reply) it counts as English.
 const ENGLISH_WORD = /\b(?:the|and|for|with|your|you|is|are|to|of|in|it|can|on|that|this)\b/gi;
 const FOREIGN_WORD = /(?<![\p{L}])(?:el|la|los|las|del|que|y|en|para|con|por|una|es|sí|tiene|puede|su|sus|le|les|des|et|est|pour|avec|vous|une|und|der|die|das|mit|ist|sie|ein|eine)(?![\p{L}])/giu;
+// A trailing benefit clause the knowledge never states (", which helps teams see…").
+const BENEFIT_CLAUSE = /,\s*(?:which|that)\s+(?:helps?|fits?)\b[^.!?]*(?=[.!?])/gi;
+// Source talk: "The site …" at a sentence start reads as Elixir; "the site does not say/list/name" as
+// "Elixir has not published"; "I do not have … here" sentences go.
+const SITE_SUBJECT = /(^|[.!?]["”’)]*\s+)The (?:web)?site\b/g;
+const SITE_SILENT = /\b(?:the|this) (?:web)?site (?:does not|doesn['’]t) (?:say|list|name|state|mention)\b/gi;
+const NOT_HAVE_HERE = /\bI (?:do not|don['’]t|can['’]t see|cannot see) (?:have )?[^.!?]*\bhere\b/i;
+// What a closing question asks about, for a question the model worded its own way.
+const FIELD_HINTS = [
+  ['salesforceUsage', /\bSalesforce\b/i],
+  ['timeline', /\b(?:when|timeline|time ?frame|go[- ]live|make (?:a|the) change|switch)\b/i],
+  ['size', /\bhow many\b|\b(?:size|headcount)\b/i],
+  ['currentSystem', /\b(?:EHR|system|software|platform)\b[^?]*\b(?:use|using|today|currently|now)\b|\bcurrent(?:ly)? (?:EHR|system)\b/i],
+  ['primaryNeed', /\b(?:main|biggest|top|key)\b[^?]*\b(?:problem|pain|challenge|priority|goal|issue)\b/i],
+  ['organizationType', /\b(?:kind|type) of\b[^?]*\b(?:organization|practice|program|provider|setting|care)\b|\bcare setting\b/i],
+];
+const fieldAskedBy = (question) => FIELD_HINTS.find(([, hint]) => hint.test(question))?.[0] ?? null;
+// Patient details in the visitor's message: names after "patient", dates and long numbers.
+const PATIENT_MARKER = /\b(?:patient|client|member ID|DOB|date of birth|MRN|SSN)\b/i;
+const PATIENT_NAME = /\b(?:patient|client|member)(?:['’]s)?\s+(?:named\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b/g;
+const PATIENT_NUMBER = /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b|\b\d{4,}\b/g;
+
+/** The answer with any patient name, date or ID the visitor typed taken out: names read "that patient", sentences with dates or IDs go. */
+function withoutPatientDetails(body, latest) {
+  if (!PATIENT_MARKER.test(latest)) return body;
+  let text = body;
+  for (const [, name] of latest.matchAll(PATIENT_NAME)) {
+    text = text.replaceAll(name, 'that patient');
+    for (const part of name.split(/\s+/)) text = text.replace(new RegExp(`\\b(?:Mr\\.?|Ms\\.?|Mrs\\.?)?\\s*${part}\\b`, 'g'), (match) => (/^(?:Mr|Ms|Mrs)/.test(match.trim()) ? 'that patient' : match));
+  }
+  const numbers = [...latest.matchAll(PATIENT_NUMBER)].map(([value]) => value);
+  return numbers.length ? dropSentences(text, (sentence) => numbers.some((value) => sentence.includes(value))) : text;
+}
+
 // Said instead of repeating earlier points when nothing new is left to say.
 const NOTHING_NEW = 'Ask me anything else about Elixir and I’ll answer here.';
 // A sentence ends only where sentence punctuation is followed by whitespace, so "OAuth 2.0" and
@@ -189,7 +223,9 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   if (isCreativeOffTopic(body)) return { ...REFUSAL_REPLY, citations: [], qualification: reply.qualification };
   // English-only insertions (limits, the call sentence, canonical questions) never go into a reply in another language.
   const english = isEnglish(body || closing);
-  body = dropSentences(body.replace(SOURCE_TALK, '').replace(NOT_HERE_CLAUSE, ''), (sentence) => NOT_HERE.test(sentence));
+  body = withoutPatientDetails(body, latest);
+  body = body.replace(SOURCE_TALK, '').replace(NOT_HERE_CLAUSE, '').replace(BENEFIT_CLAUSE, '').replace(SITE_SILENT, 'Elixir has not published').replace(SITE_SUBJECT, (match, lead) => `${lead}Elixir`);
+  body = dropSentences(body, (sentence) => NOT_HERE.test(sentence) || NOT_HAVE_HERE.test(sentence));
   body = withoutRepeats(withoutUnsupportedJudgments(withoutTimelineVerdicts(body)), earlierReplies);
   if (english) body = withCaveats(body);
   // A canonical question about an answered or already-asked field never stays in the body.
@@ -197,11 +233,20 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
     if ((askedBefore(field) || answered(field) || !mayAsk) && body.includes(QUALIFICATION_FIELDS[field])) body = body.replace(QUALIFICATION_FIELDS[field], '').trim();
   }
   let nextField = reply.nextField;
-  // Fields are asked in order: the earliest open one, whichever the model picked. A knowledge answer
-  // the model left without a question gets one; off-topic and small-talk replies (no citations) do not.
+  // The model's pick stands while that field is open: it can tell when the visitor implied an earlier
+  // field without stating it. Otherwise the earliest open field is asked. A knowledge answer the model
+  // left without a question gets one; off-topic and small-talk replies (no citations) do not.
   if (!mayAsk) nextField = null;
-  else if (nextField || (reply.citations.length > 0 && !closing)) nextField = QUESTION_ORDER.find(open) ?? null;
+  else if (!nextField && english && body && closing && !Object.values(QUALIFICATION_FIELDS).includes(closing)) {
+    // A qualifying question the model worded its own way is treated as asking about that field.
+    const asked = fieldAskedBy(closing);
+    if (asked) nextField = open(asked) ? asked : QUESTION_ORDER.find(open) ?? null;
+    if (asked && !nextField) closing = '';
+  }
+  if (mayAsk && ((nextField && !open(nextField)) || (!nextField && reply.citations.length > 0 && !closing))) nextField = QUESTION_ORDER.find(open) ?? null;
   const buying = reply.intent === 'demo' || firstFunnelTurn || BUYING_INTENT.test(latest);
+  // The model's own booking sentence is replaced by the standard one, so it never implies booking happens in the chat.
+  if (english) body = dropSentences(body, () => false).replace(/(^|(?<=[.!?]["”’)]*)\s+)[^.!?\n]*\bdiscovery call\b[^.!?\n]*\b(?:button|in this chat|here in the chat)\b[^.!?\n]*[.!]/i, (match, lead) => `${lead}${CALL_SENTENCE}`);
   const wantsCall = english && buying && !declined && reply.intent !== 'support' && !partnerOnly && !recentCall && !/discovery call/i.test(body);
   if (wantsCall) body = `${body} ${CALL_SENTENCE}`.trim();
   // The closing question is always the canonical one for the next field, so a reworded copy of an

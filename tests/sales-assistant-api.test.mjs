@@ -84,7 +84,7 @@ test('one transient model failure is retried once; auth, rate-limit and timeout 
 test('a reply the structured mode cannot produce is recovered in plain-text mode', async () => {
   const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
   const reply = (content, finish = 'stop') => () => new Response(JSON.stringify({ choices: [{ finish_reason: finish, message: { content } }] }));
-  const plain = reply('ANSWER: Elixir can add revenue cycle to a clinical-only setup. What size is your organization?');
+  const plain = reply('ANSWER: Elixir can add revenue cycle to a clinical-only setup. What would you like to know next?');
   const rejected = (code) => () => new Response(JSON.stringify({ error: { message: 'private provider details', code } }), { status: 400 });
   const cases = [
     { name: 'provider rejected its own structured output', steps: [rejected('json_validate_failed'), plain], reason: 'http-400-json_validate_failed' },
@@ -99,7 +99,7 @@ test('a reply the structured mode cannot produce is recovered in plain-text mode
     const sent = [];
     const result = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async (url, options) => { sent.push(JSON.parse(options.body)); return steps[sent.length - 1](); } })(body);
     assert.equal(result.status, 200, name);
-    assert.equal(result.body.answer, 'Elixir can add revenue cycle to a clinical-only setup.\n\nWhat size is your organization?', name);
+    assert.equal(result.body.answer, 'Elixir can add revenue cycle to a clinical-only setup.\n\nWhat would you like to know next?', name);
     assert.deepEqual(result.body.citations, [], name);
     assert.equal(result.body.intent, 'explore', name);
     assert.equal(result.headers['X-Assistant-Recovered'], reason, name);
@@ -126,8 +126,8 @@ test('plain-text recovery accepts a finished answer without the exact marker and
     assert.doesNotMatch(JSON.stringify(result), /private/);
     return result;
   };
-  const answer = 'Elixir can add revenue cycle to a clinical-only setup. What size is your organization?';
-  const unmarked = 'Yes. Elixir covers behavioral health and home visits on one record.\n\nMany teams start with scheduling, then add billing. How many sites do you run?';
+  const answer = 'Elixir can add revenue cycle to a clinical-only setup. What would you like to know next?';
+  const unmarked = 'Yes. Elixir covers behavioral health and home visits on one record.\n\nMany teams start with scheduling, then add billing. Which part matters most to you?';
   const screens = 'The user interface stays the same for clinicians, and revenue cycle is added to it.';
   const telehealth = 'We have a telehealth capability that works with the same patient record.';
   const ordinary = [
@@ -143,7 +143,8 @@ test('plain-text recovery accepts a finished answer without the exact marker and
     [unmarked, unmarked], [screens, screens], [telehealth, telehealth], [quoted, quoted],
     [`# ANSWER:\n${answer}`, answer], [`ANSWER\n\n${answer}`, answer], [`**ANSWER: ${answer}**`, answer],
     ['Elixir fits, so **what size is your organization?**', 'Elixir fits, so what size is your organization?'],
-    ...ordinary.map((text) => [text, text]),
+    // A care-setting question in the model's own words is shown in its canonical wording.
+    ...ordinary.map((text) => [text, text === 'Hi! What kind of care do you provide?' ? 'Hi! What kind of healthcare organization are you with?' : text]),
   ]) {
     const result = await run(content);
     assert.equal(result.status, 200, content);
@@ -478,7 +479,7 @@ test('a structured or marked reply carrying notes, markup, links or the instruct
   const groqEnv = { ASSISTANT_ENABLED: 'true', ASSISTANT_PROVIDER: 'groq', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' };
   const structured = (answer) => () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer, citationIds: [] }) } }] }));
   const plain = (content) => () => new Response(JSON.stringify({ choices: [{ message: { content } }] }));
-  const good = 'Elixir can add revenue cycle to a clinical-only setup. What size is your organization?';
+  const good = 'Elixir can add revenue cycle to a clinical-only setup. What would you like to know next?';
   const run = async (steps) => {
     let made = 0;
     return createChatHandler({ env: groqEnv, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => steps[made++]() })(body);
@@ -526,7 +527,7 @@ test('the qualifying question is always asked once, on its own line, and never a
   assert.equal(out.answer, 'Elixir supports group notes for each participant.\n\nRoughly how many providers or locations would use Elixir?');
   // A question at the end of the paragraph moves to its own line.
   out = await run({ answer: 'Elixir supports group notes. You can book a discovery call with the button. Which EHR do you use today?', nextField: 'currentSystem' }, { qualification: { organizationType: 'outpatient clinic', size: '20 providers' } });
-  assert.equal(out.answer, 'Elixir supports group notes. You can book a discovery call with the button.\n\nWhich EHR or practice-management system do you use today?');
+  assert.equal(out.answer, 'Elixir supports group notes. You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat.\n\nWhich EHR or practice-management system do you use today?');
   // A field already answered or skipped is passed over for the next unknown one.
   out = await run({ answer: 'Elixir supports group notes.', nextField: 'size' }, { qualification: { size: '20 providers' } });
   assert.equal(out.answer, 'Elixir supports group notes.\n\nWhat kind of healthcare organization are you with?');
@@ -661,7 +662,7 @@ test('limits go before the booking sentence, repeats never leave a dangling sent
   out = await run({ answer: `${point} They also share one patient timeline.` }, { messages: [{ role: 'user', content: 'Tell me about the EHR.' }, { role: 'assistant', content: point }, { role: 'user', content: 'And the EHR timeline?' }] });
   assert.equal(out.answer, `${point} They also share one patient timeline.`);
   out = await run({ answer: `${earlier} The team reviews pricing on the call.` }, { messages: [{ role: 'user', content: 'Tell me about the EHR.' }, { role: 'assistant', content: earlier }, { role: 'user', content: 'How do I set up an EHR call?' }] });
-  assert.equal(out.answer, `${earlier} The team reviews pricing on the call.`);
+  assert.equal(out.answer, `You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat. The team reviews pricing on the call.`);
   // The answer never talks about what its information includes.
   out = await run({ answer: 'The EHR certification record is published on the Elixir Certified Module page, but that list is not included here.' });
   assert.equal(out.answer, 'The EHR certification record is published on the Elixir Certified Module page.');
@@ -699,9 +700,12 @@ test('replies in another language stay in it, limits are matched by meaning, uns
 // Round-7 live review (2026-11-26) guardrails.
 test('questions follow the order and are added to knowledge answers, fit claims and same-reply repeats go, and "not named here" talk is removed', async () => {
   const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
-  // The model picked a later field: the earliest open one is asked.
+  // The model's pick of a later open field stands (the visitor may have implied the earlier ones).
   let out = await run({ answer: 'Elixir supports group EHR notes.', nextField: 'currentSystem' }, { qualification: { organizationType: 'outpatient clinic' } });
-  assert.match(out.answer, /\n\nRoughly how many providers or locations would use Elixir\?$/);
+  assert.match(out.answer, /\n\nWhich EHR or practice-management system do you use today\?$/);
+  // A reworded booking sentence becomes the standard one.
+  out = await run({ answer: 'Elixir supports group EHR notes. Book a discovery call in this chat to review pricing.' });
+  assert.equal(out.answer, 'Elixir supports group EHR notes. You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat.');
   // A knowledge answer left without a question gets the next one; a reply with no sources does not.
   out = await run({ answer: 'Elixir is not affiliated with that EHR association.', citationIds: ['ehr'] });
   assert.match(out.answer, /\n\nWhat kind of healthcare organization are you with\?$/);
@@ -718,4 +722,30 @@ test('questions follow the order and are added to knowledge answers, fit claims 
   assert.equal(out.answer, 'Elixir publishes EHR customer stories. Granite Recovery has a published story.');
   out = await run({ answer: 'Elixir publishes EHR customer stories. Specific customer types are not listed here.' });
   assert.equal(out.answer, 'Elixir publishes EHR customer stories.');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+// Round-8 live review (2026-11-26) guardrails.
+test('patient details are never echoed, reworded closing questions map to their field, and source talk and benefit clauses go', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  const phi = { messages: [{ role: 'user', content: 'My patient John Smith, DOB 3/4/1980, member ID 99812, had an EHR claim denied. Can you check why?' }] };
+  // The name the visitor typed reads "that patient"; a sentence with the date or ID goes.
+  let out = await run({ answer: 'Please do not share patient details here. I can’t check a claim for John Smith, but Elixir tracks EHR denial reasons. Member 99812 should contact support.' }, phi);
+  assert.doesNotMatch(out.answer, /John|Smith|99812|3\/4\/1980/);
+  assert.match(out.answer, /I can’t check a claim for that patient, but Elixir tracks EHR denial reasons\./);
+  // A reworded question about a field already asked moves on to the next open field.
+  const asked = [{ role: 'user', content: 'We are an outpatient EHR clinic with 20 providers.' }, { role: 'assistant', content: 'Elixir fits clinics.\n\nWhen are you hoping to make a change?' }, { role: 'user', content: 'What would EHR pricing look like?' }];
+  out = await run({ answer: 'Elixir is priced per credentialed provider per month.\n\nWhat timeline are you hoping for?' }, { qualification: { organizationType: 'outpatient clinic', size: '20 providers' }, messages: asked });
+  assert.match(out.answer, /\n\nWhich EHR or practice-management system do you use today\?$/);
+  // A reworded question about an open field gets the canonical wording.
+  out = await run({ answer: 'Elixir supports group EHR notes.\n\nWhat type of care setting do you run?' });
+  assert.match(out.answer, /\n\nWhat kind of healthcare organization are you with\?$/);
+  // A reply that is only a clarifying question stays as it is.
+  out = await run({ answer: 'Do you mean group EHR notes or group billing?' });
+  assert.equal(out.answer, 'Do you mean group EHR notes or group billing?');
+  // Source talk becomes plain statements or goes; benefit clauses the knowledge never states go.
+  out = await run({ answer: 'The site has a published EHR story, but the site does not say which customers are treatment centers. I do not have their names here.' });
+  assert.equal(out.answer, 'Elixir has a published EHR story, but Elixir has not published which customers are treatment centers.');
+  out = await run({ answer: 'Elixir ties EHR denial work to the remittance record, which helps teams see what is blocking payment.' });
+  assert.equal(out.answer, 'Elixir ties EHR denial work to the remittance record.');
 });

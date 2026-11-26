@@ -257,7 +257,10 @@ export function makeCases({ root, distDir }) {
     for (let n = 1; n <= 12; n++) {
       const shown = await t.send(`Message ${n}: tell me about scheduling`);
       t.assert.equal(shown.error, '', `message ${n} answered`);
-      t.assert.equal(shown.last.text, defaultAnswer(n), `message ${n} shows its own reply`);
+      // A sourced answer ends with the next qualifying question on its own line; the body is the reply itself.
+      const [replyBody, ...rest] = shown.last.text.split('\n\n');
+      t.assert.equal(replyBody, defaultAnswer(n), `message ${n} shows its own reply`);
+      t.assert.ok(rest.length <= 1 && rest.every((line) => /\?$/.test(line)), `message ${n} ends with at most one question`);
     }
     t.assert.equal(t.apiCount(), 12);
     t.assert.equal(await t.composer().isDisabled(), true, 'the composer is disabled at the cap');
