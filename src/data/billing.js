@@ -42,7 +42,7 @@ export const billingStats = {
   items: [
     { prefix: 'Nearly', value: '75%', text: 'Of all medical bills contain errors', icon: statErrorsIcon, accent: 'lime' },
     { prefix: 'Up to', value: '90%', text: 'Of payer denials are avoidable', icon: statDenialsIcon, accent: 'purple' },
-    { prefix: 'Nearly', value: '60%', text: 'Of all Medical Claims Contain Errors', icon: statClaimsIcon, accent: 'lime' },
+    { prefix: 'Nearly', value: '60%', text: 'Of all medical claims contain errors', icon: statClaimsIcon, accent: 'lime' },
   ],
 };
 
