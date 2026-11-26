@@ -124,7 +124,11 @@ Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-m
 - Sentences making fit, value or usage claims the knowledge never makes are dropped, as long as real content remains. Examples: "sounds like a fit", "is a good fit", "good match", "strongest", "usually helps", "often use".
 - Sentences that mostly restate an earlier reply, or an earlier sentence of the same reply (75% or more of the content words), are dropped. When nothing new is left, Fitz invites the next question instead. Booking sentences are never dropped this way, and neither is a sentence the next one leans on ("They…", "This…").
 - Talk about what its information includes is removed: "that list is not included here", a clause or sentence saying something is "not named here", and "I do not have … here". "The site …" at the start of a sentence reads "Elixir …", and "the site does not say" reads "Elixir has not published".
-- A trailing benefit clause the knowledge never states (", which helps teams…", ", which fits…") is removed.
+- A trailing benefit clause the knowledge never states (", which helps teams…", ", which fits…") is removed. If that leaves only a fragment, the whole sentence goes.
+- A sentence merging the two Business Associate Agreements is restated as the two facts.
+- "Elixir team" always reads "the Elixir team".
+- A sentence that leans on a dropped one ("That also…") goes with it. A sentence that a following one leans on, even across a paragraph break, is not dropped as a repeat or a judgment.
+- A reply that opens by declining ("I can’t…", for off-topic, clinical or unsafe requests) gets no qualifying question.
 - A patient name the visitor typed after "patient", "client" or "member" reads "that patient". A sentence repeating a date of birth or ID from the visitor's message is dropped.
 - The model's own booking sentence ("book a discovery call … in this chat") is replaced by the standard one, so it never implies booking happens in the chat.
 - Limits the knowledge attaches to a stated fact are added when missing, before any closing booking sentence:

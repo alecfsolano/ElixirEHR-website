@@ -749,3 +749,30 @@ test('patient details are never echoed, reworded closing questions map to their 
   out = await run({ answer: 'Elixir ties EHR denial work to the remittance record, which helps teams see what is blocking payment.' });
   assert.equal(out.answer, 'Elixir ties EHR denial work to the remittance record.');
 });
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+// Round-9 live review (2026-11-26) guardrails.
+test('drops never leave a dangling or clipped sentence, refusals ask nothing, and merged BAA claims are restated as the knowledge has them', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  // A judgment kept because the next paragraph leans on it.
+  let out = await run({ answer: 'Elixir is a strong option for your EHR agency.\n\nThat also keeps visit notes and billing in one workflow.' });
+  assert.equal(out.answer, 'Elixir is a strong option for your EHR agency.\n\nThat also keeps visit notes and billing in one workflow.');
+  // A dropped timeline verdict takes the sentence leaning on it along.
+  out = await run({ answer: 'Elixir supports EHR migration. Next quarter is realistic for you. That also gives your team time. The team scopes the plan.' });
+  assert.equal(out.answer, 'Elixir supports EHR migration. The team scopes the plan.');
+  // A benefit clause whose removal leaves a fragment takes the whole sentence.
+  out = await run({ answer: 'Elixir syncs EHR inquiries with the chart. For residential teams, that helps keep admissions aligned.' });
+  assert.equal(out.answer, 'Elixir syncs EHR inquiries with the chart.');
+  // A refusal asks no qualifying question.
+  out = await run({ answer: 'I can’t help with medication dosing in the EHR chat.\n\nWhat kind of healthcare organization are you with?', nextField: 'organizationType', citationIds: ['ehr'] });
+  assert.equal(out.answer, 'I can’t help with medication dosing in the EHR chat.');
+  // A sentence merging the two BAAs is restated as two facts, and the limit is not added again.
+  out = await run({ answer: 'HIPAA compliance sits with the organization, and Elixir can provide the platform-services BAA for the EHR.' });
+  assert.equal(out.answer, 'Elixir signs a BAA covering its own access to protected health information, and the BAA for the platform services is between your organization and the platform provider.');
+  // Part 2 phrased as substance use consent still carries the privacy-reviewer limit.
+  out = await run({ answer: 'Elixir keeps substance use records in the EHR behind a single consent.' });
+  assert.match(out.answer, /confirmed with your privacy reviewer\.$/);
+  // "Elixir team" always reads "the Elixir team".
+  out = await run({ answer: 'Elixir team confirms EHR migration scope. Pricing is confirmed by Elixir team after scoping.' });
+  assert.equal(out.answer, 'The Elixir team confirms EHR migration scope. Pricing is confirmed by the Elixir team after scoping.');
+});

@@ -71,7 +71,7 @@ const PARTNER_SOURCES = new Set(['referral-program']);
 const BUYING_INTENT = /\b(?:pric\w*|costs?|how much|quotes?|licen[cs]\w*|demo|implement\w*|onboard\w*|migrat\w*|switch\w*|go-?live|compar\w*|versus|vs|better than|alternatives?)\b/i;
 // Limits the approved knowledge attaches to a fact: when the answer states the fact, the limit goes with it.
 const CAVEATS = [
-  { when: /\bPart 2\b/, has: /privacy reviewer/i, text: 'Applicable Part 2 requirements should be confirmed with your privacy reviewer.' },
+  { when: /\bPart 2\b|\b42 CFR\b|substance use[^.!?]*\bconsent|\bconsent[^.!?]*substance use/i, has: /privacy reviewer/i, text: 'Applicable Part 2 requirements should be confirmed with your privacy reviewer.' },
   { when: /\bFHIR\b/, has: /standardized API/i, text: 'Elixir is not certified to the ONC standardized API criterion.' },
   { when: /\b(?:aggregators?|connectors?|Sandata|HHAeXchange|visit data)\b/i, has: /availability[^.?!]*confirm|confirm\w*[^.?!]*\b(?:payer|state)\b/i, text: 'Connector availability is confirmed for your specific payer and state.' },
   { when: /\b6 (?:to|–|-) ?10 weeks\b/, has: /standard (?:configuration|setup)/i, text: 'That typical go-live assumes a small practice on a standard configuration.' },
@@ -118,6 +118,21 @@ function withoutPatientDetails(body, latest) {
   return numbers.length ? dropSentences(text, (sentence) => numbers.some((value) => sentence.includes(value))) : text;
 }
 
+// A reply that opens by declining (off-topic, clinical or unsafe requests) asks no qualifying question.
+const REFUSAL_START = /^(?:I can['’]t|I cannot|I can not|I['’]m not able|I am not able|I['’]m unable|I am unable|Sorry)\b/i;
+// One sentence merging the two Business Associate Agreements becomes the two facts as the knowledge states them.
+const BAA_FACT = 'Elixir signs a BAA covering its own access to protected health information, and the BAA for the platform services is between your organization and the platform provider.';
+const isBaaMerge = (sentence) => /\bBAAs?\b/.test(sentence) && /platform[- ]services?/i.test(sentence) && !/platform provider/i.test(sentence);
+
+/** Removes trailing benefit clauses; a sentence left without its main point goes too. */
+function withoutBenefitClauses(body) {
+  if (!BENEFIT_CLAUSE.test(body)) return body;
+  BENEFIT_CLAUSE.lastIndex = 0;
+  const trimmed = body.replace(BENEFIT_CLAUSE, '');
+  const original = new Set(sentencesOf(body));
+  return dropSentences(trimmed, (sentence) => !original.has(sentence) && wordsOf(sentence).size < MIN_POINT_WORDS);
+}
+
 // Said instead of repeating earlier points when nothing new is left to say.
 const NOTHING_NEW = 'Ask me anything else about Elixir and I’ll answer here.';
 // A sentence ends only where sentence punctuation is followed by whitespace, so "OAuth 2.0" and
@@ -126,15 +141,26 @@ const SENTENCE_BREAK = /(?<=[.!?]["”’)]*)(\s+)/;
 const MIN_POINT_WORDS = 5;
 const REPEAT_OVERLAP = 0.75;
 
-/** The text without the sentences `drop` rejects (given each sentence and the one after it); exactly the text itself when none is rejected. */
+/**
+ * The text without the sentences `drop` rejects (given each sentence and the one after it, across
+ * paragraph breaks); exactly the text itself when none is rejected. A sentence that leans on a dropped
+ * one ("That also…") goes with it, since it cannot stand alone.
+ */
 function dropSentences(text, drop) {
-  const paragraphs = text.split('\n\n').map((paragraph) => {
-    const parts = paragraph.split(SENTENCE_BREAK);
-    let out = '';
-    for (let i = 0; i < parts.length; i += 2) if (!drop(parts[i], parts[i + 2] ?? '')) out += parts[i] + (parts[i + 1] ?? '');
-    return out.trim();
+  const paragraphs = text.split('\n\n').map((paragraph) => paragraph.split(SENTENCE_BREAK));
+  const sentences = paragraphs.flatMap((parts, p) => parts.map((part, i) => (i % 2 === 0 ? { p, i, text: part } : null)).filter(Boolean));
+  const dropped = new Set();
+  sentences.forEach((sentence, n) => {
+    const next = sentences[n + 1]?.text ?? '';
+    if (drop(sentence.text, next) || (dropped.has(n - 1) && LEANS_BACK.test(sentence.text))) dropped.add(n);
   });
-  return paragraphs.filter(Boolean).join('\n\n');
+  if (!dropped.size) return text;
+  const keep = new Set(sentences.filter((_, n) => !dropped.has(n)).map(({ p, i }) => `${p}:${i}`));
+  return paragraphs.map((parts, p) => {
+    let out = '';
+    for (let i = 0; i < parts.length; i += 2) if (keep.has(`${p}:${i}`)) out += parts[i] + (parts[i + 1] ?? '');
+    return out.trim();
+  }).filter(Boolean).join('\n\n');
 }
 // A sentence that leans on the one before it; the one before it is kept so this one still makes sense.
 const LEANS_BACK = /^(?:they|it|this|that|these|those|there|so|also|then)\b/i;
@@ -214,7 +240,8 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   const open = (field) => !answered(field) && !askedBefore(field);
   const partnerOnly = reply.citations.length > 0 && reply.citations.every((citation) => PARTNER_SOURCES.has(citation.id));
   const declined = request.contactPreference === 'declined';
-  const mayAsk = !declined && (reply.intent === 'explore' || reply.intent === 'demo') && !partnerOnly;
+  const refused = REFUSAL_START.test(reply.answer.trim());
+  const mayAsk = !declined && (reply.intent === 'explore' || reply.intent === 'demo') && !partnerOnly && !refused;
   // Split off the closing question so body rules never touch it.
   const paragraphs = questionOnOwnLine(reply.answer).split('\n\n');
   // The last paragraph is the closing question when it is one question (it may be the whole reply).
@@ -224,7 +251,12 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   // English-only insertions (limits, the call sentence, canonical questions) never go into a reply in another language.
   const english = isEnglish(body || closing);
   body = withoutPatientDetails(body, latest);
-  body = body.replace(SOURCE_TALK, '').replace(NOT_HERE_CLAUSE, '').replace(BENEFIT_CLAUSE, '').replace(SITE_SILENT, 'Elixir has not published').replace(SITE_SUBJECT, (match, lead) => `${lead}Elixir`);
+  body = withoutBenefitClauses(body.replace(SOURCE_TALK, '').replace(NOT_HERE_CLAUSE, '').replace(SITE_SILENT, 'Elixir has not published').replace(SITE_SUBJECT, (match, lead) => `${lead}Elixir`));
+  body = body.replace(/(^|[.!?]["”’)]*\s+)Elixir team\b/g, '$1The Elixir team').replace(/(?<=\s)(?<![Tt]he )Elixir team\b/g, 'the Elixir team');
+  if (sentencesOf(body).some(isBaaMerge)) {
+    let replaced = false;
+    body = sentencesOf(body).length ? body.split('\n\n').map((paragraph) => paragraph.split(SENTENCE_BREAK).map((part) => (isBaaMerge(part) ? (replaced ? '' : ((replaced = true), BAA_FACT)) : part)).join('').replace(/\s{2,}/g, ' ').trim()).filter(Boolean).join('\n\n') : body;
+  }
   body = dropSentences(body, (sentence) => NOT_HERE.test(sentence) || NOT_HAVE_HERE.test(sentence));
   body = withoutRepeats(withoutUnsupportedJudgments(withoutTimelineVerdicts(body)), earlierReplies);
   if (english) body = withCaveats(body);
