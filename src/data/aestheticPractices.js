@@ -45,10 +45,10 @@ export const aeHero = {
   currentPage: 'Aesthetic Practices',
   titleLines: ['Aesthetic Practice', 'Management', 'Software for Medical', 'Spas and Cash-Pay', 'Clinics'],
   titleAccent: [],
-  // The frame repeats the Telehealth hero's description here, word for word. Reproduced as drawn;
-  // see DESIGN-SYSTEM.md (open questions).
+  // The frame repeats the Telehealth hero's description here, word for word, which reads as a paste
+  // error on a med-spa page; the approved SEO sheet's description for this page is used instead.
   description:
-    'Adopting telehealth should not mean adopting a second system. In Elixir the virtual visit is scheduled on the same calendar, documented in the same chart and billed from the same record as everything else you do.',
+    'Organize consultations, treatment histories, client notes and bookings for aesthetic services with a more connected clinic workflow.',
   primaryCta: { label: 'Request a Demo', to: '/request-demo/', arrow: false },
   // The frame gives no destination; it scrolls to "Before-and-After Photos Are Marketing Assets…".
   secondaryCta: { label: 'The before-and-after problem', href: '#before-and-after' },
@@ -374,7 +374,7 @@ export const aePlatform = {
     'Elixir is built natively on Salesforce — which means the customer relationship half is not a lightweight add-on written by a clinical software company. Lead capture, campaign attribution, pipeline, follow-up sequences, segmentation and reporting are the platform’s own, mature capabilities, sitting against the same patient record the clinician documents in.',
     'The practical consequence: the consultation that did not convert is a record you can act on, not a gap in a calendar. The patient who has not rebooked in nine months is a segment, not a hunch. And your marketing team and your clinical team are looking at the same person.',
   ],
-  // As drawn, the "Related" line is laid out as a row of narrow columns.
+  // The frame lays the "Related" line out as a row of narrow columns; it is set as one sentence here.
   related: [
     { text: 'Contact Center', to: '/healthcare-contact-center/' },
     { text: 'for inquiry handling,' },

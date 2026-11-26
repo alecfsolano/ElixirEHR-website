@@ -2173,7 +2173,7 @@ The FAQ is 596 against 1074, because the shared accordion starts closed (standin
 
 **Deliberate differences:**
 - FAQ: the shared accordion (no eyebrow, items closed). The frame supplies an answer only for "What is SDOH software…"; the other five render as static rows (question 236).
-- The policy cards' list markers are missing-glyph boxes in the frame (red and lime outlines). They are drawn as small coloured outlined markers here, and the third card's arrows as "→" (question 237).
+- The policy cards' list markers are missing-glyph boxes in the frame (red and lime outlines). They are drawn as a red "✕" and a lime "✓" here (the outlined boxes read as broken icons), and the third card's arrows as "→" (question 237).
 - The Z-code rows' text widths differ in the frame (the first row runs wider); both widths are kept so the lines break as drawn.
 
 **Responsive:** pillars 4 → 2 → 1 columns; card grids 3 → 2 → 1; the domains table narrows below 1024px and becomes one block per domain below 768px; the split sections and the money layout stack below 1024px; the Z-code pill moves under the copy on phones. No horizontal overflow from 320 to 1920.
@@ -2547,7 +2547,7 @@ Every lead form posts natively to Salesforce Web-to-Lead with the values from th
    - the DEA flexibilities to 31 December 2026 and 21 CFR §1306.51;
    - the compact counts as of September 2026;
    - the OCR enforcement-discretion dates and the BAA and audio-only guidance.
-203. Aesthetic Practices: the hero description repeats the Telehealth hero word for word ("Adopting telehealth should not mean adopting a second system…"). It is reproduced as drawn; please supply the intended Aesthetic Practices description.
+203. Aesthetic Practices: the hero description repeats the Telehealth hero word for word ("Adopting telehealth should not mean adopting a second system…"). The approved SEO sheet's description for the page is used in its place; please supply the intended Aesthetic Practices description if it should differ.
 204. Aesthetic Practices: the frame gives no destination for "The before-and-after problem". It scrolls to the before-and-after photos section.
 205. Aesthetic Practices: the FAQ uses the site's shared accordion, per the standing rule. The frame's own FAQ design is not used.
 206. Aesthetic Practices: the frame cites "Source 1." to "Sources 10–11." but has no sources list. They are plain text; please supply the sources (or their URLs).
