@@ -98,7 +98,8 @@
   margin-top: 16px;
   font-size: 14px;
   line-height: 23px;
-  color: rgb(255 255 255 / 0.58);
+  /* 0.75 (not the frame's 0.58) so the 14px copy stays readable on the dark card. */
+  color: rgb(255 255 255 / 0.75);
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */

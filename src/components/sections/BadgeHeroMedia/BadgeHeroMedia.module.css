@@ -58,3 +58,12 @@
     left: var(--badge-left-scaled, -6.85%);
   }
 }
+
+/* Phones: at the page gutter the badge's overhang reaches (or passes) the screen edge, so the
+   photo-and-badge group is inset by about that overhang. `:where` keeps the rule at zero
+   specificity, so a page's own inset (Contact Center, Patient Portal) still wins. */
+@media (max-width: 767px) {
+  :where(.wrap) {
+    margin-left: 24px;
+  }
+}
