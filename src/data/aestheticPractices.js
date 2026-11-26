@@ -309,7 +309,7 @@ export const aeGrowth = {
 export const aeSafety = {
   eyebrow: 'Product safety',
   // The frame breaks the title after "Expiry".
-  title: 'Product, Lot and Expiry Tracking for Injectables',
+  title: 'Product, Lot and Expiry\nTracking for Injectables',
   description: 'In 2024 this stopped being an inventory question and became a patient safety question.',
   paragraphs: [
     'In April 2024 the FDA documented counterfeit Botox in multiple states. Patients were hospitalized with symptoms consistent with the spread of botulinum toxin — blurred or double vision, difficulty swallowing, dry mouth, weakness, shortness of breath. The counterfeit product carried a specific lot number, was labeled “Botulinum Toxin Type A” rather than the correct active ingredient name, and appeared in unit presentations the genuine product does not come in. Source 8.',
@@ -374,7 +374,7 @@ export const aePlatform = {
     'Elixir is built natively on Salesforce — which means the customer relationship half is not a lightweight add-on written by a clinical software company. Lead capture, campaign attribution, pipeline, follow-up sequences, segmentation and reporting are the platform’s own, mature capabilities, sitting against the same patient record the clinician documents in.',
     'The practical consequence: the consultation that did not convert is a record you can act on, not a gap in a calendar. The patient who has not rebooked in nine months is a segment, not a hunch. And your marketing team and your clinical team are looking at the same person.',
   ],
-  // The frame lays the "Related" line out as a row of narrow columns; it is set as one sentence here.
+  // As drawn, the "Related" line is laid out as a row of narrow columns.
   related: [
     { text: 'Contact Center', to: '/healthcare-contact-center/' },
     { text: 'for inquiry handling,' },

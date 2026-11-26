@@ -112,7 +112,7 @@ export const shIntake = {
   title: 'Referrals and Forms That Arrive From Outside Your Walls',
   // The frame forces a line break after "community".
   description:
-    'A student referral rarely starts with staff at a desk. It starts with a parent, a teacher, a community provider or the student themselves — often on a phone, often out of hours.',
+    'A student referral rarely starts with staff at a desk. It starts with a parent, a teacher, a community\nprovider or the student themselves — often on a phone, often out of hours.',
   items: [
     {
       icon: icon(intake1Icon, 18, 14),
@@ -196,7 +196,7 @@ export const shRouting = {
   title: 'School, District, County — and the Meeting in the Middle',
   // The frame forces a line break after "who is".
   description:
-    'A county office of education is not one organization with one queue. It is a structure, and a referral moves through it. Software that models a single flat provider list cannot represent who is responsible for what.',
+    'A county office of education is not one organization with one queue. It is a structure, and a referral moves through it. Software that models a single flat provider list cannot represent who is\nresponsible for what.',
   levels: [
     {
       icon: icon(level1Icon, 20, 18),

@@ -79,6 +79,7 @@ export const evStats = {
   ],
 };
 
+// "\n" marks the frame's hard line breaks.
 export const evCapabilities = {
   titleLines: ['Insurance Eligibility Verification', 'Capabilities in Elixir RCM'],
   description:
@@ -117,14 +118,14 @@ export const evCapabilities = {
     {
       title: 'VOB response PDF on file',
       description:
-        'The full verification of benefits response is attached automatically, ready for audits, appeals and denial follow-up.',
+        'The full verification of benefits response is attached automatically, ready for audits, appeals\nand denial follow-up.',
       icon: vobPdfIcon,
       iconSize: [21, 21],
     },
     {
       title: 'Clear error visibility',
       description:
-        'Records show Verified, Not Verified or Error, and missing data such as provider NPI or service date is listed so staff know exactly what to fix.',
+        'Records show Verified, Not Verified or Error, and missing data such as provider NPI or service date\nis listed so staff know exactly what to fix.',
       icon: errorVisibilityIcon,
       iconSize: [21, 17],
     },
@@ -197,9 +198,9 @@ export const benefitsAudit = {
   ],
 };
 
-// Copy reproduced exactly as in the frame (both descriptions start lower-case).
+// Copy as in the frame, except that both descriptions now start with a capital letter.
 export const bulkVerification = {
-  titleLines: ['Bulk EDI 270/271 and Batch Eligibility Verification', 'for High-Volume Practices'],
+  titleLines: ['Bulk EDI 270/271 and Batch Eligibility Verification for High-', 'Volume Practices'],
   description:
     'Checking patients one at a time does not scale for busy clinics, billing companies or multi-location groups. Elixir gives you two ways to verify many patients at once.',
   options: [
@@ -226,6 +227,7 @@ export const bulkVerification = {
   ],
 };
 
+// "\n" marks the frame's line break.
 export const buyerChecklist = {
   titleLines: ['What to Look for in Insurance Eligibility', 'Verification Software'],
   description:
@@ -257,12 +259,12 @@ export const buyerChecklist = {
     },
     {
       title: 'Reporting you can act on',
-      description: 'Use Salesforce reports and dashboards to track verification status across patients.',
+      description: 'Use Salesforce reports and dashboards to track verification status across\npatients.',
     },
     {
       title: 'AI assistance',
       description:
-        'Insurance eligibility result summarization and Q&A help staff read complex payer responses quickly.',
+        'Insurance eligibility result summarization and Q&A help staff read complex\npayer responses quickly.',
     },
   ],
 };

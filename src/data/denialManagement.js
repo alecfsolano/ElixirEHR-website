@@ -94,7 +94,7 @@ export const dmWorkflow = {
   steps: [
     {
       title: 'Predict',
-      text: 'Every claim is scored for denial risk before it goes to the clearinghouse, with the reasons behind the score.',
+      text: 'Every claim is scored for denial risk before it goes to the clearinghouse, with the reasons\nbehind the score.',
     },
     {
       title: 'Prevent',
@@ -176,7 +176,7 @@ export const dmClearinghouse = {
     {
       code: '837',
       title: 'Claim submission',
-      description: 'Professional and institutional claims sent from Salesforce.',
+      description: 'Professional and institutional\nclaims sent from Salesforce.',
       tag: { label: 'Outbound X12', icon: outboundIcon, size: [13, 10] },
     },
     {

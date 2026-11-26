@@ -157,8 +157,9 @@ export const coPilotVisitFlow = {
     { label: 'Automated Kratu AI Processing', tone: 'purple' },
     { label: 'Clinician Authority & Authorization Action', tone: 'lime' },
   ],
-  // The frame shows a generic image placeholder here (its note asks for a lifestyle photograph).
-  // The photograph has not been supplied, so the section leaves the slot out instead of an empty box.
+  // The frame shows a generic image placeholder here (its note asks for a lifestyle photograph);
+  // the photograph has not been supplied, so the frame renders empty.
+  imageAlt: 'Image placeholder',
 };
 
 // The Insights pane mock-up is an illustration of the frame's example data (static; its actions

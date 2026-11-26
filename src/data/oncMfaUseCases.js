@@ -49,7 +49,7 @@ export const mfaAssessment = {
   title: 'Get an MFA Implementation Assessment',
   // The frame forces a line break before "day."
   description:
-    'Tell us about your identity provider, login patterns, and compliance requirements. A healthcare security advisor will follow up within one business day.',
+    'Tell us about your identity provider, login patterns, and compliance requirements. A healthcare security advisor will follow up within one business\nday.',
   check: icon(checkIcon, 10, 9),
   points: [
     'A specialist follows up within one business day',

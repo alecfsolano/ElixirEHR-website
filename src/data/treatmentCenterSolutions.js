@@ -136,6 +136,6 @@ export const financialFeatures = {
 // contact route used by the EHR page's "Contact Us Now".
 export const tcCtaBand = {
   title: 'Take the Next Step',
-  description: 'Ready to change how you handle your patients? Be future-ready with Elixir.',
+  description: 'Ready To Change How You Handle Your Patients? Click Here To Be Future Ready With Elixir',
   cta: { label: 'Contact Us Now', to: '/contact-us/#contact' },
 };

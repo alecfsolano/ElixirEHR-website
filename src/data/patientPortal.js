@@ -226,6 +226,7 @@ export const patientPortalLimits = {
     'Some people will not create an account. Not because the portal is bad, but because they are eighty-one, or between phones, or simply not going to. Pretending otherwise is how organisations end up with a portal and a call queue.',
     "So the tasks that matter most before a visit do not require an account at all. Visit Prep sends a secure text link, verifies the patient's identity, and lets them share what they want to discuss, no app, no password, nothing to remember. The agenda still reaches the provider in the chart.",
   ],
+  // \n reproduces the frame's hard line break.
   note: 'The portal serves the patients who will use it.\nSomething else serves the ones who will not.',
   link: { label: 'Explore Visit Prep', to: '/ai-pre-visit-preparation/' },
 };
@@ -233,7 +234,7 @@ export const patientPortalLimits = {
 export const patientPortalConnected = {
   eyebrow: 'Connected',
   title: 'How the portal connects to the rest of Elixir',
-  // Cards link only where the product page exists.
+  // \n reproduces the frame's hard line breaks. Cards link only where the product page exists.
   items: [
     {
       title: 'Electronic Health Record',
@@ -243,7 +244,7 @@ export const patientPortalConnected = {
     },
     {
       title: 'Revenue Cycle Management',
-      text: 'Statements and payments tie to the claim, not a separate ledger.',
+      text: 'Statements and payments tie to the claim, not\na separate ledger.',
       icon: connectRcmIcon,
       to: '/rcm-software/',
     },
@@ -254,7 +255,7 @@ export const patientPortalConnected = {
     },
     {
       title: 'Scheduling',
-      text: 'Self-service booking respects the same rules as the front desk.',
+      text: 'Self-service booking respects the same rules\nas the front desk.',
       icon: connectSchedulingIcon,
     },
   ],
@@ -329,7 +330,8 @@ export const patientPortalAlumni = {
       tagIcon: educationIcon,
     },
     {
-      title: 'Referrals from people who trust you',
+      // \n reproduces the frame's hard line break.
+      title: 'Referrals from people who\ntrust you',
       text: 'Let alumni refer someone directly through the portal, which is how most behavioral health referrals actually happen.',
       icon: referralsIcon,
       tag: 'Direct intake handoff',

@@ -15,15 +15,13 @@ const contactLogoNames = [
 ];
 
 // The About Us and Referral Program Figma frames show a newer "Trusted by" row: five logos from the
-// Home strip, drawn smaller (display size in px) and up to 24px apart. TrueNorth is drawn larger than
-// the frame's 88×21, which was too small to read. The five total 464px: one line in the 544px Contact
-// Us row, and in the ~536px Contact section row, whose gap narrows to fit (see ContactSection).
+// Home strip, drawn smaller (display size in px, measured from the frame) and 24px apart.
 const aboutLogoSizes = [
   ['within', 61, 19],
   ['Community Wellness Ventures', 106, 31],
   ['Upward Health', 92, 15],
   ['OncoHost', 93, 17],
-  ['TrueNorth Health Center', 112, 27],
+  ['TrueNorth Health Center', 88, 21],
 ];
 
 export const updatedContactLogos = aboutLogoSizes.map(([name, width, height]) => ({
