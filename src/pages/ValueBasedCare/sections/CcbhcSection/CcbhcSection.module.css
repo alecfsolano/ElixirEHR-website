@@ -118,8 +118,52 @@
     border-radius: var(--radius-xl);
   }
 
-  .table thead th:first-child,
-  .table tbody th[scope='row'] {
-    padding-left: 16px;
+  /* The table becomes one block per methodology, each value under its column name, so no column
+     (in particular "Quality bonus payments") is off-screen. */
+  .table {
+    min-width: 0;
+  }
+
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .table,
+  .table caption,
+  .table tbody,
+  .table tr,
+  .table tbody th,
+  .table tbody td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tbody tr {
+    padding: 16px 20px;
+  }
+
+  .table tbody th[scope='row'],
+  .table tbody td {
+    padding: 0;
+  }
+
+  .table tbody td {
+    margin-top: 8px;
+  }
+
+  .table tbody td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-family: var(--font-label);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-surface-dark);
   }
 }

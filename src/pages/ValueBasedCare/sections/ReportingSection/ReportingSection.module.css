@@ -89,12 +89,14 @@
   color: #ddd6e4;
 }
 
+/* Each value stays on one line, right-aligned, so the column reads as one edge. */
 .value {
-  max-width: 150px;
   font-family: var(--font-label);
   font-size: 15px;
   font-weight: 700;
   line-height: 22px;
+  white-space: nowrap;
+  text-align: right;
 }
 
 .lime {
@@ -102,7 +104,6 @@
 }
 
 .white {
-  max-width: none;
   color: var(--color-white);
 }
 
@@ -134,5 +135,10 @@
 
   .dashboard {
     border-radius: var(--radius-xl);
+  }
+
+  /* On a phone the label keeps most of the row; a long value may wrap, still right-aligned. */
+  .value {
+    white-space: normal;
   }
 }

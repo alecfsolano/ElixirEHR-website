@@ -34,12 +34,11 @@
 }
 
 .text {
-  max-width: 291px;
   margin-top: 0;
   padding-left: 25px;
   font-size: 14px;
   line-height: 22px;
-  color: #b89cd8;
+  color: #d8c4ee;
 }
 
 .promo {
@@ -70,7 +69,7 @@
 .promoText {
   font-size: 14px;
   line-height: 20px;
-  color: #b89cd8;
+  color: #d8c4ee;
 }
 
 .promoLink {

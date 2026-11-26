@@ -4,10 +4,12 @@
   scroll-margin-top: 78px;
 }
 
+/* The symptoms panel takes the wider column and the explanation the narrower one, so the two
+   columns come out about the same height (the other way round left a tall empty block on the right). */
 .layout {
   display: grid;
-  grid-template-columns: 452px minmax(0, 1fr);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) 452px;
+  align-items: stretch;
   gap: 48px;
   margin-top: 48px;
 }
@@ -48,7 +50,7 @@
 
 .symptoms li {
   position: relative;
-  padding: 16px 70px 16px 42px;
+  padding: 16px 20px 16px 42px;
   background: var(--color-white);
   font-size: 14px;
   line-height: 23px;
@@ -61,8 +63,10 @@
   left: 16px;
 }
 
+/* The service-lines panel takes the rest of the column, so both columns end together. */
 .right {
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: 24px;
 }
 
@@ -75,10 +79,6 @@
   font-size: 16px;
   line-height: 26px;
   color: var(--color-body);
-}
-
-.copy p {
-  max-width: 510px;
 }
 
 .lines {
@@ -100,7 +100,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px 6px;
-  max-width: 480px;
   margin-top: 16px;
 }
 

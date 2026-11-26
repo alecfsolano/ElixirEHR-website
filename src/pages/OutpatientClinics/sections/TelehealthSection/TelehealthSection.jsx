@@ -17,9 +17,7 @@ function TelehealthSection() {
           <li key={card.title} className={cn(styles.card, styles[card.tone])}>
             <div className={styles.head}>
               <span className={styles.chip}>{card.chip}</span>
-              <span className={styles.when} style={card.whenWidth ? { '--when-width': `${card.whenWidth}px` } : undefined}>
-                {card.when}
-              </span>
+              <span className={styles.when}>{card.when}</span>
             </div>
             <h3 className={styles.title}>{card.title}</h3>
             <p className={styles.text}>{card.text}</p>

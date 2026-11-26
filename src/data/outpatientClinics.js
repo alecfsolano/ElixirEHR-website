@@ -430,8 +430,6 @@ export const opTelehealth = {
       tone: 'lime',
       chip: 'Current rule',
       when: 'Through 2027',
-      // The frame breaks this date onto two lines beside the two-line chip.
-      whenWidth: 52,
       title: 'Today',
       text: 'Through December 31, 2027, statutory telehealth flexibilities remain in effect under the Consolidated Appropriations Act, 2026. Medicare beneficiaries can receive telehealth services from home, regardless of geographic location; FQHCs and RHCs can serve as distant site providers; an expanded list of practitioners can bill for telehealth; and audio-only visits remain eligible for reimbursement.',
     },
@@ -530,7 +528,6 @@ export const opInterop = {
       cornerIcon: icon(interop3Icon, 19, 19),
       label: '§ 170.315(g)(10)',
       title: 'FHIR US Core 6.1.0',
-      textWidth: 255,
       text: 'Standardized API criterion updated to FHIR US Core Implementation Guide 6.1.0, providing standardized, secure patient and population-level RESTful API access.',
     },
     {

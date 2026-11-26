@@ -44,8 +44,20 @@
   }
 }
 
+/* Two portraits per row on phones, so eight people are not a single 4,000px column. */
 @media (max-width: 767px) {
   .grid {
-    grid-template-columns: minmax(0, 1fr);
+    gap: 24px 16px;
+    margin-top: 40px;
+  }
+
+  .name,
+  .role {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .name {
+    margin-top: 10px;
   }
 }
