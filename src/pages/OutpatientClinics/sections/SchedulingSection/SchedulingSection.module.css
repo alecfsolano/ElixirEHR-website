@@ -34,11 +34,12 @@
 }
 
 .text {
+  max-width: 291px;
   margin-top: 0;
   padding-left: 25px;
   font-size: 14px;
   line-height: 22px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .promo {
@@ -69,7 +70,7 @@
 .promoText {
   font-size: 14px;
   line-height: 20px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .promoLink {

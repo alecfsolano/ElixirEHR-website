@@ -3,10 +3,9 @@
   background: #f0edec;
 }
 
-/* Two by two: four columns left each rule a 15-line strip of text. */
 .cards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
   margin-top: 47px;
 }
@@ -45,16 +44,14 @@
 
 .head {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 12px;
+  gap: 16px;
 }
 
-/* Chip and date each stay on one line; when both do not fit, the date drops below the chip. */
 .chip {
+  max-width: 96px;
   padding: 4px 8px;
-  white-space: nowrap;
   border-radius: var(--radius-pill);
   background: var(--chip-bg);
   font-family: var(--font-label);
@@ -67,12 +64,13 @@
 }
 
 .when {
+  max-width: var(--when-width, 90px);
   font-family: var(--font-label);
   font-size: 11px;
   font-weight: 600;
   line-height: 16px;
   letter-spacing: 0.04em;
-  white-space: nowrap;
+  text-align: right;
   color: var(--color-body);
 }
 
@@ -85,6 +83,7 @@
 }
 
 .text {
+  max-width: 172px;
   margin-top: 14px;
   font-size: 16px;
   line-height: 26px;
@@ -141,6 +140,16 @@
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
+@media (max-width: 1023px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .text {
+    max-width: none;
+  }
+}
+
 @media (max-width: 767px) {
   .section {
     padding: 64px 0;

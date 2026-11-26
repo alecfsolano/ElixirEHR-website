@@ -5,6 +5,7 @@
 
 .grid {
   --op-grid-gap: 23px 24px;
+  --op-text-width: 264px;
 
   margin-top: 49px;
 }

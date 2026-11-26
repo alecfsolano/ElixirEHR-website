@@ -29,6 +29,7 @@
 }
 
 .title {
+  max-width: 190px;
   margin-top: 3px;
   font-family: var(--font-title-alt);
   font-size: 24px;
@@ -39,10 +40,11 @@
 }
 
 .text {
+  max-width: 180px;
   margin-top: 4px;
   font-size: 14px;
   line-height: 22px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
@@ -51,6 +53,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .title,
+  .text {
+    max-width: none;
+  }
 }
 
 @media (max-width: 767px) {

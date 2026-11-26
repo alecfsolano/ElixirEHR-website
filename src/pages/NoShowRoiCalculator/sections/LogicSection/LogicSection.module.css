@@ -6,25 +6,22 @@
   --roi-title-gap: 16px;
 }
 
-/* The formulas, set in a monospaced face with the term in bold Deep Purple. Terms and
-   expressions sit in two grid columns so every "=" lines up (the dd's default indent left
-   them ragged). */
+/* The formulas, set in a monospaced face with the term in bold Deep Purple. */
 .formulas {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: 4px 24px;
   margin-top: 57px;
-  padding: 32px;
+  padding: 25px 32px 53px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   background: var(--color-white);
   font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
-  line-height: 26px;
+  font-size: 12.75px;
+  line-height: 25.75px;
 }
 
 .formulas > div {
-  display: contents;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.5em;
 }
 
 .formulas dt {
@@ -33,12 +30,11 @@
 }
 
 .formulas dd {
-  margin: 0;
-  color: var(--color-heading);
+  color: var(--color-body);
 }
 
 .equals {
-  color: #6b6579;
+  color: #8a8490;
 }
 
 .assumptions {
@@ -52,13 +48,11 @@
   }
 
   .formulas {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
     margin-top: 40px;
     padding: 24px 20px;
   }
 
-  .formulas > div + div dt {
+  .formulas > div + div {
     margin-top: 10px;
   }
 }

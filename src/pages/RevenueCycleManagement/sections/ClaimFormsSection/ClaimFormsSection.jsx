@@ -15,7 +15,13 @@ function ClaimFormsSection() {
           <article key={form.title} className={styles.card}>
             <h3 className={styles.cardTitle}>{form.title}</h3>
             <p className={styles.cardText}>
-              {form.text}
+              {form.lines
+                ? form.lines.map((line) => (
+                    <span key={line} className={styles.line}>
+                      {line}
+                    </span>
+                  ))
+                : form.text}
             </p>
           </article>
         ))}

@@ -1,6 +1,6 @@
 /* Frame-specific overrides for shared sections on the Revenue Cycle Management page. */
 
-/* Hero paragraph is Roboto 18/28 in this frame. */
+/* Hero paragraph is Roboto 18/28 in this frame; the hero has no buttons. */
 .hero {
   --page-hero-description-size: 18px;
   --page-hero-description-leading: 28px;
@@ -12,12 +12,13 @@
   margin-top: 23px;
 }
 
-/* CTA band: wide description, two 66px buttons (secondary outlined in white). */
+/* CTA band: tight H2 tracking, wide description, two 66px buttons (secondary outlined in white). */
 .ctaBand {
   padding: 80px 0 81px;
 }
 
 .ctaBand h2 {
+  letter-spacing: -3px;
 }
 
 .ctaBand h2 + p:last-child {

@@ -19,7 +19,7 @@
   margin-top: 19px;
   font-size: 36px;
   font-weight: 700;
-  line-height: 44px;
+  line-height: 61px;
 }
 
 .titleLine {
@@ -160,62 +160,5 @@
   .title {
     font-size: 30px;
     line-height: 40px;
-  }
-}
-
-/* Phones: each transaction stacks as a block (code, what it does, where it appears) so no column is
-   cut off; the column headings move into the third cell's label. */
-@media (max-width: 599px) {
-  .table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  .table thead th:nth-child(n) {
-    width: auto;
-  }
-
-  .table,
-  .table tbody,
-  .table tr,
-  .table th,
-  .table td {
-    display: block;
-  }
-
-  .table tbody tr {
-    padding: 16px 20px;
-  }
-
-  .table tbody > tr > *,
-  .table tbody tr:first-child > * {
-    height: auto;
-    padding: 0;
-    white-space: normal;
-  }
-
-  .purpose {
-    margin-top: 4px;
-  }
-
-  .location {
-    margin-top: 8px;
-    color: var(--color-body);
-  }
-
-  .location::before {
-    content: attr(data-label);
-    display: block;
-    font-family: var(--font-label);
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 16px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--color-surface-dark);
   }
 }

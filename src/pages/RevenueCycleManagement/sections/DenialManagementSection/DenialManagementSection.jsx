@@ -39,7 +39,13 @@ function DenialManagementSection() {
             <span className={styles.number}>{String(index + 1).padStart(2, '0')}</span>
             <h3 className={styles.stepTitle}>{step.title}</h3>
             <p className={styles.stepText}>
-              {step.text}
+              {step.lines
+                ? step.lines.map((line) => (
+                    <span key={line} className={styles.line}>
+                      {line}
+                    </span>
+                  ))
+                : step.text}
             </p>
           </li>
         ))}

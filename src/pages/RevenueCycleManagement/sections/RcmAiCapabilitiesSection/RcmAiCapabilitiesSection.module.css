@@ -27,18 +27,40 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: 24px;
   width: 100%;
   margin-top: 48px;
   text-align: left;
 }
 
-/* Cards in a row share the tallest card's height. */
 .card {
   padding: 26px 24px 24px;
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-lg);
   background: #422b5f;
+}
+
+/* Card heights follow the frame (they are not content heights). */
+.card:nth-child(1) {
+  height: 267px;
+}
+
+.card:nth-child(2) {
+  height: 287px;
+}
+
+.card:nth-child(3) {
+  height: 307px;
+}
+
+.card:nth-child(4),
+.card:nth-child(6) {
+  height: 291px;
+}
+
+.card:nth-child(5) {
+  height: 271px;
 }
 
 .lime {
@@ -69,14 +91,18 @@
   padding: 3px 8px;
   border-radius: 4px;
   background: var(--color-surface-dark);
-  font-family: var(--font-label);
+  font-family: 'Courier New', ui-monospace, monospace;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 15px;
-  letter-spacing: 0.05em;
   white-space: pre-line;
   text-transform: uppercase;
   color: var(--card-accent);
+}
+
+.tagOverflow {
+  width: 81px;
+  margin-right: -22px;
 }
 
 .cardText {
@@ -91,6 +117,14 @@
 @media (max-width: 1199px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tagOverflow {
+    margin-right: 0;
+  }
+
+  .card:nth-child(n) {
+    height: auto;
   }
 }
 
