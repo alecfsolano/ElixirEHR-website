@@ -7,6 +7,12 @@
   padding-block: 81px 80px;
 }
 
+/* No sidebar: the 757px article column, centred in the container. */
+.single {
+  grid-template-columns: minmax(0, 757px);
+  justify-content: center;
+}
+
 .main {
   min-width: 0;
 }
