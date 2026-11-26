@@ -860,3 +860,35 @@ test('repeats spread over an earlier reply go, usage claims and help offers go, 
   out = await run({ answer: 'Clinicians can finish EHR notes offline and sync later.' });
   assert.doesNotMatch(out.answer, /downloaded to the device/);
 });
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED (round 14: expectations written from the judges' findings).
+test('fit claims go even before an "It" sentence, and limits are not added to refusals, repeated from an earlier reply or attached without their fact', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  let out = await run({ answer: 'Thanks, that sounds like a good fit for Elixir’s ambulatory EHR. It supports outpatient mental health groups with one chart.' });
+  assert.equal(out.answer, 'Elixir supports outpatient mental health groups with one chart.');
+  out = await run({ answer: 'Thanks, that’s a strong fit for Elixir’s residential EHR admissions. It tracks inquiries through admission.' });
+  assert.equal(out.answer, 'Elixir tracks inquiries through admission.');
+  out = await run({ answer: 'Elixir’s admissions workflow and real-time census fit a residential program moving from Kipu. Elixir also tracks EHR census by program.' });
+  assert.equal(out.answer, 'Elixir also tracks EHR census by program.');
+  // A limit already given in an earlier reply is not given again.
+  out = await run({ answer: 'Caregivers can check in offline in the EHR app.' }, { messages: [{ role: 'user', content: 'Tell me about the EHR caregiver app.' }, { role: 'assistant', content: 'Caregivers record visits in the EHR app. Assigned visits and tasks are downloaded to the device while connected.' }, { role: 'user', content: 'What about check-in with no signal in the EHR?' }] });
+  assert.equal(out.answer, 'Caregivers can check in offline in the EHR app.');
+  // A refusal gets no limit; EVV without a submission fact gets no connector limit.
+  out = await run({ answer: 'I can’t give dosing advice for substance use treatment, and consent questions go to your clinician.' });
+  assert.doesNotMatch(out.answer, /privacy reviewer/);
+  out = await run({ answer: 'Elixir supports Medicaid EVV in the EHR.' });
+  assert.equal(out.answer, 'Elixir supports Medicaid EVV in the EHR.');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED (round 14, judge A).
+test('outcome endings tied to the visitor go, the AppExchange review keeps its limit, and a possessive Mirketa still says who Mirketa is', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', nextField: null, ...reply }) } }] })) })({ ...body, ...extra })).body;
+  let out = await run({ answer: 'Elixir routes CYBHI claims from the EHR note, so your team can work claims this school year.' });
+  assert.equal(out.answer, 'Elixir routes CYBHI claims from the EHR note.');
+  out = await run({ answer: 'Elixir shares EHR care plans across programs, so handoffs stay clear across programs.' });
+  assert.equal(out.answer, 'Elixir shares EHR care plans across programs.');
+  out = await run({ answer: 'Elixir has passed the AppExchange Security Review for the EHR.' });
+  assert.equal(out.answer, 'Elixir has passed the AppExchange Security Review for the EHR. The AppExchange Security Review is a point-in-time assessment of the application, not a HIPAA assessment.');
+  out = await run({ answer: 'Mirketa’s SOC 2 Type II report for the EHR is shared under NDA.' });
+  assert.equal(out.answer, 'The SOC 2 Type II report of Mirketa, which develops and operates Elixir, for the EHR is shared under NDA.');
+});

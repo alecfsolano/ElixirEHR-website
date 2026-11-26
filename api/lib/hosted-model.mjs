@@ -82,12 +82,13 @@ const ASKS_CAN_HELP = /\bcan (?:Elixir|it|you) help\b/i;
 const CAVEATS = [
   { when: /\bPart 2\b|\b42 CFR\b|substance use[^.!?]*\bconsent|\bconsent[^.!?]*substance use/i, has: /privacy reviewer/i, text: 'Applicable Part 2 requirements should be confirmed with your privacy reviewer.' },
   { when: /\bFHIR\b/, has: /standardized API/i, text: 'Elixir is not certified to the ONC standardized API criterion.' },
-  { when: /\b(?:aggregators?|connectors?|Sandata|HHAeXchange|visit data)\b|\bEVV\b[^.!?]*\b(?:Medicaid|state|Field Service)\b|\b(?:Medicaid|state|Field Service)\b[^.!?]*\bEVV\b/i, has: /availability[^.?!]*confirm|confirm\w*[^.?!]*\b(?:payer|state)\b/i, text: 'Connector availability is confirmed for your specific payer and state.' },
+  { when: /\b(?:aggregators?|connectors?|Sandata|HHAeXchange|visit data)\b|\bEVV\b[^.!?]*\b(?:submi\w*|send\w*|aggregat\w*|state system)\b|\b(?:submi\w*|send\w*)\b[^.!?]*\bEVV\b/i, has: /availability[^.?!]*confirm|confirm\w*[^.?!]*\b(?:payer|state)\b/i, text: 'Connector availability is confirmed for your specific payer and state.' },
   { when: /\b6 (?:to|–|-) ?10 weeks\b/, has: /standard (?:configuration|setup)|small practice/i, text: 'That typical go-live assumes a small practice on a standard configuration.' },
   { when: /\b6 (?:to|–|-) ?10 weeks\b/, has: /\b(?:larger|multi-program)\b[^.!?]*\bscop/i, text: 'Larger or multi-program organizations have their timeline scoped with the Elixir team.' },
   { when: /\bper credentialed provider\b|\bpriced per\b/i, has: /\bquote\b/i, text: 'There is no standard price: the Elixir team gives a written quote after scoping.' },
   { when: /\bSOC 2\b/, has: /^(?=[\s\S]*Mirketa)(?=[\s\S]*(?:non-?disclosure|\bNDA\b))/i, text: 'The SOC 2 Type II report belongs to Mirketa, which develops and operates Elixir, and is shared under a non-disclosure agreement.' },
   { when: /\b(?:caregivers?|visits?|field|mobile app)\b[^.!?]*\b(?:offline|without (?:a )?(?:signal|connection)|no signal)\b|\b(?:offline|without (?:a )?(?:signal|connection)|no signal)\b[^.!?]*\b(?:caregivers?|visits?|check[- ]?(?:in|out)|signatures?)\b/i, has: /\bdownload/i, text: 'Assigned visits and tasks are downloaded to the device while connected.' },
+  { when: /\bAppExchange\b[^.!?]*\bSecurity Review\b|\bSecurity Review\b[^.!?]*\bAppExchange\b/i, has: /point-in-time|not a HIPAA/i, text: 'The AppExchange Security Review is a point-in-time assessment of the application, not a HIPAA assessment.' },
   { when: /\bBAAs?\b|Business Associate/i, has: /platform provider/i, text: 'The BAA covering the platform services is between your organization and the platform provider.' },
 ];
 // Claims about fit, value or who uses Elixir that the knowledge never makes; such a sentence is dropped.
@@ -95,14 +96,14 @@ const CAVEATS = [
 const OFFER = /^(?:If (?:you(?:['’]d)? (?:want|like)|helpful|useful|it helps)\b|Would you like me to\b|I can also\b|I can help (?:you )?(?:map|outline|plan|walk|sketch|work out)\b)/i;
 // An outcome sentence leaning on the one before it ("That helps…"), a result the knowledge never states.
 const OUTCOME_SENTENCE = /^(?:That|This|Which) (?:helps|lets|means|makes|gives)\b|^(?:Those|These) (?:pieces|features|tools|capabilities|parts) help\b/i;
-const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bis a (?:good |great |strong |natural )?fit\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b|\bfits? (?:\w+ ){0,2}(?:well|nicely|perfectly)\b|\b(?:is|are) (?:especially |particularly )?(?:useful|helpful|valuable) (?:when|if|for)\b|\boutgrows?\b|\bmost (?:agencies|teams|practices|clinics|organizations|providers|customers|groups) (?:use|start|choose|pick|begin)\b|\bpairs? (?:well|nicely)\b/i;
+const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\b(?:is|['’]s) an? (?:good |great |strong |natural |solid )?fit\b|(?<!(?:could|may|might|can) )\bfits? (?:a|an|your) (?:[\w-]+ ){0,2}(?:program|practice|agency|clinic|group|move|transition|switch)\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b|\bfits? (?:\w+ ){0,2}(?:well|nicely|perfectly)\b|\b(?:is|are) (?:especially |particularly )?(?:useful|helpful|valuable) (?:when|if|for)\b|\boutgrows?\b|\bmost (?:agencies|teams|practices|clinics|organizations|providers|customers|groups) (?:use|start|choose|pick|begin)\b|\bpairs? (?:well|nicely)\b/i;
 // Function words: a reply where Spanish, French or German ones outnumber the English ones is in another
 // language and gets no English insertions. With neither (a very short reply) it counts as English.
 const ENGLISH_WORD = /\b(?:the|and|for|with|your|you|is|are|to|of|in|it|can|on|that|this)\b/gi;
 const FOREIGN_WORD = /(?<![\p{L}])(?:el|la|los|las|del|que|y|en|para|con|por|una|es|sí|tiene|puede|su|sus|le|les|des|et|est|pour|avec|vous|une|und|der|die|das|mit|ist|sie|ein|eine)(?![\p{L}])/giu;
 // A trailing benefit clause the knowledge never states (", which helps teams see…").
 // Also ", so <subject> …" endings that claim a comparison or an improvement ("rather than rebuilding…", "is tighter").
-const BENEFIT_CLAUSE = /,\s*(?:which|that)\s+(?:helps?|fits?|(?:is|are)\s+(?:useful|helpful|valuable))\b[^.!?]*(?=[.!?])|,?\s+so (?:that )?(?:teams?|staff|you|your (?:team|staff)|the (?:handoff|team|process|workflow)s?)\b[^.!?]*\b(?:rather than|tighter|faster|easier|smoother|simpler|better|fewer|more efficient)\b[^.!?]*(?=[.!?])/gi;
+const BENEFIT_CLAUSE = /,\s*(?:which|that)\s+(?:helps?|fits?|(?:is|are)\s+(?:useful|helpful|valuable))\b[^.!?]*(?=[.!?])|,?\s+so (?:that )?(?:teams?|staff|you|your (?:team|staff)|handoffs?|the (?:handoff|team|process|workflow)s?)\b[^.!?]*\b(?:rather than|tighter|faster|easier|smoother|simpler|better|fewer|more efficient|stays? (?:clear|connected|aligned|on track)|this (?:school )?year|this quarter|in time)\b[^.!?]*(?=[.!?])/gi;
 // Source talk: "The site …" at a sentence start reads as Elixir; "the site does not say/list/name" as
 // "Elixir does not say/list/name"; "I do not have … here" and "I can't list … here" sentences go.
 const SITE_SUBJECT = /(^|[.!?]["”’)]*\s+)The (?:web)?site\b/g;
@@ -214,7 +215,17 @@ function withoutUnsupportedJudgments(body) {
   const unsupported = (sentence) => UNSUPPORTED_JUDGMENT.test(sentence) || OUTCOME_SENTENCE.test(sentence) || OFFER.test(sentence);
   const judged = (sentence, next = '') => unsupported(sentence) && !LEANS_BACK.test(next);
   if (!sentencesOf(body).some(unsupported)) return body;
-  const kept = dropSentences(body, judged);
+  // A fit or value judgment followed by "It …" goes too; "It" then reads "Elixir" so the next sentence stands.
+  const sentences = sentencesOf(body);
+  let text = body;
+  sentences.forEach((sentence, n) => {
+    const next = sentences[n + 1];
+    if (!next || !UNSUPPORTED_JUDGMENT.test(sentence) || !/^It\b/.test(next)) return;
+    const at = text.indexOf(sentence);
+    const nextAt = at < 0 ? -1 : text.indexOf(next, at + sentence.length);
+    if (nextAt >= 0 && /^\s*$/.test(text.slice(at + sentence.length, nextAt))) text = `${text.slice(0, at)}Elixir${text.slice(nextAt + 2)}`;
+  });
+  const kept = dropSentences(text, judged);
   return sentencesOf(kept).some((sentence) => wordsOf(sentence).size >= MIN_ANSWER_WORDS) ? kept : body;
 }
 const isTimelineVerdict = (sentence) => TIME_WORD.test(sentence) && TIMELINE_VERDICT.test(sentence);
@@ -246,8 +257,8 @@ function withoutRepeats(body, earlierReplies, replyTexts = []) {
 }
 
 /** Adds each limit the knowledge attaches to a fact the answer states without it, before any closing booking sentence. */
-function withCaveats(body) {
-  const missing = CAVEATS.filter((caveat) => caveat.when.test(body) && !caveat.has.test(body)).map((caveat) => caveat.text);
+function withCaveats(body, earlierReplies = '') {
+  const missing = CAVEATS.filter((caveat) => caveat.when.test(body) && !caveat.has.test(body) && !earlierReplies.includes(caveat.text)).map((caveat) => caveat.text);
   if (!missing.length) return body;
   const booking = body.match(/(?:^|(?<=[.!?]["”’)]*)\s+)([^.!?\n]*discovery call[^.!?\n]*[.!])$/i);
   const lead = booking ? body.slice(0, booking.index).trim() : body;
@@ -307,8 +318,16 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
   // judged on what the visitor will actually see.
   if (english) body = dropSentences(body, () => false).replace(/(^|(?<=[.!?]["”’)]*)\s+)[^.!?\n]*\bdiscovery call\b[^.!?\n]*\b(?:button|in this chat|here in the chat)\b[^.!?\n]*[.!]/i, (match, lead) => `${lead}${CALL_SENTENCE}`);
   // A SOC 2 answer naming Mirketa says who Mirketa is, in place rather than in a second SOC 2 sentence.
-  if (english && /\bSOC 2\b/.test(body) && !/\b(?:develops|operates) Elixir\b/.test(body)) body = body.replace(/\bMirketa\b(?!['’])/, 'Mirketa, which develops and operates Elixir,').replace(/,(\s*[.!?])/, '$1');
-  if (english) body = withCaveats(body);
+  if (english && /\bSOC 2\b/.test(body) && !/\b(?:develops|operates) Elixir\b/.test(body)) {
+    const who = 'Mirketa, which develops and operates Elixir,';
+    const possessive = /\bMirketa['’]s (SOC 2(?: Type II)? report)\b/;
+    const atStart = (before) => !before.trim() || /[.!?]["”’)]*\s*$/.test(before);
+    body = possessive.test(body)
+      ? body.replace(possessive, (match, report, offset, whole) => `${atStart(whole.slice(0, offset)) ? 'The' : 'the'} ${report} of ${who}`)
+      : body.replace(/\bMirketa\b(?!['’])/, who);
+    body = body.replace(/,(\s*[.!?])/, '$1');
+  }
+  if (english && !refused) body = withCaveats(body, earlierReplies);
   // A canonical question about an answered or already-asked field never stays in the body.
   for (const field of QUESTION_ORDER) {
     if ((askedBefore(field) || answered(field) || !mayAsk) && body.includes(QUALIFICATION_FIELDS[field])) body = body.replace(QUALIFICATION_FIELDS[field], '').trim();
