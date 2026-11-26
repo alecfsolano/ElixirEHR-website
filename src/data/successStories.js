@@ -22,7 +22,9 @@ import contactCenterEhrIntegrationImage from '../assets/posts/case-study/complet
 export const successStoriesHero = {
   currentPage: 'Success Stories',
   titleLines: ['Client Success', 'Stories'],
-  description: 'Discover the Latest Innovations, Partnerships, and Milestones in Healthcare Technology',
+  // The frame repeated the Press Releases subtitle here; this is the page's own approved summary (seo.js).
+  description:
+    'Hear how healthcare teams use ElixirEHR, the challenges they faced and the experiences they share along the way.',
   // Same CTA and destination as the Press Releases and Why Elixir heroes.
   primaryCta: { label: 'Explore Our Platform', to: '/why-elixir/' },
   image: {

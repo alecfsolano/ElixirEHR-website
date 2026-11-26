@@ -134,12 +134,13 @@
   object-fit: cover;
 }
 
-/* Bottom-left of the thumbnail (the duration is bottom-right): centred, it hid the title text
-   baked into every video thumbnail. */
+/* Top-right of the thumbnail (the duration is bottom-right): centred, it hid the title text baked
+   into every video thumbnail, and bottom-left it hid the "Product demo" pill baked into the demo
+   thumbnails. Their top-right corner is empty. */
 .play {
-  top: auto;
-  bottom: 10px;
-  left: 14px;
+  top: 12px;
+  right: 14px;
+  left: auto;
   width: 48px;
   height: 48px;
   transform: none;
@@ -196,7 +197,8 @@
   font-size: 17px;
   font-weight: 600;
   line-height: 20px;
-  color: var(--color-secondary);
+  /* Lime on white is 2.1:1; the on-light green reads at AA. */
+  color: var(--color-secondary-on-light);
 }
 
 .pagination {

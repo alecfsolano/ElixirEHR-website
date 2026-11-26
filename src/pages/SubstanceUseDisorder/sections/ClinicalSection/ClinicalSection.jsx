@@ -1,12 +1,12 @@
 import { sudClinical } from '../../../../data/substanceUseDisorder';
 import Section from '../../../../components/layout/Section/Section';
 import SudIntro from '../../components/SudIntro/SudIntro';
-import Part2Cards from '../../components/Part2Cards/Part2Cards';
 import styles from './ClinicalSection.module.css';
 
 /**
- * "Clinical Documentation Across Residential, Outpatient and Withdrawal Management" (dark). The
- * frame repeats the six Part 2 cards here, on a tighter grid, followed by the withdrawal note.
+ * "Clinical Documentation Across Residential, Outpatient and Withdrawal Management" (dark): the
+ * intro and the withdrawal management note. The frame repeated the six Part 2 cards here; they are
+ * shown once, in the compliance section, so visitors do not read the same cards twice.
  */
 function ClinicalSection() {
   const { eyebrow, title, description, note } = sudClinical;
@@ -21,7 +21,6 @@ function ClinicalSection() {
         tone="dark"
         className={styles.intro}
       />
-      <Part2Cards className={styles.cards} />
       <p className={styles.note}>
         <span>{note}</span>
       </p>
