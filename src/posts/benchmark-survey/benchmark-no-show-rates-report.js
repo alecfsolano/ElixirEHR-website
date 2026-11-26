@@ -9,10 +9,12 @@ import heroImage from '../../assets/posts/benchmark-survey/benchmark-no-show-rat
 
 export default {
   title: 'Benchmark Survey Report: Compare Your No-Show Rates to Industry Standards',
+  // The listing excerpt is the report's lead (the body's first paragraph ends in "gives you:",
+  // which left cards ending on a dangling colon).
   excerpt:
-    'Missed appointments cost the healthcare industry billions every year. This benchmark report, compiled using data from leading healthcare providers, gives you:',
+    'See how your healthcare organization stacks up. Discover what the top performers are doing to reduce no-shows.',
   publishDate: '2025-04-15',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   cardImage: { src: cardImage, alt: 'Clinician at a front desk computer talking with a patient' },
   heroImage: {
     src: heroImage,

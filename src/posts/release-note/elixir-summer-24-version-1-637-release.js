@@ -8,7 +8,7 @@ export default {
   title: 'Elixir Summer’24 Version 1.637 Release',
   excerpt: 'Elixir Summer’24 release comes with several improvements in the new version',
   publishDate: '2024-09-02',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   version: '1.637',
   cardImage: { src: featuredImage, alt: 'Clinician working in Elixir EHR, with the Summer’24 release highlights: Forms & Notes, Lab Orders, Claims & ERA Management, Payment Collection and Patient Portal' },
   heroImage: {

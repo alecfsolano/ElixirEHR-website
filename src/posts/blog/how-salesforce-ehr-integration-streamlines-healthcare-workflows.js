@@ -7,7 +7,7 @@ export default {
   excerpt:
     'In the rapidly changing and dynamic healthcare environment today, optimizing processes and enhancing efficiency is crucial. Healthcare organizations are increasingly turning to technology to achieve this, and one of the most effective ways to enhance operational workflows is through Salesforce EHR integration.',
   publishDate: '2025-04-30',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   category: 'EHR',
   cardImage: { src: featuredImage, alt: 'How Salesforce EHR Integration Streamlines Healthcare Workflows' },
   heroImage: {

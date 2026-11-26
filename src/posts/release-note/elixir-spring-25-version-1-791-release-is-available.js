@@ -14,7 +14,7 @@ export default {
   excerpt:
     'This release delivers significant improvements across EHR, Patient Portal, RCM, and License Management — all aimed at enhancing usability, compliance, and operational efficiency.',
   publishDate: '2025-05-01',
-  author: 'elixirAdmin',
+  author: 'Elixir Team',
   version: '1.791',
   cardImage: { src: featuredImage, alt: 'Clinician reviewing a patient chart in Elixir EHR, with the Spring’25 release areas: EHR & Patient Portal, Appointments & Telehealth, Medications & Prescriptions, RCM and System & Usability Enhancements' },
   heroImage: {
