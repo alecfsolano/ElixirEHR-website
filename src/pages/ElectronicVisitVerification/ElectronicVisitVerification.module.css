@@ -11,6 +11,12 @@
   --page-hero-primary-size: 16px;
 }
 
+/* The shared hero's 72px leading (1.5) is too loose for this three-line title; 1.2 matches the
+   other product heroes more closely. PageHero's own phone size still applies below 768px. */
+.hero h1 {
+  line-height: 58px;
+}
+
 .hero p + div > a:first-child {
   letter-spacing: 0.04em;
 }
