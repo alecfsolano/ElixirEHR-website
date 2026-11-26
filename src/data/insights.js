@@ -35,7 +35,7 @@ export const insightsNav = [
 export const weeklyBriefing = {
   title: 'The Weekly Briefing',
   text: [
-    'Smarter Clinical Insights. Better Patient Care',
+    'Smarter Clinical Insights. Better Patient Care.',
     'Get the Latest in Healthcare AI and Technology.',
   ],
   fields: [
