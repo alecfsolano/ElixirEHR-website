@@ -652,7 +652,7 @@ test('limits go before the booking sentence, repeats never leave a dangling sent
   assert.equal(out.answer, 'Elixir scopes the EHR plan with the team. The Elixir team confirms timing during scoping.');
   // A missing limit is placed before a closing booking sentence, not after it.
   out = await run({ answer: 'Typical EHR go-live is 6 to 10 weeks from kick-off. You can book a discovery call with the Elixir team.' });
-  assert.equal(out.answer, 'Typical EHR go-live is 6 to 10 weeks from kick-off. That typical go-live assumes a small practice on a standard configuration; larger or multi-program organizations have their timeline scoped with the team. You can book a discovery call with the Elixir team.');
+  assert.equal(out.answer, 'Typical EHR go-live is 6 to 10 weeks from kick-off. That typical go-live assumes a small practice on a standard configuration. Larger or multi-program organizations have their timeline scoped with the Elixir team. You can book a discovery call with the Elixir team.');
   // Routing visit data carries the connector limit.
   out = await run({ answer: 'Elixir routes EHR visit data to the system your state requires.' });
   assert.equal(out.answer, 'Elixir routes EHR visit data to the system your state requires. Connector availability is confirmed for your specific payer and state.');
@@ -812,7 +812,7 @@ test('reworded verdicts, fit and benefit endings go, limits are judged after the
   assert.equal(out.answer, 'Elixir covers intake, notes and census in the EHR.');
   // The model's own booking sentence carried the only "scope": after the swap the go-live limit is added.
   out = await run({ answer: 'Go-live is typically 6 to 10 weeks for a small practice on a standard configuration. Book a discovery call in this chat to scope it.', intent: 'demo' });
-  assert.equal(out.answer, `Go-live is typically 6 to 10 weeks for a small practice on a standard configuration. That typical go-live assumes a small practice on a standard configuration; larger or multi-program organizations have their timeline scoped with the team. ${CALL}`);
+  assert.equal(out.answer, `Go-live is typically 6 to 10 weeks for a small practice on a standard configuration. Larger or multi-program organizations have their timeline scoped with the Elixir team. ${CALL}`);
   // SOC 2 names who Mirketa is; Medicaid EVV carries the connector limit; offline work carries the download condition.
   out = await run({ answer: 'Mirketa also maintains a SOC 2 Type II report for the EHR under NDA.' });
   assert.match(out.answer, /which develops and operates Elixir/);

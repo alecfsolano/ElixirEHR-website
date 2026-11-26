@@ -139,7 +139,7 @@ Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-m
   - Part 2 is confirmed with the privacy reviewer.
   - Elixir is not certified to the ONC standardized API criterion.
   - EVV connector availability is confirmed per payer and state (also when a reply ties EVV to Medicaid, the state or Field Service).
-  - The 6 to 10 week go-live assumes a small practice on a standard configuration.
+  - The 6 to 10 week go-live assumes a small practice on a standard configuration, and larger or multi-program organizations have their timeline scoped with the team (two plain sentences, each added only when missing).
   - The SOC 2 Type II report is Mirketa's (the company that develops and operates Elixir), under NDA.
   - Offline caregiver work assumes assigned visits and tasks were downloaded while connected.
   - The platform BAA is with the platform provider.
