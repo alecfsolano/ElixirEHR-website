@@ -469,11 +469,13 @@
 
 .removed li::before {
   content: '✕';
+  content: '✕' / '';
   color: #e0566a;
 }
 
 .survived li::before {
   content: '✓';
+  content: '✓' / '';
   color: #a8d636;
 }
 
