@@ -60,10 +60,6 @@
   line-height: 16px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--color-secondary-on-light);
-}
-
-.introDark .eyebrow {
   color: var(--color-secondary);
 }
 
@@ -92,7 +88,7 @@
 }
 
 .introDark .description {
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .bodyText {
@@ -132,6 +128,7 @@
 }
 
 .pillarTitle {
+  max-width: 210px;
   margin-top: 20px;
   font-family: var(--font-display);
   font-size: 16px;
@@ -141,11 +138,12 @@
 }
 
 .pillarText {
+  max-width: 204px;
   margin-top: 8px;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 23px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 /* The product: nine outlined cards with a lime top edge. */
@@ -179,6 +177,7 @@
 }
 
 .productTitle {
+  max-width: 270px;
   margin-top: 15px;
   font-family: var(--font-display);
   font-size: 20px;
@@ -188,6 +187,7 @@
 }
 
 .productText {
+  max-width: 275px;
   margin-top: 8px;
   font-family: var(--font-body);
   font-size: 16px;
@@ -335,7 +335,7 @@
 
 .highlight .prevalence {
   font-weight: 700;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .split {
@@ -445,11 +445,12 @@
 
 .policyList li {
   position: relative;
+  max-width: 270px;
   padding-left: 19px;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 23px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .policyList li::before {
@@ -457,8 +458,8 @@
   left: 0;
 }
 
-/* The frame's markers were missing-glyph boxes; they read as broken, so the intended marks are drawn:
-   a red cross (removed), a lime tick (survived) and a tan arrow. */
+/* The frame's markers rendered as empty outlined boxes, which read as broken; the intended marks are
+   drawn instead, in the frame's colours: a red cross (removed), a lime tick (survived) and a tan arrow. */
 .removed li::before,
 .survived li::before {
   top: 0;
@@ -469,7 +470,7 @@
 .removed li::before {
   content: '✕';
   content: '✕' / '';
-  color: #e0566a;
+  color: #8c1d2b;
 }
 
 .survived li::before {
@@ -522,12 +523,11 @@
   color: var(--color-surface-dark);
 }
 
-/* Regular body weight, so only the run-in lead-ins (strong) read as bold. */
 .moneyText {
   max-width: 592px;
   font-family: var(--font-body);
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 26px;
   color: var(--color-body);
 }
@@ -622,7 +622,7 @@
 }
 
 .barOutcome .barValue {
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .withdrawn .barOutcome .barValue {
@@ -889,7 +889,12 @@
     padding-right: 0;
   }
 
+  .pillarTitle,
+  .pillarText,
+  .productTitle,
+  .productText,
   .policyTitle,
+  .policyList li,
   .calloutList li,
   .claimTitle,
   .claimText,

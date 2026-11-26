@@ -8,11 +8,9 @@
   margin-top: 64px;
 }
 
-/* The tag sits in a fixed column so every title starts at the same x, whatever the tag's length;
-   the icon closes the row on the right. */
+/* As drawn, the tag is as wide as its word and the copy starts right after it. */
 .row {
-  display: grid;
-  grid-template-columns: 104px minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 16px;
   padding: 24px;
@@ -22,10 +20,10 @@
 
 .row img {
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .tag {
-  justify-self: start;
   flex-shrink: 0;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
@@ -79,20 +77,16 @@
     margin-top: 40px;
   }
 
-  /* Phone: the tag (left) and icon (right) on the first line, the title and text below, so the
-     tag stacks above the title at the same x. */
   .row {
-    display: flex;
     flex-wrap: wrap;
     padding: 20px;
   }
 
   .row img {
-    margin-left: auto;
+    order: -1;
   }
 
   .copy {
-    order: 1;
     flex-basis: 100%;
   }
 }

@@ -32,13 +32,9 @@ function CcbhcSection() {
           <tbody>
             {table.rows.map(([methodology, unit, payments]) => (
               <tr key={methodology}>
-                <th scope="row" data-label={table.head[0]}>
-                  {methodology}
-                </th>
-                <td data-label={table.head[1]}>{unit}</td>
-                <td className={styles.payments} data-label={table.head[2]}>
-                  {payments}
-                </td>
+                <th scope="row">{methodology}</th>
+                <td>{unit}</td>
+                <td className={styles.payments}>{payments}</td>
               </tr>
             ))}
           </tbody>

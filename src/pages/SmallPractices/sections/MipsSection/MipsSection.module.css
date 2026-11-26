@@ -21,7 +21,7 @@
 }
 
 .caption {
-  font-family: var(--font-display);
+  font-family: var(--font-title-alt);
   font-size: 20px;
   font-weight: 600;
   line-height: 28px;
@@ -58,7 +58,7 @@
 
 .table th:first-child {
   width: 410px;
-  padding-left: 32px;
+  padding-left: 80px;
 }
 
 .table thead th:nth-child(2) {

@@ -81,7 +81,7 @@
   font-size: 16px;
   font-weight: 600;
   line-height: 20px;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .cardTitle {
@@ -118,11 +118,6 @@
   font-size: 16px;
   line-height: 24px;
   color: var(--color-body);
-}
-
-.card2 .label,
-.card5 .label {
-  color: var(--color-secondary);
 }
 
 .card2 .cardTitle {
@@ -248,7 +243,7 @@
   font-size: 36px;
   font-weight: 500;
   line-height: 44px;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 .metricLabel {

@@ -7,7 +7,7 @@
 }
 
 .section .intro > h2 + p {
-  color: #d4c4e8;
+  color: #b89cd8;
 }
 
 .levels {
@@ -52,7 +52,7 @@
   margin-top: 6px;
   font-size: 14px;
   line-height: 22px;
-  color: #d4c4e8;
+  color: #b89cd8;
 }
 
 .layout {
@@ -67,7 +67,7 @@
   max-width: 580px;
   font-size: 16px;
   line-height: 26px;
-  color: #d4c4e8;
+  color: #b89cd8;
 }
 
 .body + .body {

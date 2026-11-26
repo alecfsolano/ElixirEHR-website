@@ -3,7 +3,7 @@
 }
 
 .section .intro > h2 + p {
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .steps {
@@ -47,7 +47,7 @@
   margin-top: 6px;
   font-size: 14px;
   line-height: 22px;
-  color: var(--color-text-on-purple);
+  color: #b89cd8;
 }
 
 .note {

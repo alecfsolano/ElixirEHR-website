@@ -9,7 +9,7 @@
   line-height: 20px;
   letter-spacing: 0.05em; /* 193px measured; the frame varies eyebrow tracking per section */
   text-transform: uppercase;
-  color: var(--color-secondary-on-light);
+  color: var(--color-secondary);
 }
 
 /* This frame's H2 has no negative tracking. */
