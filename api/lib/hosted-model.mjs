@@ -86,16 +86,16 @@ const CAVEATS = [
   { when: /\b6 (?:to|–|-) ?10 weeks\b/, has: /standard (?:configuration|setup)|small practice/i, text: 'That typical go-live assumes a small practice on a standard configuration.' },
   { when: /\b6 (?:to|–|-) ?10 weeks\b/, has: /\b(?:larger|multi-program)\b[^.!?]*\bscop/i, text: 'Larger or multi-program organizations have their timeline scoped with the Elixir team.' },
   { when: /\bper credentialed provider\b|\bpriced per\b/i, has: /\bquote\b/i, text: 'There is no standard price: the Elixir team gives a written quote after scoping.' },
-  { when: /\bSOC 2\b/, has: /^(?=[\s\S]*Mirketa)(?=[\s\S]*\b(?:develops|operates)\b)(?=[\s\S]*(?:non-disclosure|\bNDA\b))/, text: 'The SOC 2 Type II report belongs to Mirketa, which develops and operates Elixir, and is shared under a non-disclosure agreement.' },
-  { when: /\boffline\b|\bwithout (?:a )?(?:signal|connection|internet)\b|\bno (?:signal|connection)\b/i, has: /\bdownload/i, text: 'Assigned visits and tasks are downloaded to the device while connected.' },
+  { when: /\bSOC 2\b/, has: /^(?=[\s\S]*Mirketa)(?=[\s\S]*(?:non-?disclosure|\bNDA\b))/i, text: 'The SOC 2 Type II report belongs to Mirketa, which develops and operates Elixir, and is shared under a non-disclosure agreement.' },
+  { when: /\b(?:caregivers?|visits?|field|mobile app)\b[^.!?]*\b(?:offline|without (?:a )?(?:signal|connection)|no signal)\b|\b(?:offline|without (?:a )?(?:signal|connection)|no signal)\b[^.!?]*\b(?:caregivers?|visits?|check[- ]?(?:in|out)|signatures?)\b/i, has: /\bdownload/i, text: 'Assigned visits and tasks are downloaded to the device while connected.' },
   { when: /\bBAAs?\b|Business Associate/i, has: /platform provider/i, text: 'The BAA covering the platform services is between your organization and the platform provider.' },
 ];
 // Claims about fit, value or who uses Elixir that the knowledge never makes; such a sentence is dropped.
 // An offer instead of a question ("If you want, I can…"), which the instructions forbid.
-const OFFER = /^(?:If (?:you(?:['’]d)? (?:want|like)|helpful|useful|it helps)\b|Would you like me to\b|I can also\b)/i;
+const OFFER = /^(?:If (?:you(?:['’]d)? (?:want|like)|helpful|useful|it helps)\b|Would you like me to\b|I can also\b|I can help (?:you )?(?:map|outline|plan|walk|sketch|work out)\b)/i;
 // An outcome sentence leaning on the one before it ("That helps…"), a result the knowledge never states.
 const OUTCOME_SENTENCE = /^(?:That|This|Which) (?:helps|lets|means|makes|gives)\b|^(?:Those|These) (?:pieces|features|tools|capabilities|parts) help\b/i;
-const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bis a (?:good |great |strong |natural )?fit\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b|\bfits? (?:\w+ ){0,2}(?:well|nicely|perfectly)\b|\b(?:is|are) (?:especially |particularly )?(?:useful|helpful|valuable) (?:when|if|for)\b|\boutgrows?\b/i;
+const UNSUPPORTED_JUDGMENT = /\bsounds like a (?:good |strong |great )?fit\b|\bis a (?:good |great |strong |natural )?fit\b|\b(?:good|great) match\b|\b(?:strong|great) option\b|\bstrongest\b|\bbest fit\b|\busually helps\b|\boften use[sd]?\b|\b(?:especially|particularly) (?:useful|helpful|valuable)\b|\bmost useful\b|\bfor many teams\b|\bfits? (?:\w+ ){0,2}(?:well|nicely|perfectly)\b|\b(?:is|are) (?:especially |particularly )?(?:useful|helpful|valuable) (?:when|if|for)\b|\boutgrows?\b|\bmost (?:agencies|teams|practices|clinics|organizations|providers|customers|groups) (?:use|start|choose|pick|begin)\b|\bpairs? (?:well|nicely)\b/i;
 // Function words: a reply where Spanish, French or German ones outnumber the English ones is in another
 // language and gets no English insertions. With neither (a very short reply) it counts as English.
 const ENGLISH_WORD = /\b(?:the|and|for|with|your|you|is|are|to|of|in|it|can|on|that|this)\b/gi;
@@ -170,6 +170,8 @@ const MIN_POINT_WORDS = 5;
 // A sentence this long still answers something, so dropping the rest of a reply around it is safe.
 const MIN_ANSWER_WORDS = 3;
 const REPEAT_OVERLAP = 0.75;
+// A sentence whose content words nearly all come from one earlier reply (spread over its sentences) is a repeat too.
+const REPLY_REPEAT_OVERLAP = 0.8;
 
 /**
  * The text without the sentences `drop` rejects (given each sentence and the one after it, across
@@ -225,12 +227,14 @@ function withoutTimelineVerdicts(body) {
 }
 
 /** Drops sentences that mostly restate an earlier reply or an earlier sentence of this one; says so plainly when nothing new is left. */
-function withoutRepeats(body, earlierReplies) {
+function withoutRepeats(body, earlierReplies, replyTexts = []) {
   const seen = sentencesOf(earlierReplies).map(wordsOf).filter((words) => words.size >= MIN_POINT_WORDS);
+  const replies = replyTexts.map(wordsOf);
+  const share = (words, before) => [...words].filter((word) => before.has(word)).length / words.size;
   const repeated = (sentence, next = '') => {
     const words = wordsOf(sentence);
     if (words.size < MIN_POINT_WORDS) return false;
-    const again = seen.some((before) => [...words].filter((word) => before.has(word)).length / words.size >= REPEAT_OVERLAP);
+    const again = seen.some((before) => share(words, before) >= REPEAT_OVERLAP) || replies.some((before) => share(words, before) >= REPLY_REPEAT_OVERLAP);
     seen.push(words);
     // Booking sentences follow their own rule (never in two replies in a row), not this one.
     return again && !BOOKING.test(sentence) && !LEANS_BACK.test(next);
@@ -263,7 +267,8 @@ const isCreativeOffTopic = (body) => body.split('\n').filter((line) => line.trim
  * replies and declined, support or off-topic replies ask no qualifying question.
  */
 function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
-  const earlierReplies = request.messages.filter((message) => message.role === 'assistant').map((message) => message.content).join('\n\n');
+  const replyTexts = request.messages.filter((message) => message.role === 'assistant').map((message) => message.content);
+  const earlierReplies = replyTexts.join('\n\n');
   const latest = request.messages.at(-1)?.content ?? '';
   const known = { ...request.qualification, ...statedInPassing(latest), ...reply.qualification };
   const askedBefore = (field) => earlierReplies.includes(QUALIFICATION_FIELDS[field]);
@@ -289,14 +294,20 @@ function finishReply(reply, request, { recentCall, firstFunnelTurn }) {
     body = sentencesOf(body).length ? body.split('\n\n').map((paragraph) => paragraph.split(SENTENCE_BREAK).map((part) => (isBaaMerge(part) ? (replaced ? '' : ((replaced = true), BAA_FACT)) : part)).join('').replace(/\s{2,}/g, ' ').trim()).filter(Boolean).join('\n\n') : body;
   }
   body = dropSentences(body, (sentence) => NOT_HERE.test(sentence) || NOT_HAVE_HERE.test(sentence));
-  if (ASKS_WHERE_TO_START.test(latest)) body = dropSentences(body, (sentence) => START_STEP.test(sentence));
+  if (ASKS_WHERE_TO_START.test(latest)) {
+    // Only when something that answers the question remains; otherwise the model's own wording stays.
+    const kept = dropSentences(body, (sentence) => START_STEP.test(sentence));
+    if (sentencesOf(kept).some((sentence) => wordsOf(sentence).size >= MIN_POINT_WORDS)) body = kept;
+  }
   const pricingAsked = BUYING_INTENT.test(latest) || reply.intent === 'demo' || reply.citations.some((citation) => citation.id === 'pricing-implementation');
   if (!pricingAsked) body = dropSentences(body, (sentence) => PRICING_TALK.test(sentence));
   if (ASKS_CAN_HELP.test(latest)) body = body.replace(/^Yes[.,!]\s+(\S)/, (match, first) => first.toUpperCase());
-  body = withoutRepeats(withoutUnsupportedJudgments(withoutTimelineVerdicts(body)), earlierReplies);
+  body = withoutRepeats(withoutUnsupportedJudgments(withoutTimelineVerdicts(body)), earlierReplies, replyTexts);
   // The model's own booking sentence is replaced by the standard one first, so a limit it mentioned is
   // judged on what the visitor will actually see.
   if (english) body = dropSentences(body, () => false).replace(/(^|(?<=[.!?]["”’)]*)\s+)[^.!?\n]*\bdiscovery call\b[^.!?\n]*\b(?:button|in this chat|here in the chat)\b[^.!?\n]*[.!]/i, (match, lead) => `${lead}${CALL_SENTENCE}`);
+  // A SOC 2 answer naming Mirketa says who Mirketa is, in place rather than in a second SOC 2 sentence.
+  if (english && /\bSOC 2\b/.test(body) && !/\b(?:develops|operates) Elixir\b/.test(body)) body = body.replace(/\bMirketa\b(?!['’])/, 'Mirketa, which develops and operates Elixir,').replace(/,(\s*[.!?])/, '$1');
   if (english) body = withCaveats(body);
   // A canonical question about an answered or already-asked field never stays in the body.
   for (const field of QUESTION_ORDER) {

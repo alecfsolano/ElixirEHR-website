@@ -122,14 +122,14 @@ Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-m
 
 - Sentences judging whether the visitor's timeline is realistic are dropped (including "enough room" and "comfortable"), and one sentence says the team confirms timing during scoping, unless the reply already says timing or the timeline is scoped.
 - Sentences making fit, value or usage claims the knowledge never makes are dropped, as long as real content remains. Examples: "sounds like a fit", "is a good fit", "good match", "strongest", "usually helps", "often use".
-- Sentences that mostly restate an earlier reply, or an earlier sentence of the same reply (75% or more of the content words), are dropped. When nothing new is left, Fitz invites the next question instead. Booking sentences are never dropped this way, and neither is a sentence the next one leans on ("They…", "This…").
+- Sentences that mostly restate an earlier reply, or an earlier sentence of the same reply (75% or more of the content words), are dropped, and so is a sentence whose content words nearly all (80% or more) come from one earlier reply spread over its sentences. When nothing new is left, Fitz invites the next question instead. Booking sentences are never dropped this way, and neither is a sentence the next one leans on ("They…", "This…").
 - Talk about what its information includes is removed: "that list is not included here", a clause or sentence saying something is "not named here", "I do not have … here" and "I can’t list … here". "The site …" at the start of a sentence reads "Elixir …", and "the site does not say" reads "Elixir does not say" (the verb is kept).
-- A trailing benefit clause the knowledge never states (", which helps teams…", ", which fits…", ", which is useful when…", ", so teams can … rather than…", "so the handoff is tighter") is removed. If that leaves only a fragment, the whole sentence goes. "Fits … well" and "outgrows" count as unsupported judgments.
+- A trailing benefit clause the knowledge never states (", which helps teams…", ", which fits…", ", which is useful when…", ", so teams can … rather than…", "so the handoff is tighter") is removed. If that leaves only a fragment, the whole sentence goes. "Fits … well", "outgrows", "pairs well" and "most agencies use first" count as unsupported judgments, and "I can help map that" counts as an offer.
 - A sentence merging the two Business Associate Agreements is restated as the two facts.
 - "Elixir team" always reads "the Elixir team".
 - A sentence that leans on a dropped one ("That also…") goes with it. A sentence that a following one leans on, even across a paragraph break, is not dropped as a repeat or a judgment.
 - A reply that opens by declining ("I can’t…", "I can only help…", for off-topic, clinical or unsafe requests) gets no qualifying question. "I can’t book/schedule…" is not a refusal.
-- When the visitor asks where to start, an invented first step ("Start with…", "The first step…") goes. Licensing and pricing sentences go when the visitor did not ask about price and the reply is not a demo or pricing answer. A leading "Yes." goes when the visitor asks whether Elixir can help.
+- When the visitor asks where to start, an invented first step ("Start with…", "The first step…") goes, unless it is the only answer left. Licensing and pricing sentences go when the visitor did not ask about price and the reply is not a demo or pricing answer. A leading "Yes." goes when the visitor asks whether Elixir can help.
 - Offers ("If you want, I can…") and outcome sentences ("That helps…", "Those pieces help…") the knowledge never states are dropped. "Enough time" counts as a timeline verdict.
 - A pricing answer always carries the fact that there is no standard price and the team gives a written quote after scoping.
 - Size and organization type the visitor states in passing ("for a group of 12 therapists") count as known, so they are not asked again.
@@ -140,8 +140,8 @@ Every model reply passes deterministic rules in `finishReply` (`api/lib/hosted-m
   - Elixir is not certified to the ONC standardized API criterion.
   - EVV connector availability is confirmed per payer and state (also when a reply ties EVV to Medicaid, the state or Field Service).
   - The 6 to 10 week go-live assumes a small practice on a standard configuration, and larger or multi-program organizations have their timeline scoped with the team (two plain sentences, each added only when missing).
-  - The SOC 2 Type II report is Mirketa's (the company that develops and operates Elixir), under NDA.
-  - Offline caregiver work assumes assigned visits and tasks were downloaded while connected.
+  - The SOC 2 Type II report is Mirketa's, under NDA. A SOC 2 answer naming Mirketa says in place that Mirketa develops and operates Elixir, rather than adding a second SOC 2 sentence.
+  - Offline caregiver visit work assumes assigned visits and tasks were downloaded while connected (only for caregivers, visits or check-in, not other offline mentions).
   - The platform BAA is with the platform provider.
 - A poem or other unrelated creative text is replaced by the redirect.
 
