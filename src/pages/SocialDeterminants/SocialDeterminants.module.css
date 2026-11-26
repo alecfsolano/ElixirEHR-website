@@ -60,6 +60,10 @@
   line-height: 16px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: var(--color-secondary-on-light);
+}
+
+.introDark .eyebrow {
   color: var(--color-secondary);
 }
 
@@ -128,7 +132,6 @@
 }
 
 .pillarTitle {
-  max-width: 210px;
   margin-top: 20px;
   font-family: var(--font-display);
   font-size: 16px;
@@ -138,12 +141,11 @@
 }
 
 .pillarText {
-  max-width: 204px;
   margin-top: 8px;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 23px;
-  color: #b89cd8;
+  color: #d8c4ee;
 }
 
 /* The product: nine outlined cards with a lime top edge. */
@@ -177,7 +179,6 @@
 }
 
 .productTitle {
-  max-width: 270px;
   margin-top: 15px;
   font-family: var(--font-display);
   font-size: 20px;
@@ -187,7 +188,6 @@
 }
 
 .productText {
-  max-width: 275px;
   margin-top: 8px;
   font-family: var(--font-body);
   font-size: 16px;
@@ -335,7 +335,7 @@
 
 .highlight .prevalence {
   font-weight: 700;
-  color: var(--color-secondary);
+  color: var(--color-secondary-on-light);
 }
 
 .split {
@@ -445,12 +445,11 @@
 
 .policyList li {
   position: relative;
-  max-width: 270px;
   padding-left: 19px;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 23px;
-  color: #b89cd8;
+  color: #d8c4ee;
 }
 
 .policyList li::before {
@@ -890,12 +889,7 @@
     padding-right: 0;
   }
 
-  .pillarTitle,
-  .pillarText,
-  .productTitle,
-  .productText,
   .policyTitle,
-  .policyList li,
   .calloutList li,
   .claimTitle,
   .claimText,
