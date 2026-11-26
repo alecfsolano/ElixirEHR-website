@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { formatLongDate } from '../../../utils/formatDate';
 import Container from '../../layout/Container/Container';
 import Icon from '../../ui/Icon/Icon';
-import KeepHyphenated from '../../ui/KeepHyphenated/KeepHyphenated';
 import locationIcon from '../../../assets/icons/post-location.png';
 import calendarIcon from '../../../assets/icons/post-calendar.png';
 import styles from './PostHero.module.css';
@@ -51,7 +50,7 @@ function PostHero({ post, type }) {
             </li>
           </ol>
         </nav>
-        <h1 className={styles.title}><KeepHyphenated text={post.title} /></h1>
+        <h1 className={styles.title}>{post.title}</h1>
         <ul className={styles.pills}>
           {pills.map((pill) => (
             <li key={pill.key} className={styles.pill}>

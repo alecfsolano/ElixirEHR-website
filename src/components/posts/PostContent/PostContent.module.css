@@ -173,46 +173,10 @@
 }
 
 .video {
-  position: relative;
-  overflow: hidden;
   aspect-ratio: 16 / 9;
-  /* A dark slot under the poster, so an unloaded video is never a blank white box. */
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-dark);
-}
-
-/* The video's own thumbnail and a play mark behind the player: the slot never looks empty while the
-   lazy iframe loads, and the player paints over it once it does. */
-.videoPoster {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.videoPoster img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.videoPlay {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 68px;
-  height: 48px;
-  padding-left: 3px;
-  border-radius: 14px;
-  background: rgb(50 27 79 / 0.85);
-  color: var(--color-white);
 }
 
 .video iframe {
-  position: relative;
-  display: block;
   width: 100%;
   height: 100%;
   border: 0;

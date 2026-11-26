@@ -42,15 +42,6 @@ h5,
 h6 {
   font-family: var(--font-display);
   color: var(--color-heading);
-  /* Even line lengths, so a heading never ends on a single orphan word. */
-  text-wrap: balance;
-}
-
-p,
-li,
-dd,
-blockquote {
-  text-wrap: pretty;
 }
 
 ul,

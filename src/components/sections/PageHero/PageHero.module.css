@@ -62,8 +62,7 @@
   font-family: var(--font-display);
   font-size: 48px;
   font-weight: 700;
-  /* 56px (about 1.17): the 72px frame pitch read loose; pages that want it set their own. */
-  line-height: 56px;
+  line-height: 72px;
   letter-spacing: 0.01em;
   color: var(--color-white);
 }
@@ -159,9 +158,8 @@
 .badgeSubtitle {
   display: block;
   margin-top: 3px;
-  /* 11px is the readable minimum for an uppercase micro-label (the frame's 8px was not). */
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 8px;
+  line-height: 10px;
   text-transform: uppercase;
   color: var(--color-surface-dark);
 }
@@ -185,15 +183,9 @@
 }
 
 @media (max-width: 767px) {
-  /* Two classes so a page's desktop line-height (`.hero h1 { line-height: 72px }`) stops here. */
-  .hero .title {
+  .title {
     font-size: 32px;
-    line-height: 38px;
-  }
-
-  /* The frame's desktop line breaks become ragged one-word lines on a phone: let the words flow. */
-  .titleLine {
-    display: inline;
+    line-height: 44px;
   }
 
   .actions {

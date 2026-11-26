@@ -42,10 +42,9 @@
   color: var(--color-body);
 }
 
-/* Dark numeral on lime, as on the lime buttons (white on lime is 2.1:1). */
 .current {
   background: var(--color-secondary);
-  color: var(--color-heading);
+  color: var(--color-white);
 }
 
 .gap {
