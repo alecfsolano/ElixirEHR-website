@@ -6,8 +6,18 @@ import styles from './ContactSection.module.css';
 
 /**
  * `logos` replaces the default "Trusted by" row; an item's `display` ([width, height]) sets its
- * drawn size, otherwise it is drawn at 72% of its listed size. `logoGap` overrides the row's gap.
+ * drawn size, otherwise it is drawn at 72% of its listed size. `logoGap` overrides the row's gap;
+ * its column gap narrows (to 12px at least) so the logos stay on one line when the row is tight.
  */
+const logoWidth = (logo) => logo.display?.[0] ?? logo.width * 0.72;
+
+function logoRowStyle(logos, logoGap) {
+  if (logoGap === undefined) return undefined;
+  const total = logos.reduce((sum, logo) => sum + logoWidth(logo), 0);
+  const gaps = Math.max(logos.length - 1, 1);
+  return { rowGap: logoGap, columnGap: `max(12px, min(${logoGap}px, (100% - ${total}px) / ${gaps}))` };
+}
+
 function ContactSection({ logos = contact.logos, logoGap }) {
   return (
     <Section tone="surface" spacing="none" id="contact" className={styles.section} containerClassName={styles.inner}>
@@ -34,7 +44,7 @@ function ContactSection({ logos = contact.logos, logoGap }) {
         </ul>
 
         <p className={styles.trustedLabel}>{contact.trustedLabel}</p>
-        <ul className={styles.logos} style={logoGap === undefined ? undefined : { gap: logoGap }}>
+        <ul className={styles.logos} style={logoRowStyle(logos, logoGap)}>
           {logos.map((logo) => (
             <li key={logo.name}>
               <img loading="lazy" decoding="async"
@@ -43,7 +53,7 @@ function ContactSection({ logos = contact.logos, logoGap }) {
                 width={logo.width}
                 height={logo.height}
                 style={{
-                  width: logo.display?.[0] ?? logo.width * 0.72,
+                  width: logoWidth(logo),
                   height: logo.display?.[1] ?? logo.height * 0.72,
                 }}
               />
