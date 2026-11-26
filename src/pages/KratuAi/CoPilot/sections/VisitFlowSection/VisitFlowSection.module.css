@@ -121,24 +121,6 @@
   background: var(--edge);
 }
 
-/* White frame with the (not yet supplied) photograph's 954 x 520 placeholder centred in it. */
-.frame {
-  display: flex;
-  justify-content: center;
-  margin-top: 64px;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  background: var(--color-white);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 0.2);
-}
-
-.placeholder {
-  width: 954px;
-  max-width: 100%;
-  aspect-ratio: 954 / 520;
-  background: #faf8fc;
-}
-
 /* Responsive fallback (no tablet/mobile Figma frames) — see DESIGN-SYSTEM.md §18. */
 @media (max-width: 1023px) {
   .grid {
@@ -162,9 +144,5 @@
 
   .card {
     min-height: 0;
-  }
-
-  .frame {
-    margin-top: 40px;
   }
 }

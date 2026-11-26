@@ -4,9 +4,10 @@ import { cn } from '../../../../../utils/cn';
 import KrIntro from '../../../components/KrIntro/KrIntro';
 import styles from './VisitFlowSection.module.css';
 
-/** Feature 01 — "Co-Pilot Visit Flow": six steps, the legend and the (empty) image frame. */
+/** Feature 01 — "Co-Pilot Visit Flow": six steps and the legend.
+ * The frame's image slot is left out until the photograph is supplied (it rendered as an empty box). */
 function VisitFlowSection() {
-  const { id, eyebrow, title, description, steps, legend, imageAlt } = coPilotVisitFlow;
+  const { id, eyebrow, title, description, steps, legend } = coPilotVisitFlow;
 
   return (
     <Section id={id} tone="white" spacing="none" className={styles.section} aria-labelledby="cp-visit-flow-title">
@@ -30,9 +31,6 @@ function VisitFlowSection() {
           </li>
         ))}
       </ul>
-      <div className={styles.frame}>
-        <div className={styles.placeholder} role="img" aria-label={imageAlt} />
-      </div>
     </Section>
   );
 }
