@@ -116,8 +116,9 @@ export default function SalesAssistant({ open, onClose, mode, openRequest = null
             setAnswer('');
           }}>
             <span className={styles.smallHeading}>Help us tailor this · optional</span>
-            <label htmlFor="elixir-qualification">{QUALIFICATION_FIELDS[nextField]}</label>
-            <input id="elixir-qualification" value={answer} onChange={(event) => setAnswer(event.target.value)} maxLength={160} autoComplete="off" />
+            {/* The question itself is the last line of Fitz's reply above; the label keeps it for screen readers. */}
+            <label htmlFor="elixir-qualification" className="visually-hidden">{QUALIFICATION_FIELDS[nextField]}</label>
+            <input id="elixir-qualification" placeholder="Type your answer" value={answer} onChange={(event) => setAnswer(event.target.value)} maxLength={160} autoComplete="off" />
             <div className={styles.row}><button type="submit" className={styles.secondary} disabled={!answer.trim()}>Continue</button><button type="button" onClick={() => { dispatch({ type: 'skip', field: nextField }); setAnswer(''); void send('I would prefer to skip that question.', { skipped: [...state.skipped, nextField] }); }}>Skip this question</button></div>
           </form>}
           {state.leadForm && (!state.contactDeclined ? <div className={styles.invitation}><span>Want to see how it could fit?</span><button type="button" className={styles.secondary} onClick={() => dispatch({ type: 'review', open: true })}>Request a demo</button><button type="button" className={styles.quiet} onClick={() => dispatch({ type: 'decline' })}>Keep exploring</button></div> : <div className={styles.invitation}><button type="button" className={styles.quiet} onClick={() => dispatch({ type: 'review', open: true })}>Request a demo</button></div>)}

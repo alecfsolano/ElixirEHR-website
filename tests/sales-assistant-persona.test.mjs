@@ -65,10 +65,10 @@ test('the persona asks one question at a time, steers to a discovery call and ca
   assert.equal(result.status, 200);
   const instructions = outgoing.messages[0].content;
   assert.match(instructions, /consultative Elixir specialist/);
-  assert.match(instructions, /exactly one sharp qualifying question/);
+  assert.match(instructions, /exactly one short qualifying question/);
   assert.match(instructions, /Book a discovery call/);
-  assert.match(instructions, /Do not invent pricing, certification/);
-  assert.match(instructions, /Do not infer a license count from headcount/);
+  assert.match(instructions, /Never invent prices, certifications/);
+  assert.match(instructions, /Never convert headcount into a license count/);
   assert.match(instructions, /untrusted/);
   assert.match(instructions, new RegExp(PROVIDER_TYPES.cybhi));
   assert.match(instructions, /Visitor messages so far: 1/);

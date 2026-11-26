@@ -12,6 +12,8 @@ const top = (text, n = 3) => retrieveKnowledge([{ role: 'user', content: text }]
 
 const POSITIVE = [
   ['Does Elixir have Group Notes?', 'group-sessions'],
+  ['How is Elixir priced and how long does implementation take?', 'pricing-implementation'],
+  ['Can you share customer case studies?', 'customer-stories'],
   ['Can we write one group note for a group therapy session and push it to every client?', 'group-sessions'],
   ['How do you track attendance for group sessions in our IOP?', 'group-sessions'],
   ['Do you support group counseling documentation?', 'group-sessions'],
@@ -138,4 +140,36 @@ test('the CEO question about group notes is answered from the group session entr
   const entry = approvedKnowledge.find((item) => item.id === 'group-sessions');
   assert.match(entry.content, /single group note/);
   assert.match(entry.content, /attendance/i);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+// Round-1 live review (2026-11-26): questions the site answers that retrieval missed.
+test('published pricing, implementation, customers, labs and data ownership are retrievable', () => {
+  const cases = [
+    ['How much does Elixir cost per provider per month?', 'pricing-implementation'],
+    ['We have 120 employees. How many licenses would we need?', 'pricing-implementation'],
+    ['How long does implementation usually take?', 'pricing-implementation'],
+    ['Can you migrate our data from our current system?', 'pricing-implementation'],
+    ['Which treatment centers use Elixir? Give me some customer names.', 'customer-stories'],
+    ['Do you integrate with Quest labs?', 'outpatient-clinics'],
+    ['Do you connect with KIPU?', 'contact-center'],
+    ['Who owns the data if we leave?', 'interoperability'],
+    ['What exactly is Elixir and how is it different from a normal EHR?', 'platform-overview'],
+    ['Can Elixir collect PHQ-9 and GAD-7 on a schedule?', 'mental-health'],
+  ];
+  for (const [question, id] of cases) assert.ok(top(question).includes(id), `${JSON.stringify(question)} -> ${id}, got ${top(question)}`);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('hyphenated words match and the newest visitor message outweighs earlier ones', () => {
+  assert.ok(top('We provide home-health visits with field caregivers. Do you have EVV?').includes('evv'));
+  const conversation = [
+    { role: 'user', content: 'Hi, we are a 25-clinician outpatient mental health group.' },
+    { role: 'assistant', content: 'Thanks. Which EHR do you use today?' },
+    { role: 'user', content: 'We use SimplePractice today.' },
+    { role: 'assistant', content: 'Got it. What is the main problem?' },
+    { role: 'user', content: 'Our biggest pain is insurance denials and slow payments.' },
+  ];
+  const ids = retrieveKnowledge(conversation, approvedKnowledge).slice(0, 3).map((entry) => entry.id);
+  assert.ok(ids.includes('denial-management'), `latest message about denials -> denial-management, got ${ids}`);
 });

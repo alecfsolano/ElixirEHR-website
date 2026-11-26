@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createChatHandler } from '../api/lib/chat-handler.mjs';
-import { createHostedModel } from '../api/lib/hosted-model.mjs';
+import { createHostedModel, questionOnOwnLine } from '../api/lib/hosted-model.mjs';
 import { retrieveKnowledge } from '../api/lib/knowledge.mjs';
 
 const env = { ASSISTANT_ENABLED: 'true', AZURE_OPENAI_ENDPOINT: 'https://example.openai.azure.com', AZURE_OPENAI_DEPLOYMENT: 'configured-small-model', AZURE_OPENAI_API_KEY: 'test-only-not-a-real-key' };
@@ -99,7 +99,7 @@ test('a reply the structured mode cannot produce is recovered in plain-text mode
     const sent = [];
     const result = await createChatHandler({ env: groqEnv, knowledge, fetchImpl: async (url, options) => { sent.push(JSON.parse(options.body)); return steps[sent.length - 1](); } })(body);
     assert.equal(result.status, 200, name);
-    assert.equal(result.body.answer, 'Elixir can add revenue cycle to a clinical-only setup. What size is your organization?', name);
+    assert.equal(result.body.answer, 'Elixir can add revenue cycle to a clinical-only setup.\n\nWhat size is your organization?', name);
     assert.deepEqual(result.body.citations, [], name);
     assert.equal(result.body.intent, 'explore', name);
     assert.equal(result.headers['X-Assistant-Recovered'], reason, name);
@@ -109,7 +109,7 @@ test('a reply the structured mode cannot produce is recovered in plain-text mode
     assert.equal(sent[1].response_format, undefined, name);
     assert.match(sent[1].messages[0].content, /ANSWER:/, name);
     assert.doesNotMatch(sent[1].messages[0].content, /Return a JSON object/, name);
-    assert.match(sent[1].messages[0].content, /Do not infer a license count from headcount/, name);
+    assert.match(sent[1].messages[0].content, /Never convert headcount into a license count/, name);
     assert.deepEqual(sent[1].messages.slice(1), sent[0].messages.slice(1), name);
   }
 });
@@ -147,7 +147,7 @@ test('plain-text recovery accepts a finished answer without the exact marker and
   ]) {
     const result = await run(content);
     assert.equal(result.status, 200, content);
-    assert.equal(result.body.answer, expected, content);
+    assert.equal(result.body.answer, questionOnOwnLine(expected), content);
     assert.deepEqual(result.body.citations, [], content);
     assert.deepEqual(result.body.qualification, {}, content);
     assert.equal(result.headers['X-Assistant-Recovered'], 'http-400-tool_use_failed', content);
@@ -280,7 +280,7 @@ test('licensing questions use strict replies, retain literal headcount and forbi
   const result = await handler({ ...body, messages: [{ role: 'user', content: 'We are a 40 people xyz healthcare clinic, we wanted to understand how Elixir can help and how many licenses we need' }] });
   assert.equal(result.status, 200);
   assert.deepEqual(result.body.qualification, { organizationType: 'healthcare clinic', size: '40 people' });
-  assert.match(instructions, /Do not infer a license count from headcount/);
+  assert.match(instructions, /Never convert headcount into a license count/);
 });
 
 test('Groq quota errors return a sanitized retryable response instead of losing the conversation', async () => {
@@ -493,7 +493,7 @@ test('a structured or marked reply carrying notes, markup, links or the instruct
   ]) {
     const saved = await run([structured(bad), plain(good)]);
     assert.equal(saved.status, 200, bad);
-    assert.equal(saved.body.answer, good, bad);
+    assert.equal(saved.body.answer, questionOnOwnLine(good), bad);
     assert.equal(saved.headers['X-Assistant-Recovered'], reason, bad);
     const failed = await run([structured(bad), plain(`ANSWER: ${bad}`)]);
     assert.equal(failed.status, 503, bad);
@@ -502,6 +502,89 @@ test('a structured or marked reply carrying notes, markup, links or the instruct
   // Ordinary answers, including bold marks, still pass in both modes.
   const ok = await run([structured(`**Yes.** ${good}`)]);
   assert.equal(ok.status, 200);
-  assert.equal(ok.body.answer, `Yes. ${good}`);
-  assert.equal((await run([plain('oops'), plain(`ANSWER: ${good}`)])).body.answer, good);
+  assert.equal(ok.body.answer, questionOnOwnLine(`Yes. ${good}`));
+  assert.equal((await run([plain('oops'), plain(`ANSWER: ${good}`)])).body.answer, questionOnOwnLine(good));
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+// Round-1 live review (2026-11-26) guardrails.
+test('a content-filtered request gets a polite fixed reply, not an error, and is not retried', async () => {
+  let calls = 0;
+  const result = await createChatHandler({ env: { ...env, ASSISTANT_PROVIDER: 'azure', GROQ_API_KEY: 'test-placeholder-key', GROQ_MODEL: 'openai/gpt-oss-20b' }, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => { calls++; return new Response(JSON.stringify({ error: { code: 'content_filter', message: 'filtered' } }), { status: 400 }); } })(body);
+  assert.equal(result.status, 200);
+  assert.equal(calls, 1);
+  assert.match(result.body.answer, /questions about Elixir/);
+  assert.equal(result.body.intent, 'explore');
+  assert.equal(result.headers['X-Assistant-Recovered'], 'content-filter');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('the qualifying question is always asked once, on its own line, and never after a contact refusal', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', ...reply }) } }] })) })({ ...body, ...extra })).body;
+  // The model set nextField but forgot to ask: the field's question is added on its own line.
+  let out = await run({ answer: 'Elixir supports group notes for each participant.', nextField: 'size' });
+  assert.equal(out.answer, 'Elixir supports group notes for each participant.\n\nRoughly how many providers or locations would use Elixir?');
+  // A question at the end of the paragraph moves to its own line.
+  out = await run({ answer: 'Elixir supports group notes. You can book a discovery call with the button. Which EHR do you use today?', nextField: 'currentSystem' });
+  assert.equal(out.answer, 'Elixir supports group notes. You can book a discovery call with the button.\n\nWhich EHR do you use today?');
+  // A field already answered or skipped is passed over for the next unknown one.
+  out = await run({ answer: 'Elixir supports group notes.', nextField: 'size' }, { qualification: { size: '20 providers' } });
+  assert.equal(out.answer, 'Elixir supports group notes.\n\nWhat kind of healthcare organization are you with?');
+  out = await run({ answer: 'Elixir supports group notes.', nextField: 'size' }, { skipped: ['size'] });
+  assert.equal(out.answer, 'Elixir supports group notes.\n\nWhat kind of healthcare organization are you with?');
+  // Declined contact or support: nothing is added.
+  out = await run({ answer: 'Elixir supports group notes.', nextField: 'size' }, { contactPreference: 'declined' });
+  assert.equal(out.answer, 'Elixir supports group notes.');
+  out = await run({ answer: 'Please contact your support channel.', nextField: 'size', intent: 'support' });
+  assert.equal(out.answer, 'Please contact your support channel.');
+  // A visitor's own question is never stored as a qualification fact.
+  out = await run({ answer: 'It depends on scoping.', nextField: null, qualification: { timeline: 'How long does implementation usually take?' } }, { messages: [{ role: 'user', content: 'How long does implementation usually take?' }] });
+  assert.deepEqual(out.qualification, {});
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('the instructions say when the previous reply already recommended the discovery call', async () => {
+  let system = '';
+  const handler = createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async (url, options) => { system = JSON.parse(options.body).messages[0].content; return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: 'Elixir supports EHR workflows.', citationIds: [] }) } }] })); } });
+  await handler({ ...body, messages: [{ role: 'user', content: 'Tell me about your EHR.' }, { role: 'assistant', content: 'You can book a discovery call with the button.' }, { role: 'user', content: 'And billing?' }] });
+  assert.match(system, /previous reply already recommended the discovery call/);
+  await handler(body);
+  assert.doesNotMatch(system, /previous reply already recommended the discovery call/);
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('a question already asked earlier in the chat is not asked again; the next unknown one is', async () => {
+  const run = async (reply, messages, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, intent: 'explore', ...reply }) } }] })) })({ ...body, messages, ...extra })).body;
+  const asked = [
+    { role: 'user', content: 'We run a behavioral health program.' },
+    { role: 'assistant', content: 'Elixir supports that.\n\nRoughly how many providers or locations would use Elixir?' },
+    { role: 'user', content: 'Do you support group notes in the EHR?' },
+  ];
+  // The model repeats the ignored size question: it is replaced by the next unknown field's question.
+  let out = await run({ answer: 'Yes, group notes are supported.\n\nRoughly how many providers or locations would use Elixir?', nextField: 'size' }, asked);
+  assert.equal(out.answer, 'Yes, group notes are supported.\n\nWhat kind of healthcare organization are you with?');
+  assert.equal(out.nextField, 'organizationType');
+  // Known facts and skipped fields are passed over too.
+  out = await run({ answer: 'Yes, group notes are supported.', nextField: 'size' }, asked, { qualification: { organizationType: 'behavioral health program' }, skipped: ['currentSystem'] });
+  assert.equal(out.answer, 'Yes, group notes are supported.\n\nDoes your organization already use Salesforce?');
+  assert.equal(out.nextField, 'salesforceUsage');
+});
+
+// AGENT-GENERATED — ORACLE REVIEW NEEDED
+test('buying intent and provider-funnel questions always carry one discovery-call sentence before the question', async () => {
+  const run = async (reply, extra = {}) => (await createChatHandler({ env, knowledge, clientLimiter: { take: () => ({ allowed: true }) }, fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ citationIds: [], qualification: {}, nextField: 'size', ...reply }) } }] })) })({ ...body, ...extra })).body;
+  const CALL = 'You can book a discovery call with the Elixir team using the “Book a discovery call” button in this chat.';
+  let out = await run({ answer: 'Elixir is priced per credentialed provider per month.', intent: 'demo' });
+  assert.equal(out.answer, `Elixir is priced per credentialed provider per month. ${CALL}\n\nRoughly how many providers or locations would use Elixir?`);
+  out = await run({ answer: 'Elixir routes CYBHI claims from the note.', intent: 'explore' }, { providerType: 'cybhi' });
+  assert.match(out.answer, /Book a discovery call/);
+  // Already mentioned, ordinary exploring, declined contact, or recommended in the previous reply: nothing added.
+  out = await run({ answer: 'Book a discovery call to scope it.', intent: 'demo' });
+  assert.equal((out.answer.match(/discovery call/gi) ?? []).length, 1);
+  out = await run({ answer: 'Elixir supports group notes.', intent: 'explore' });
+  assert.doesNotMatch(out.answer, /discovery call/i);
+  out = await run({ answer: 'Elixir is priced per provider.', intent: 'demo' }, { contactPreference: 'declined' });
+  assert.doesNotMatch(out.answer, /discovery call/i);
+  out = await run({ answer: 'Elixir is priced per provider.', intent: 'demo' }, { messages: [{ role: 'user', content: 'Tell me about your EHR.' }, { role: 'assistant', content: 'You can book a discovery call.' }, { role: 'user', content: 'What does it cost?' }] });
+  assert.doesNotMatch(out.answer, /discovery call/i);
 });
