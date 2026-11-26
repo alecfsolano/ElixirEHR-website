@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { insightsPages, weeklyBriefing } from '../../../data/insights';
+import { insightsPages } from '../../../data/insights';
 import Icon from '../../../components/ui/Icon/Icon';
 import InsightsShell from '../components/InsightsShell/InsightsShell';
 import WeeklyBriefing from '../components/WeeklyBriefing/WeeklyBriefing';
@@ -10,8 +10,9 @@ const page = insightsPages.newsletter;
 
 /**
  * /newsletter — the Newsletter page in the Insights section (its own URL, like Webinars or Videos).
- * No newsletter issues are published on the site, so the page introduces The Weekly Briefing with
- * the approved page description and points to the sign-up form in the sidebar.
+ * No newsletter issues are published on the site, so the page gives the approved page description
+ * beside The Weekly Briefing sign-up form. The card does not repeat the form's title or Subscribe
+ * button: the form sits right next to it (below it on a phone).
  */
 function NewsletterPage() {
   const [query, setQuery] = useState('');
@@ -24,18 +25,11 @@ function NewsletterPage() {
       onQueryChange={setQuery}
       aside={<WeeklyBriefing />}
     >
-      <section className={styles.empty} aria-labelledby="newsletter-intro">
+      <section className={styles.empty} aria-label={page.title}>
         <span className={styles.emptyIcon} aria-hidden="true">
           <Icon name="document" size={28} />
         </span>
-        <h2 id="newsletter-intro" className={styles.emptyTitle}>
-          {weeklyBriefing.title}
-        </h2>
         <p className={styles.emptyText}>{page.intro}</p>
-        <a href="#newsletter" className={styles.emptyCta}>
-          {weeklyBriefing.submitLabel}
-          <Icon name="arrowRight" size={16} />
-        </a>
       </section>
     </InsightsShell>
   );

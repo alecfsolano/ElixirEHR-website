@@ -6,9 +6,16 @@
   align-items: start;
 }
 
+/* The side column matches the e-book card's height; its last card (the video) takes what is left. */
 .side {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
   gap: 26px;
+}
+
+.side > :last-child {
+  flex: 1;
 }
 
 .featured,
@@ -189,36 +196,24 @@
   color: var(--color-white);
 }
 
-/* Featured video: photo under a Deep Purple gradient. */
+/* Featured video: the YouTube thumbnail, uncovered, above a Deep Purple body. The card fills the
+   rest of the side column, so with no live webinar it runs the full height of the e-book card. */
 .video {
   position: relative;
   display: flex;
-  align-items: flex-end;
-  min-height: 277px;
+  flex-direction: column;
   overflow: hidden;
   border-radius: 20px;
   background: var(--color-surface-dark);
 }
 
-.video::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  /* Near-opaque from mid-height down: the video thumbnails carry their own title text there, which
-     otherwise shows through behind the tag and title. */
-  background: linear-gradient(180deg, rgb(73 50 102 / 0.3), rgb(50 27 79 / 0.95) 42%, rgb(50 27 79) 52%);
-}
-
 .videoImage {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
-/* Top-right corner, clear of the thumbnail's own title text (centred, it sat on top of it). */
 .videoPlay {
   position: absolute;
   top: 20px;
@@ -229,17 +224,16 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.3);
+  background: rgb(50 27 79 / 0.6);
   color: var(--color-white);
 }
 
 .videoBody {
-  position: relative;
-  z-index: 2;
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 21px 20px;
+  padding: 20px 21px 24px;
 }
 
 .videoTag {
@@ -261,6 +255,25 @@
   font-weight: 600;
   line-height: 24px;
   color: var(--color-white);
+}
+
+.videoText {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 22px;
+  color: #ddd6e4;
+}
+
+.videoLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 16px;
+  font-family: var(--font-label);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-secondary);
 }
 
 /* Mixed feed */
@@ -350,6 +363,7 @@
   }
 
   .side {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

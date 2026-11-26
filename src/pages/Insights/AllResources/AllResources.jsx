@@ -119,6 +119,11 @@ function FeaturedVideo({ post }) {
       <div className={styles.videoBody}>
         <span className={styles.videoTag}>{allResources.featuredVideoLabel}</span>
         <h2 className={styles.videoTitle}>{post.title}</h2>
+        {post.excerpt && <p className={styles.videoText}>{post.excerpt}</p>}
+        <Link to={getPostPath(post)} className={styles.videoLink}>
+          {allResources.feedTypes.video.action}<span className="visually-hidden">: {post.title}</span>
+          <Icon name="arrowRight" size={18} />
+        </Link>
       </div>
     </article>
   );
